@@ -1,6 +1,6 @@
-# [Product name]
+# Gable
 
-[One sentence: what this product is and who it is for. Fill in once the brand position is final.]
+[ Gable is a B2C app that trying to help facillitate the renting and buying space for individuals.]
 
 ## Read these first
 - docs/brand_position.md: how we talk and who we serve

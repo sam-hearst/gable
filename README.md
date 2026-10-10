@@ -1,4 +1,4 @@
-# [Product name]
+# Gable
 
 Product repo for team Aditya, Columbia Startup Studio, Fall 2026.
 

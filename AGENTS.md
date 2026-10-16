@@ -18,6 +18,7 @@ and use only the colors and fonts in the style guide.
 - Lint: `npm run lint`
 - Build: `npm run build`
 - Test: not set up yet. Add a test runner with the first real feature and update this line.
+- Landing pages (HW5): static HTML in `public/` (index, verified, summer, sublet-your-room, thanks). Not part of the Next.js app. See docs/landing_pages.md.
 
 ## How we work
 - Framework: Feature Forge (github.com/kenxle/feature-forge). Its skills are in

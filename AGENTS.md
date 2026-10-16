@@ -22,6 +22,7 @@ and use only the colors and fonts in the style guide.
   Google Analytics; `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` send waitlist
   signups to the Supabase `signups` table. Without Supabase, local dev writes
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
+  Create the table with `supabase/signups.sql`.
 - Page copy lives in `src/content/pages.ts`; see `docs/landing_pages.md`.
 
 ## How we work

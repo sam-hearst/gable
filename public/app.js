@@ -2,7 +2,7 @@
 // Fill in the two settings below before deploying.
 
 const GA_ID = "G-XXXXXXXXXX";   // Google Analytics 4 measurement ID
-const FORM_ENDPOINT = "";       // e.g. "https://formspree.io/f/abcdwxyz". Empty = demo mode (skips saving, goes straight to thanks).
+const FORM_ENDPOINT = "/api/signup"; // Next.js route (src/app/api/signup) that saves to Supabase. Empty = demo mode (skips saving).
 
 const page = document.body.dataset.page || "home";
 

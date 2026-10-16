@@ -14,12 +14,14 @@ flowchart LR
 ```
 
 ## What's decided
-- One Next.js app serves both the landing page (next week) and the product.
+- One Next.js app serves both the landing pages and the product.
+- Waitlist signups (email, what they're looking for, page, UTMs) go to a
+  Supabase `signups` table through a server action (`src/app/actions.ts`).
 
 ## What's still open
 - **Where listing data comes from.** MLS access is the main blocker. Scraping
   needs a legal check before anyone builds it. A few real estate APIs were
   found and still need assessing. The team planned to decide this at the
   Thursday sync.
-- Which database and hosting to use. Pick these with the first feature that
-  needs stored data.
+- Hosting (Railway or Vercel). Supabase is the database for signups; confirm
+  it for listings with the first listings feature.

@@ -18,6 +18,11 @@ and use only the colors and fonts in the style guide.
 - Lint: `npm run lint`
 - Build: `npm run build`
 - Test: not set up yet. Add a test runner with the first real feature and update this line.
+- Env vars (in `.env.local`, all optional locally): `NEXT_PUBLIC_GA_ID` turns on
+  Google Analytics; `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` send waitlist
+  signups to the Supabase `signups` table. Without Supabase, local dev writes
+  signups to `.data/signups.jsonl`; production refuses signups until it's set.
+- Page copy lives in `src/content/pages.ts`; see `docs/landing_pages.md`.
 
 ## How we work
 - Framework: Feature Forge (github.com/kenxle/feature-forge). Its skills are in
@@ -38,3 +43,13 @@ and use only the colors and fonts in the style guide.
 - Michelle Mai: Reddit research, style guide, logo
 - Lookman Mustapha: persona agents, synthesis
 - Sam: brand position, repo setup
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

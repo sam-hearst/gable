@@ -9,3 +9,7 @@ out/
 # misc
 .DS_Store
 *.log
+
+# local signups before Supabase is set up
+.data/
+*.tsbuildinfo

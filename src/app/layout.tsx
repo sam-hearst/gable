@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import "./landing.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -14,7 +15,7 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID;
 export const metadata: Metadata = {
   title: "Gable",
   description:
-    "Tell us the place you want. We'll find it, and tell you what's real.",
+    "Tell Gable what you need and get sublets, rooms and apartments near Columbia where every listing is checked.",
   icons: { icon: "/logo/gable-favicon.svg" },
 };
 

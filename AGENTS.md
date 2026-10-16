@@ -23,7 +23,7 @@ and use only the colors and fonts in the style guide.
   signups to the Supabase `signups` table. Without Supabase, local dev writes
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
   Create the table with `supabase/signups.sql`.
-- Page copy lives in `src/content/pages.ts`; see `docs/landing_pages.md`.
+- Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 
 ## How we work
 - Framework: Feature Forge (github.com/kenxle/feature-forge). Its skills are in

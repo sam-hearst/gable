@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import "./landing.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -9,12 +10,18 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "700"],
 });
 
-const gaId = process.env.NEXT_PUBLIC_GA_ID;
+// Gable's GA4 property (from Sam's #3). Production builds use it by default, so
+// the tag doesn't depend on a Vercel env var; local dev stays untracked unless
+// NEXT_PUBLIC_GA_ID is set.
+const GABLE_GA_ID = "G-5MEBWDE6BD";
+const gaId =
+  process.env.NEXT_PUBLIC_GA_ID ||
+  (process.env.NODE_ENV === "production" ? GABLE_GA_ID : undefined);
 
 export const metadata: Metadata = {
   title: "Gable",
   description:
-    "Tell us the place you want. We'll find it, and tell you what's real.",
+    "Tell Gable what you need and get sublets, rooms and apartments near Columbia where every listing is checked.",
   icons: { icon: "/logo/gable-favicon.svg" },
 };
 

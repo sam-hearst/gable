@@ -18,9 +18,10 @@ and use only the colors and fonts in the style guide.
 - Lint: `npm run lint`
 - Build: `npm run build`
 - Test: not set up yet. Add a test runner with the first real feature and update this line.
-- Env vars (in `.env.local`, all optional locally): `NEXT_PUBLIC_GA_ID` turns on
-  Google Analytics; `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` send waitlist
-  signups to the Supabase `signups` table. Without Supabase, local dev writes
+- Env vars (in `.env.local`, all optional locally): Google Analytics is on in
+  production builds (GA4 `G-5MEBWDE6BD`, set in `src/app/layout.tsx`);
+  `NEXT_PUBLIC_GA_ID` overrides it or turns it on locally; `SUPABASE_URL` +
+  `SUPABASE_SERVICE_ROLE_KEY` send waitlist signups to the Supabase `signups` table. Without Supabase, local dev writes
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
   Create the table with `supabase/signups.sql`.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.

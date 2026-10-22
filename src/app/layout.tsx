@@ -10,7 +10,13 @@ const jakarta = Plus_Jakarta_Sans({
   weight: ["400", "500", "700"],
 });
 
-const gaId = process.env.NEXT_PUBLIC_GA_ID;
+// Gable's GA4 property (from Sam's #3). Production builds use it by default, so
+// the tag doesn't depend on a Vercel env var; local dev stays untracked unless
+// NEXT_PUBLIC_GA_ID is set.
+const GABLE_GA_ID = "G-5MEBWDE6BD";
+const gaId =
+  process.env.NEXT_PUBLIC_GA_ID ||
+  (process.env.NODE_ENV === "production" ? GABLE_GA_ID : undefined);
 
 export const metadata: Metadata = {
   title: "Gable",

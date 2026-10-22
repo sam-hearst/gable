@@ -21,7 +21,7 @@ A homepage and three landing pages, modeled on daydream.ing's "one chat" search 
 
 - Every form calls the `joinWaitlist` server action (`src/app/actions.ts`), which saves to Supabase through `src/lib/signups.ts`. Each row records `page` (`summer/intern` = page plus the hero toggle), `looking_for` (what they typed in the chat box) and UTM params.
 - Production needs `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel, and `supabase/signups.sql` run once. In local dev, signups go to `.data/signups.jsonl`.
-- GA loads from `NEXT_PUBLIC_GA_ID` in the root layout. The chat box sends `chat_request`; `/thanks` sends `sign_up`.
+- GA loads in the root layout: GA4 `G-5MEBWDE6BD` in production builds, or `NEXT_PUBLIC_GA_ID` if set. The chat box sends `chat_request`; `/thanks` sends `sign_up`.
 - Use lowercase UTMs on every link we post, e.g. `/summer?utm_source=reddit&utm_medium=post&utm_campaign=summer`.
 
 ## Honesty notes

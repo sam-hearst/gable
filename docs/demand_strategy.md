@@ -103,12 +103,24 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 ## Blog post
 
-- **Title:** How to Find Your Dream Sublet in New York City
+- **Title:** How to Find Your Dream Apartment in NYC
 - **Owner:** Lookman Mustapha
-- **Status:** Not published yet
-- **Link:** TODO, add when published
-- **Outline:** How to find your dream sublet in NYC.
-  - TODO: fill in the sections
+- **Status:** Written. Goes live when its pull request is merged and Vercel deploys.
+- **Path:** `/blog/how-to-find-your-dream-apartment-in-nyc` (copy in `src/content/blog.ts`)
+- **Link:** TODO, add once live, e.g. `https://gable-one.vercel.app/blog/how-to-find-your-dream-apartment-in-nyc?utm_source=reddit&utm_medium=post&utm_campaign=dream_apartment`
+- **Outline:**
+  1. Decide what you want before you open an app
+  2. Know the money rules: 40x income, guarantors, the $20 application fee cap, the one-month deposit cap, the FARE Act
+  3. Search at the right time, with your papers ready
+  4. Pick your neighborhood by your commute
+  5. Look in a few places, not twenty
+  6. Figure out which listings are real (links to `/verified`)
+  7. Check the building without visiting: HPD Online, bedbug history, rent stabilization
+  8. Tour it like you already live there, including from out of town (links to `/summer`)
+  9. Before you sign the lease
+  10. If you're subletting, a few extra checks (links to `/sublet-your-room` for students listing their own room)
+  11. The short version: a 9-step checklist
+- **How it brings signups:** each linked section goes to its landing page with `utm_source=blog&utm_medium=post&utm_campaign=dream_apartment`, and the post ends with the waitlist form (signups saved with `page=blog`).
 
 ## Welcome email
 

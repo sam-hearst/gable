@@ -25,6 +25,7 @@ and use only the colors and fonts in the style guide.
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
   Create the table with `supabase/signups.sql`.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
+- The blog post lives at `/blog/how-to-find-your-dream-apartment-in-nyc`, with its copy in `src/content/blog.ts`.
 
 ## How we work
 - Framework: Feature Forge (github.com/kenxle/feature-forge). Its skills are in

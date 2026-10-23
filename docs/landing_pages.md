@@ -1,6 +1,6 @@
 # Landing pages (HW5)
 
-A homepage and two landing pages, modeled on daydream.ing's "one chat" search but for verified student sublets near Columbia. Each landing page tests one value prop from our Reddit research and interviews, so each gets its own signups.
+A homepage and three landing pages, modeled on daydream.ing's "one chat" search but for verified student sublets near Columbia. Each landing page tests one value prop from our Reddit research and interviews, so each gets its own signups.
 
 **Sublets only, for now.** Every page talks about sublets, not rooms or apartments. A listing still says what the space is ("Sublet · private room in a 3BR"), because renters need to know. The page for students listing their own room (`/sublet-your-room`) is paused and redirects home; it's in git history if we bring it back.
 
@@ -9,6 +9,7 @@ A homepage and two landing pages, modeled on daydream.ing's "one chat" search bu
 | `/` | `src/app/page.tsx` | Find a real place near Columbia through one chat | Everyone; routes to the pages below |
 | `/verified` | `src/app/verified/page.tsx` | Stop messaging scammers: every lister is a verified tenant | Current students needing a sublet |
 | `/summer` | `src/app/summer/page.tsx` | Your summer sublet, checked in person before you pay | Out-of-town interns, incoming students, parents |
+| `/together` | `src/app/together/page.tsx` | A sublet for two, with dates that work for both of you | Two students looking together |
 | `/thanks` | `src/app/thanks/page.tsx` | Fires the GA `sign_up` key event | After any signup |
 | `/blog/how-to-find-your-dream-sublet-in-nyc` | `src/app/blog/...`, copy in `src/content/blog.ts` | A useful NYC sublet guide first; Gable is the next step | Anyone searching for an NYC sublet |
 
@@ -30,6 +31,14 @@ Each page tests one promise with one audience, so signups by page tell us which 
 - **The promise:** real summer sublets with exact dates, each seen in person by someone on our team (our Wizard of Oz piece).
 - **Traffic:** r/movingtoNYC, intern and admitted-student groups, and the blog's out-of-town section.
 
+### 3. `/together`: "Find a sublet for two, with dates that work for both of you."
+
+- **Who it's for:** two students looking for a sublet together, like persona Theo, who needs a fall room for himself and a friend near campus.
+- **The pain:** most sublets fit one person, and matching two sets of dates and budgets means twice the messages. "The only thing i'm worried about with subletting is that i won't be able to get the right dates and/or my roommate won't be able to live with me" (r/nyu).
+- **The promise:** one search for both of you: only sublets that sleep two and cover both of your dates, with the rent shown as each person's share.
+- **Why it matters:** it pairs with the "Subletting with a friend?" share card on `/thanks`, so each signup has a reason to bring a second one.
+- **Traffic:** r/columbia, class group chats, roommate groups, and the share links from `/thanks`.
+
 ### Blog: "How to Find Your Dream Sublet in NYC"
 
 Not a landing page. It's a real guide people would read even if Gable didn't exist, and it's the "one blog post" in our demand strategy. Two sections link to the matching landing page (`/verified`, `/summer`) with `utm_source=blog`, and it ends with the waitlist form, saved with `page=blog`. On the demo site those links run searches instead and it ends with "Start a search." Unlike the landing pages, it links out to sources like HPD Online.
@@ -37,7 +46,7 @@ Not a landing page. It's a real guide people would read even if Gable didn't exi
 ## Production and staging
 
 - **Production** (gable-one.vercel.app, from `main`) is the waitlist: the pages above, the blog and `/thanks`. Link to it in every post.
-- **Staging** (from the `staging` branch, with `NEXT_PUBLIC_GABLE_MODE=demo`) is the MVP demo: search, sign-in and favorites. It reads like the working product, so it has no early-access wording: no Get early access or How we verify buttons, no waitlist forms, and `/verified` and `/summer` redirect home. Browse links and blog links run searches. Use it for demos only. It isn't tracked in GA and isn't indexed.
+- **Staging** (from the `staging` branch, with `NEXT_PUBLIC_GABLE_MODE=demo`) is the MVP demo: search, sign-in and favorites. It reads like the working product, so it has no early-access wording: no Get early access or How we verify buttons, no waitlist forms, and `/verified`, `/summer` and `/together` redirect home. Browse links and blog links run searches. Use it for demos only. It isn't tracked in GA and isn't indexed.
 
 ## How it's built
 

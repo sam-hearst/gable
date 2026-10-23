@@ -84,7 +84,8 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 - Where: r/nyc_sublets
 - Owner: Michelle Mai
-- Link: `https://gable-one.vercel.app/sublet-your-room?utm_source=reddit&utm_medium=post&utm_campaign=sublet_your_room`
+- **On hold:** this post was for students listing their own room, and that page is paused while Gable is sublets only. Don't post it until it has a page to link to.
+- Link: none for now (was `/sublet-your-room`, which redirects home)
 - Date posted: TODO
 - Text:
 
@@ -103,24 +104,24 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 ## Blog post
 
-- **Title:** How to Find Your Dream Apartment in NYC
+- **Title:** How to Find Your Dream Sublet in NYC (was "Dream Apartment"; Gable is sublets only for now)
 - **Owner:** Lookman Mustapha
-- **Status:** Written. Goes live when its pull request is merged and Vercel deploys.
-- **Path:** `/blog/how-to-find-your-dream-apartment-in-nyc` (copy in `src/content/blog.ts`)
-- **Link:** TODO, add once live, e.g. `https://gable-one.vercel.app/blog/how-to-find-your-dream-apartment-in-nyc?utm_source=reddit&utm_medium=post&utm_campaign=dream_apartment`
+- **Status:** Live once this change is deployed.
+- **Path:** `/blog/how-to-find-your-dream-sublet-in-nyc` (copy in `src/content/blog.ts`). The old `/blog/how-to-find-your-dream-apartment-in-nyc` redirects here.
+- **Link:** `https://www.gable.fit/blog/how-to-find-your-dream-sublet-in-nyc?utm_source=reddit&utm_medium=post&utm_campaign=dream_sublet`
 - **Outline:**
-  1. Decide what you want before you open an app
-  2. Know the money rules: 40x income, guarantors, the $20 application fee cap, the one-month deposit cap, the FARE Act
+  1. Decide what you want before you open an app (exact dates first)
+  2. Know what you should pay, and when: nothing before you sign, about one month's deposit, no broker, the rent-stabilized 10% cap
   3. Search at the right time, with your papers ready
   4. Pick your neighborhood by your commute
   5. Look in a few places, not twenty
   6. Figure out which listings are real (links to `/verified`)
   7. Check the building without visiting: HPD Online, bedbug history, rent stabilization
   8. Tour it like you already live there, including from out of town (links to `/summer`)
-  9. Before you sign the lease
-  10. If you're subletting, a few extra checks (links to `/sublet-your-room` for students listing their own room)
-  11. The short version: a 9-step checklist
-- **How it brings signups:** each linked section goes to its landing page with `utm_source=blog&utm_medium=post&utm_campaign=dream_apartment`, and the post ends with the waitlist form (signups saved with `page=blog`).
+  9. Make sure the sublet is allowed
+  10. Before you sign the sublease
+  11. The short version: an 8-step checklist
+- **How it brings signups:** each linked section goes to its landing page with `utm_source=blog&utm_medium=post&utm_campaign=dream_sublet`, and the post ends with the waitlist form (signups saved with `page=blog`).
 
 ## Welcome email
 

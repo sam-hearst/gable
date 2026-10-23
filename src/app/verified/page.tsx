@@ -36,11 +36,11 @@ export default function VerifiedPage() {
           sub="Every sublet on Gable comes from a verified student tenant, with photos checked and the address confirmed. If it's on Gable, it's real, and the person on the other end replies."
           prompts={[
             "Spring semester sublet, Jan 5 to May 20, under $1,600",
-            "Room for me and a friend near campus, Sept to Dec",
-            "Summer room near the 1 train, lister who actually replies",
+            "Sublet for me and a friend near campus, Sept to Dec",
+            "Summer sublet near the 1 train, lister who actually replies",
           ]}
           meta="Only verified tenants"
-          chips={["Spring semester, Jan to May", "Room for two near campus", "Under $1,500, furnished", "Listers who reply within a day"]}
+          chips={["Spring semester, Jan to May", "Sublet for two near campus", "Under $1,500, furnished", "Listers who reply within a day"]}
           collage={[
             { id: 31687845, badge: "Tenant verified", bold: "$1,550", text: "W 109th St" },
             { id: 545025, text: "Replies in ~3h" },
@@ -120,7 +120,7 @@ export default function VerifiedPage() {
                   photo: 6782426,
                   alt: "Bright studio apartment with a bed near a white kitchen",
                   price: "$1,550",
-                  where: "Private room in a 2BR, W 109th St",
+                  where: "Sublet · private room in a 2BR, W 109th St",
                   meta: "Jan 5 to May 20 · Furnished · 5 min to campus",
                   tags: ["Photos checked", "Lease allows sublet", "Replies in ~3h"],
                   src: "Listed by Alex, GSAS '26 · Example listing",

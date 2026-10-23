@@ -5,26 +5,27 @@ import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CtaPhoto, Listing, Mark, Marquee, SectionHead, SpotTheScam } from "@/components/landing/blocks";
-import { isDemo } from "@/lib/mode";
+import { isDemo, searchHref } from "@/lib/mode";
 
 export const metadata: Metadata = {
   title: "Gable: real sublets near Columbia, through one chat",
   description:
-    "Tell Gable what you need and get sublets, rooms and apartments near Columbia where every listing is checked and every lister is a verified tenant.",
+    "Tell Gable what you need and get sublets near Columbia where every listing is checked and every lister is a verified tenant.",
 };
 
+// Gable is sublets only for now. On the demo site each category runs a search;
+// on the waitlist site it opens the matching landing page.
 const CATEGORIES = [
-  { href: "/summer", tone: "cat-green", kicker: "10 to 12 weeks", title: "Summer sublets", photos: [20053927, 31687845, 33693815] },
-  { href: "/verified", tone: "cat-deep", kicker: "Jan to May", title: "Semester sublets", photos: [545025, 7045991, 8089268] },
-  { href: "/verified", tone: "cat-sun", kicker: "Shared apartments", title: "Rooms", photos: [6890400, 6447384, 6969990] },
-  { href: "#join", tone: "cat-ink", kicker: "12 months", title: "Whole apartments", photos: [7045991, 6890400, 6782426] },
-  { href: "#join", tone: "cat-warm", kicker: "Dogs and cats", title: "Pet-friendly", photos: [545025, 39982785, 5390049] },
-  { href: "/sublet-your-room", tone: "cat-sage", kicker: "For listers", title: "Sublet your room", photos: [6612086, 7647755, 4554351] },
-];
+  { q: "Summer sublet near Columbia, June to August", page: "/summer", tone: "cat-green", kicker: "10 to 12 weeks", title: "Summer sublets", photos: [20053927, 31687845, 33693815] },
+  { q: "Semester sublet near campus, January to May", page: "/verified", tone: "cat-deep", kicker: "Jan to May", title: "Semester sublets", photos: [545025, 7045991, 8089268] },
+  { q: "Furnished sublet near Columbia", page: "/verified", tone: "cat-sun", kicker: "Move-in ready", title: "Furnished sublets", photos: [6890400, 6447384, 6969990] },
+  { q: "Sublet for two friends near campus", page: "/verified", tone: "cat-ink", kicker: "Bring a friend", title: "Sublets for two", photos: [7045991, 6890400, 6782426] },
+  { q: "Sublet near Columbia that allows pets", page: "#join", tone: "cat-warm", kicker: "Dogs and cats", title: "Pet-friendly sublets", photos: [545025, 39982785, 5390049] },
+].map(({ q, page, ...c }) => ({ ...c, href: isDemo ? searchHref(q) : page }));
 
 const DOORS = [
   {
-    href: "/verified",
+    href: isDemo ? searchHref("Semester sublet near campus, lister who replies") : "/verified",
     photo: 2773484,
     alt: "New York apartment buildings with fire escapes",
     title: "Already at Columbia?",
@@ -32,20 +33,12 @@ const DOORS = [
     go: "Only real listings",
   },
   {
-    href: "/summer",
+    href: isDemo ? searchHref("Summer sublet near Columbia for my internship, June to August") : "/summer",
     photo: 7647755,
     alt: "Two people carrying moving boxes and a plant into a new home",
     title: "Coming to NYC for the summer?",
     body: "Internship or a new program, and you can't fly in to see places first.",
     go: "Checked before you pay",
-  },
-  {
-    href: "/sublet-your-room",
-    photo: 4554351,
-    alt: "A woman unpacking moving boxes in a bright apartment",
-    title: "Subletting your room?",
-    body: "Going abroad or away for the summer and want one reliable student, not 40 strangers.",
-    go: "Get a verified shortlist",
   },
 ];
 
@@ -56,50 +49,26 @@ export default function Home() {
       <main>
         <ChatHero
           source="home"
-          announce
+          announce={!isDemo}
           searchOnSend={isDemo}
           title={
             <>
               Find a <Mark>real</Mark> place near Columbia through one chat.
             </>
           }
-          sub="Tell Gable what you need. We pull sublets, rooms and apartments from everywhere students look, and only show you the ones we've checked."
-          modes={[
-            {
-              id: "sublet",
-              label: "Sublet",
-              prompts: [
-                "Summer sublet near campus, June 1 to Aug 15, under $1,800",
-                "Furnished room for the spring semester, Jan to May",
-                "Something I can lock in before I fly in for my internship",
-              ],
-            },
-            {
-              id: "room",
-              label: "Room",
-              prompts: [
-                "A room in a share with grad students, quiet, near the 1 train",
-                "Room for me and a friend, Sept to Dec, two beds",
-                "Private room under $1,400 in Morningside Heights",
-              ],
-            },
-            {
-              id: "apartment",
-              label: "Apartment",
-              prompts: [
-                "12-month 1BR that allows my dog, laundry in building",
-                "Studio within 15 minutes of campus, under $2,600",
-                "2BR for two grad students starting August 1",
-              ],
-            },
+          sub="Tell Gable what you need. We pull sublets from everywhere students look, and only show you the ones we've checked."
+          prompts={[
+            "Summer sublet near campus, June 1 to Aug 15, under $1,800",
+            "Furnished sublet for the spring semester, Jan to May",
+            "A sublet I can lock in before I fly in for my internship",
           ]}
-          meta="Verified listings only"
+          meta="Verified sublets only"
           chips={[
             "Summer sublet near Columbia under $1,800",
-            "Room for two, Sept to Dec",
-            "Furnished, 3 months, starts June 1",
-            "1BR that allows dogs",
-            "Quiet room near the 1 train",
+            "Sublet for two, Sept to Dec",
+            "Furnished sublet, 3 months, starts June 1",
+            "Sublet that allows dogs",
+            "Quiet sublet near the 1 train",
           ]}
           collage={[
             { id: 33693815, badge: "Tenant verified", bold: "$1,650", text: "W 112th St" },
@@ -178,7 +147,7 @@ export default function Home() {
                     photo: 33693815,
                     alt: "Sunlit bedroom with white curtains and plants on the windowsill",
                     price: "$1,650",
-                    where: "Private room, W 112th St",
+                    where: "Sublet · private room, W 112th St",
                     meta: "Jun 1 to Aug 15 · Furnished · 6 min to campus",
                     src: "Found in a Columbia Facebook group · Photos checked · Replies in ~2h",
                   }}
@@ -188,7 +157,7 @@ export default function Home() {
                     photo: 6969990,
                     alt: "Apartment with a brick wall, orange sofa and wooden dining table",
                     price: "$1,500",
-                    where: "Room in a 3BR, Amsterdam Ave",
+                    where: "Sublet · room in a 3BR, Amsterdam Ave",
                     meta: "May 28 to Aug 20 · 2 grad roommates",
                     src: "Found on Listings Project · Lease allows sublet · Replies in ~4h",
                   }}
@@ -198,7 +167,7 @@ export default function Home() {
                     photo: 6782426,
                     alt: "Bright studio apartment with a bed near a white kitchen",
                     price: "$1,780",
-                    where: "Studio sublet, Morningside Dr",
+                    where: "Sublet · studio, Morningside Dr",
                     meta: "Jun 1 to Aug 31 · Laundry in building",
                     src: "Listed on Gable by a Columbia student · Checked in person",
                   }}
@@ -206,7 +175,9 @@ export default function Home() {
               </div>
             </div>
             <p className="fine" style={{ marginTop: 16 }}>
-              Example search. Listings shown are illustrations while we&apos;re in early access.
+              {isDemo
+                ? "Example search. Listings shown are illustrations."
+                : "Example search. Listings shown are illustrations while we're in early access."}
             </p>
           </div>
         </section>
@@ -267,10 +238,10 @@ export default function Home() {
               <div className="tile sun span-3 reveal">
                 <div className="k">From Reddit</div>
                 <div>
-                  <div className="big">40+</div>
+                  <div className="big">95%</div>
                   <p>
-                    replies one person got after listing a single room. Listers on Gable get a shortlist of verified students
-                    instead.
+                    of Facebook group housing posts are scams, one student on r/nyu guessed. Every sublet on Gable is checked
+                    before you see it.
                   </p>
                 </div>
               </div>
@@ -304,14 +275,25 @@ export default function Home() {
           </div>
         </section>
 
-        <CtaPhoto
-          photo={30775151}
-          source="home"
-          title="Be first in when Gable opens."
-          body="We're opening to Columbia students first. Leave your email and we'll send your first verified matches."
-          button="Get early access"
-          fine="No spam. One email when your matches are ready."
-        />
+        {isDemo ? (
+          <CtaPhoto
+            photo={30775151}
+            source="home"
+            title="Find your sublet."
+            body="Tell Gable your dates and budget, and see the sublets that fit, with what we checked about each one."
+            button="Start a search"
+            href="/search"
+          />
+        ) : (
+          <CtaPhoto
+            photo={30775151}
+            source="home"
+            title="Be first in when Gable opens."
+            body="We're opening to Columbia students first. Leave your email and we'll send your first verified sublets."
+            button="Get early access"
+            fine="No spam. One email when your matches are ready."
+          />
+        )}
       </main>
       <SiteFooter current="/" />
     </>

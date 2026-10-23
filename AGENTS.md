@@ -30,6 +30,17 @@ and use only the colors and fonts in the style guide.
   `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` turn on
   sign-in and favorites (public values, safe in the browser; set in Vercel
   for all environments). Without them, `/signin` says sign-in isn't set up.
+- Two sites from one codebase (`src/lib/mode.ts`):
+  - **Production** (`main`, gable-one.vercel.app) is the waitlist. The MVP
+    routes (`/search`, `/favorites`, `/signin`, `/auth/*`) redirect to `/`,
+    the homepage chat box opens the email popup, and Google Analytics is on.
+  - **Staging** (the `staging` branch) sets `NEXT_PUBLIC_GABLE_MODE=demo` in
+    Vercel (Preview, branch `staging` only). It shows the MVP: the chat box goes
+    to `/search`, the header shows Favorites and Sign in, GA is off and search
+    engines are told not to index it.
+  - Locally, add `NEXT_PUBLIC_GABLE_MODE=demo` to `.env.local` to see the demo.
+  - To update staging: `git push origin main:staging` (or merge into `staging`
+    first and test there before merging to `main`).
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in

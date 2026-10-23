@@ -1,13 +1,15 @@
 import Link from "next/link";
+import { isDemo } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
 type NavKey = "home" | "summer" | "sublet" | "favorites" | "none";
 
+// Favorites and sign-in are part of the MVP, so only the demo site shows them.
 const NAV: { key: NavKey; href: string; label: string }[] = [
   { key: "home", href: "/", label: "Explore" },
   { key: "summer", href: "/summer", label: "Summer" },
   { key: "sublet", href: "/sublet-your-room", label: "List a room" },
-  { key: "favorites", href: "/favorites", label: "Favorites" },
+  ...(isDemo ? [{ key: "favorites" as const, href: "/favorites", label: "Favorites" }] : []),
 ];
 
 function Brand({ small = false }: { small?: boolean }) {
@@ -41,7 +43,7 @@ export function SiteHeader({
         </nav>
         <Brand />
         <div className="top-actions">
-          <AccountLink />
+          {isDemo && <AccountLink />}
           {showVerify && (
             <Link className="btn btn-secondary btn-sm" href="/verified">
               How we verify

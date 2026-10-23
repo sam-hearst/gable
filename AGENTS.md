@@ -30,7 +30,21 @@ and use only the colors and fonts in the style guide.
   `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` turn on
   sign-in and favorites (public values, safe in the browser; set in Vercel
   for all environments). Without them, `/signin` says sign-in isn't set up.
-- Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
+- Two sites from one codebase (`src/lib/mode.ts`):
+  - **Production** (`main`, gable-one.vercel.app) is the waitlist. The MVP
+    routes (`/search`, `/favorites`, `/signin`, `/auth/*`) redirect to `/`,
+    the homepage chat box opens the email popup, and Google Analytics is on.
+  - **Staging** (the `staging` branch) sets `NEXT_PUBLIC_GABLE_MODE=demo` in
+    Vercel (Preview, branch `staging` only). It shows the MVP: the chat box goes
+    to `/search`, the header shows Favorites and Sign in, GA is off and search
+    engines are told not to index it.
+  - Locally, add `NEXT_PUBLIC_GABLE_MODE=demo` to `.env.local` to see the demo.
+  - To update staging: `git push origin main:staging` (or merge into `staging`
+    first and test there before merging to `main`).
+- Gable is **sublets only** for now: no rooms or apartments as categories, and no page for
+  listing your own room (`/sublet-your-room` redirects home). Listings still say what the
+  space is, as "Sublet · private room".
+- Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in
   `src/content/listings.ts` (logic in `src/lib/search.ts`). Those are made-up
@@ -42,7 +56,8 @@ and use only the colors and fonts in the style guide.
   `supabase/favorites.sql`; row level security keeps each person's saves
   private), and `/favorites` shows them on a map (Leaflet + OpenStreetMap).
   `src/proxy.ts` refreshes the sign-in session on those routes only.
-- The blog post lives at `/blog/how-to-find-your-dream-apartment-in-nyc`, with its copy in `src/content/blog.ts`.
+- The blog post lives at `/blog/how-to-find-your-dream-sublet-in-nyc` (the old
+  `dream-apartment` URL redirects there), with its copy in `src/content/blog.ts`.
 
 ## How we work
 - Framework: Feature Forge (github.com/kenxle/feature-forge). Its skills are in

@@ -1,13 +1,15 @@
 import Link from "next/link";
+import { isDemo, searchHref } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
-type NavKey = "home" | "summer" | "sublet" | "favorites" | "none";
+type NavKey = "home" | "summer" | "favorites" | "none";
 
+// Favorites and sign-in are part of the MVP, so only the demo site shows them.
+// On the demo site, "Summer" runs a search instead of opening the waitlist page.
 const NAV: { key: NavKey; href: string; label: string }[] = [
   { key: "home", href: "/", label: "Explore" },
-  { key: "summer", href: "/summer", label: "Summer" },
-  { key: "sublet", href: "/sublet-your-room", label: "List a room" },
-  { key: "favorites", href: "/favorites", label: "Favorites" },
+  { key: "summer", href: isDemo ? searchHref("Summer sublet near Columbia, June to August") : "/summer", label: "Summer" },
+  ...(isDemo ? [{ key: "favorites" as const, href: "/favorites", label: "Favorites" }] : []),
 ];
 
 function Brand({ small = false }: { small?: boolean }) {
@@ -40,28 +42,36 @@ export function SiteHeader({
           ))}
         </nav>
         <Brand />
+        {/* The demo site is the working product, so it has no waitlist buttons. */}
         <div className="top-actions">
-          <AccountLink />
-          {showVerify && (
+          {isDemo && <AccountLink />}
+          {!isDemo && showVerify && (
             <Link className="btn btn-secondary btn-sm" href="/verified">
               How we verify
             </Link>
           )}
-          <a className="btn btn-sm" href="#join">
-            {cta}
-          </a>
+          {!isDemo && (
+            <a className="btn btn-sm" href="#join">
+              {cta}
+            </a>
+          )}
         </div>
       </div>
     </header>
   );
 }
 
-const FOOTER_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/verified", label: "How we verify" },
-  { href: "/summer", label: "Summer sublets" },
-  { href: "/sublet-your-room", label: "Sublet your room" },
-];
+const FOOTER_LINKS = isDemo
+  ? [
+      { href: "/", label: "Home" },
+      { href: "/search", label: "All sublets" },
+      { href: "/favorites", label: "Favorites" },
+    ]
+  : [
+      { href: "/", label: "Home" },
+      { href: "/verified", label: "How we verify" },
+      { href: "/summer", label: "Summer sublets" },
+    ];
 
 export function SiteFooter({ current }: { current: string }) {
   return (

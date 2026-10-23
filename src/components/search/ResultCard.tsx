@@ -42,7 +42,7 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
           {ROOM_LABEL[l.roomType]} · {l.neighborhood}
         </h2>
         <div className="when">
-          {shortDate(l.availableFrom)} – {shortDate(l.availableTo)} · {l.furnished ? "furnished" : "unfurnished"}
+          Sublet · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)} · {l.furnished ? "furnished" : "unfurnished"}
         </div>
         <div className="fit">{quickFacts(l)}</div>
         {misses.length > 0 && <div className="misses">Not quite: {misses.join(" · ")}</div>}

@@ -21,7 +21,7 @@ export default function SummerPage() {
           badge="Summer 2027 · Interns and incoming students"
           title={
             <>
-              Your summer room in NYC, <Mark>checked</Mark> before you pay.
+              Your summer sublet in NYC, <Mark>checked</Mark> before you pay.
             </>
           }
           sub="Real 10 to 12 week sublets near Columbia with exact dates. Someone on our team sees every place in person, so you don't have to fly in first."
@@ -31,7 +31,7 @@ export default function SummerPage() {
               id: "intern",
               label: "I'm an intern",
               prompts: [
-                "Summer internship in Midtown, need a room June 1 to Aug 15",
+                "Summer internship in Midtown, need a sublet June 1 to Aug 15",
                 "Furnished sublet for 10 weeks, under $1,800, near the subway",
                 "First time in NYC, need somewhere safe for the summer",
               ],
@@ -41,7 +41,7 @@ export default function SummerPage() {
               label: "Incoming student",
               prompts: [
                 "Starting at Columbia in the fall, need a sublet until my lease starts",
-                "Room near campus for July and August before student housing opens",
+                "Sublet near campus for July and August before student housing opens",
                 "Short sublet for my summer program, June to August",
               ],
             },
@@ -49,8 +49,8 @@ export default function SummerPage() {
               id: "parent",
               label: "I'm a parent",
               prompts: [
-                "My daughter has an internship in NYC, she needs a safe room for the summer",
-                "Furnished room near Columbia for my son, June 1 to Aug 20",
+                "My daughter has an internship in NYC, she needs a sublet for the summer",
+                "Furnished sublet near Columbia for my son, June 1 to Aug 20",
                 "We can't visit before move-in. What can we trust?",
               ],
             },

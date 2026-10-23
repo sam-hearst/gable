@@ -1,13 +1,15 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Block, BlogPost, Inline } from "@/content/blog";
+import { isDemo, searchHref } from "@/lib/mode";
 import { CtaPhoto } from "./landing/blocks";
 import { Photo } from "./landing/Photo";
 import { SiteFooter, SiteHeader } from "./landing/SiteChrome";
 
 // Template for a blog post, in the landing pages' header and footer. Unlike a
 // landing page, a post links out: that's what makes it worth reading. It still
-// ends with one action, the waitlist (saved with source "blog").
+// ends with one action: the waitlist (saved with source "blog"), or on the demo
+// site, a search.
 export function BlogArticle({ post }: { post: BlogPost }) {
   const published = new Date(`${post.published}T12:00:00`).toLocaleDateString("en-US", {
     month: "long",
@@ -92,14 +94,25 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </aside>
         </article>
 
-        <CtaPhoto
-          photo={post.ctaPhoto}
-          source="blog"
-          title={post.closingHeadline}
-          body={post.closingBody}
-          button="Get early access"
-          fine="No spam. We’ll only email you about Gable."
-        />
+        {isDemo ? (
+          <CtaPhoto
+            photo={post.ctaPhoto}
+            source="blog"
+            title={post.demoClosingHeadline}
+            body={post.demoClosingBody}
+            button="Start a search"
+            href="/search"
+          />
+        ) : (
+          <CtaPhoto
+            photo={post.ctaPhoto}
+            source="blog"
+            title={post.closingHeadline}
+            body={post.closingBody}
+            button="Get early access"
+            fine="No spam. We’ll only email you about Gable."
+          />
+        )}
       </main>
 
       <SiteFooter current={`/blog/${post.slug}`} />
@@ -159,10 +172,10 @@ function BlockView({ block }: { block: Block }) {
         <aside className="mt-6 rounded-2xl bg-warm p-6">
           <p>{block.text}</p>
           <Link
-            href={block.href}
+            href={isDemo ? searchHref(block.demo.q) : block.href}
             className="mt-4 inline-flex min-h-11 items-center rounded-xl border-2 border-accent bg-cream px-5 font-bold text-accent-dark transition-colors hover:bg-sage"
           >
-            {block.label}
+            {isDemo ? block.demo.label : block.label}
           </Link>
         </aside>
       );

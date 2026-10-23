@@ -28,7 +28,7 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
           {l.neighborhood} · {l.crossStreets}
         </div>
         <div className="meta">
-          {ROOM_LABEL[l.roomType]} · {l.furnished ? "Furnished" : "Unfurnished"} · {l.subway}
+          Sublet · {ROOM_LABEL[l.roomType]} · {l.furnished ? "Furnished" : "Unfurnished"} · {l.subway}
         </div>
         {misses.length > 0 && (
           <div className="misses">

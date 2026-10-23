@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { CtaPhoto } from "@/components/landing/blocks";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { ResultCard } from "@/components/search/ResultCard";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
@@ -95,14 +94,6 @@ export default function Search({ searchParams }: PageProps<"/search">) {
           </div>
         </section>
 
-        <CtaPhoto
-          photo={30775151}
-          source="search"
-          title="Want real listings like these?"
-          body="We're opening to Columbia students first. Leave your email and we'll send your first checked matches."
-          button="Get early access"
-          fine="No spam. One email when your matches are ready."
-        />
       </main>
       <SiteFooter current="/search" />
     </>

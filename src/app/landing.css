@@ -985,3 +985,12 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 @media (prefers-reduced-motion: reduce) {
   .hero > .wrap > *, .pulse::after { animation: none; }
 }
+
+/* Share card on /thanks */
+.share-card { margin: 40px auto 0; max-width: 600px; text-align: left; }
+.share-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: var(--bg); color: var(--accent-dark); margin-bottom: 12px; }
+.share-link { display: flex; gap: 8px; margin-top: 18px; }
+.share-link input { flex: 1; min-width: 0; min-height: 40px; padding: 0 12px; border: 1px solid var(--sage-line); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; }
+.share-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.share-fine { margin-top: 14px; font-size: 13px; color: var(--ink-faint); }
+@media (max-width: 520px) { .share-link { flex-direction: column; } }

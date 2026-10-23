@@ -51,7 +51,7 @@ export function SignupForm({
         utm_campaign: params.get("utm_campaign") ?? undefined,
       });
       if (result.ok) {
-        router.push(`/thanks?source=${encodeURIComponent(source)}`);
+        router.push(`/thanks?source=${encodeURIComponent(source)}&ref=${result.ref}`);
       } else {
         setError(result.error);
       }

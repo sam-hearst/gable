@@ -51,6 +51,7 @@ Not a landing page. It's a real guide people would read even if Gable didn't exi
 - Every form calls the `joinWaitlist` server action (`src/app/actions.ts`), which saves to Supabase through `src/lib/signups.ts`. Each row records `page` (`summer/intern` = page plus the hero toggle), `looking_for` (what they typed in the chat box) and UTM params.
 - Production needs `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Vercel, and `supabase/signups.sql` run once. In local dev, signups go to `.data/signups.jsonl`.
 - GA loads in the root layout: GA4 `G-5MEBWDE6BD` in production builds, or `NEXT_PUBLIC_GA_ID` if set. The chat box sends `chat_request`; `/thanks` sends `sign_up`.
+- **Sharing from `/thanks`:** every signup gets a personal link, `https://www.gable.fit/?utm_source=referral&utm_medium=share&utm_campaign=ref_<code>`, with copy, text, WhatsApp, email and share-sheet buttons. The pitch is "Subletting with a friend? We'll match the two of you to sublets for two." The code comes from the email (`src/lib/referral.ts`), so nothing extra is stored and the link doesn't show the email. A friend who joins through it is saved with that `utm_campaign`. Run `npm run referrals` to list who brought whom, then match those pairs by hand. GA gets a `share` event with the method.
 - Use lowercase UTMs on every link we post, e.g. `/summer?utm_source=reddit&utm_medium=post&utm_campaign=summer`.
 
 ## Honesty notes

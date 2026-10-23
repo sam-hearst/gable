@@ -23,8 +23,16 @@ and use only the colors and fonts in the style guide.
   `NEXT_PUBLIC_GA_ID` overrides it or turns it on locally; `SUPABASE_URL` +
   `SUPABASE_SERVICE_ROLE_KEY` send waitlist signups to the Supabase `signups` table. Without Supabase, local dev writes
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
-  Create the table with `supabase/signups.sql`.
+  Create the table with `supabase/signups.sql`. `ANTHROPIC_API_KEY` lets
+  `/search` read requests with Claude (server only, never `NEXT_PUBLIC_`);
+  without it, or if Claude is slow or fails, search falls back to keyword
+  matching. It's also set in Vercel.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
+- Search: on the homepage, sending the chat box goes to `/search?q=...`
+  (`src/app/search/page.tsx`), which filters and ranks the listings in
+  `src/content/listings.ts` (logic in `src/lib/search.ts`). Those are made-up
+  SAMPLE listings for the demo, not real data. The other landing pages still
+  open the email popup.
 - The blog post lives at `/blog/how-to-find-your-dream-apartment-in-nyc`, with its copy in `src/content/blog.ts`.
 
 ## How we work

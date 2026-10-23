@@ -17,6 +17,9 @@ flowchart LR
 - One Next.js app serves both the landing pages and the product.
 - Waitlist signups (email, what they're looking for, page, UTMs) go to a
   Supabase `signups` table through a server action (`src/app/actions.ts`).
+- Search (demo): the homepage chat box sends people to `/search?q=...`. It
+  shows hand-written sample listings from `src/content/listings.ts`; no real
+  listing source is connected yet.
 
 ## What's still open
 - **Where listing data comes from.** MLS access is the main blocker. Scraping

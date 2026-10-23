@@ -46,7 +46,7 @@ and use only the colors and fonts in the style guide.
 - Gable is **sublets only** for now: no rooms or apartments as categories, and no page for
   listing your own room (`/sublet-your-room` redirects home). Listings still say what the
   space is, as "Sublet · private room".
-- Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
+- Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/together`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in
   `src/content/listings.ts` (logic in `src/lib/search.ts`). Those are made-up

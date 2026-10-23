@@ -19,7 +19,7 @@ const CATEGORIES = [
   { q: "Summer sublet near Columbia, June to August", page: "/summer", tone: "cat-green", kicker: "10 to 12 weeks", title: "Summer sublets", photos: [20053927, 31687845, 33693815] },
   { q: "Semester sublet near campus, January to May", page: "/verified", tone: "cat-deep", kicker: "Jan to May", title: "Semester sublets", photos: [545025, 7045991, 8089268] },
   { q: "Furnished sublet near Columbia", page: "/verified", tone: "cat-sun", kicker: "Move-in ready", title: "Furnished sublets", photos: [6890400, 6447384, 6969990] },
-  { q: "Sublet for two friends near campus", page: "/verified", tone: "cat-ink", kicker: "Bring a friend", title: "Sublets for two", photos: [7045991, 6890400, 6782426] },
+  { q: "Sublet for two friends near campus", page: "/together", tone: "cat-ink", kicker: "Bring a friend", title: "Sublets for two", photos: [7045991, 6890400, 6782426] },
   { q: "Sublet near Columbia that allows pets", page: "#join", tone: "cat-warm", kicker: "Dogs and cats", title: "Pet-friendly sublets", photos: [545025, 39982785, 5390049] },
 ].map(({ q, page, ...c }) => ({ ...c, href: isDemo ? searchHref(q) : page }));
 
@@ -39,6 +39,14 @@ const DOORS = [
     title: "Coming to NYC for the summer?",
     body: "Internship or a new program, and you can't fly in to see places first.",
     go: "Checked before you pay",
+  },
+  {
+    href: isDemo ? searchHref("Sublet for me and a friend near campus, two rooms") : "/together",
+    photo: 6969990,
+    alt: "Apartment with a brick wall, orange sofa and wooden dining table",
+    title: "Looking with a friend?",
+    body: "Two of you, two sets of dates, and most sublets only fit one person.",
+    go: "Sublets for two",
   },
 ];
 

@@ -5,6 +5,9 @@ import { Suspense } from "react";
 import { CtaPhoto } from "@/components/landing/blocks";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { ResultCard } from "@/components/search/ResultCard";
+import { FavoritesProvider } from "@/components/search/FavoritesProvider";
+import { SavedCount } from "@/components/search/HeartButton";
+import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import "./search.css";
 
@@ -23,10 +26,10 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // during its prerender check, which errors on the SDK's Date.now() and
   // makes a second, aborted API call.
   await connection();
-  const { reply, results, matched } = await search(q);
+  const [{ reply, results, matched }, favorites] = await Promise.all([search(q), getFavorites()]);
 
   return (
-    <>
+    <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
       <div className="search-thread">
         {q && (
           <div className="search-msg search-msg-you">
@@ -41,13 +44,16 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
       </div>
       {!q && <h1 className="sr-only">Search</h1>}
 
+      <div className="search-saved">
+        <SavedCount />
+      </div>
       {!matched && <h2 className="closest-head">Closest options</h2>}
       <div className="results">
         {results.map((r) => (
           <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
         ))}
       </div>
-    </>
+    </FavoritesProvider>
   );
 }
 

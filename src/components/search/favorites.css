@@ -1,0 +1,78 @@
+/* Favorites: hearts, the saved count, and the map on /favorites.
+   Imported by the heart button so it loads wherever hearts appear.
+   Colors are the style guide tokens defined in landing.css. */
+
+.result .heart-btn { position: absolute; top: 8px; right: 8px; }
+.heart-btn {
+  display: grid; place-items: center; width: 44px; height: 44px; padding: 0;
+  border: 0; border-radius: 999px; background: var(--bg); color: var(--accent);
+  cursor: pointer; transition: transform 0.15s ease;
+}
+.heart-btn:hover { color: var(--accent-dark); transform: scale(1.06); }
+.heart-btn[aria-pressed="true"] { color: var(--accent); }
+.heart-btn-sm { flex-shrink: 0; background: transparent; }
+
+.saved-count svg { color: var(--accent); }
+
+.fav-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+  padding: 56px 20px; border-radius: var(--radius); background: var(--sage); color: var(--accent);
+}
+.fav-empty p { color: var(--ink); font-size: 17px; }
+
+.fav-map-layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.fav-map, .fav-map-loading {
+  position: relative; z-index: 0; isolation: isolate; /* keep Leaflet's panes under the sticky header */
+  height: 360px; border-radius: var(--radius); overflow: hidden; background: var(--sage);
+}
+.fav-map-loading { display: grid; place-items: center; color: var(--ink-faint); font-size: 15px; }
+.fav-map .leaflet-container { font-family: inherit; background: var(--sage); }
+
+.price-pin-wrap { display: flex; align-items: flex-end; justify-content: center; background: none; border: 0; }
+.price-pin {
+  position: relative; padding: 4px 10px; border-radius: 999px;
+  background: var(--accent); color: var(--bg); font-size: 13px; font-weight: 700; white-space: nowrap;
+  border: 2px solid var(--bg);
+}
+.price-pin::after {
+  content: ""; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--accent); border-bottom: 0;
+}
+.price-pin.is-active { background: var(--accent-dark); outline: 3px solid var(--sun); }
+.price-pin.is-active::after { border-top-color: var(--accent-dark); }
+
+.pin-popup { font-family: var(--font-jakarta), system-ui, sans-serif; color: var(--ink); min-width: 190px; }
+.pin-popup b { display: block; font-size: 14px; line-height: 1.35; }
+.pin-popup-meta { margin-top: 2px; font-size: 13px; color: var(--ink-faint); }
+.pin-popup ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
+.pin-popup li { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.pin-popup li svg { color: var(--accent); flex-shrink: 0; }
+.fav-map .leaflet-popup-content-wrapper { border-radius: 12px; }
+.fav-map .leaflet-popup-content { margin: 12px 14px; }
+
+.fav-list { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; align-content: start; }
+.fav-list li { display: flex; align-items: center; gap: 4px; border-radius: 12px; background: var(--sage); border: 2px solid transparent; }
+.fav-list li.is-active { border-color: var(--accent); background: var(--warm); }
+.fav-item {
+  flex: 1; min-width: 0; min-height: 44px; display: grid; gap: 1px; padding: 10px 12px; text-align: left;
+  border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer;
+}
+.fav-price { font-weight: 700; font-size: 15px; }
+.fav-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fav-meta { font-size: 12px; color: var(--ink-faint); }
+
+@media (min-width: 860px) {
+  .fav-map-layout { grid-template-columns: minmax(0, 1fr) 320px; }
+  .fav-map, .fav-map-loading { height: 520px; }
+  .fav-list { max-height: 520px; overflow-y: auto; padding-right: 4px; }
+}
+
+.saved-count { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--accent-dark); text-decoration: none; }
+a.saved-count { min-height: 44px; }
+.saved-count-go { font-weight: 500; text-decoration: underline; }
+.search-saved { display: flex; justify-content: flex-end; margin: -12px 0 12px; }
+
+.fav-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.fav-head h1 { margin-top: 6px; font-size: clamp(28px, 4vw, 40px); }
+.fav-account { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 8px 0 24px; font-size: 14px; color: var(--ink-faint); }
+.fav-account button { min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-dark); font: inherit; text-decoration: underline; cursor: pointer; }

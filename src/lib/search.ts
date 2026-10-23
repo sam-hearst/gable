@@ -8,6 +8,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { SAMPLE_LISTINGS, type RoomType, type SampleListing } from "@/content/listings";
+import { money, shortDate } from "./format";
 
 const MODEL = "claude-haiku-5-5";
 const TIMEOUT_MS = 5000;
@@ -234,15 +235,7 @@ export function readWithKeywords(q: string): SearchFilters {
 
 // ---------- Matching and ranking ----------
 
-const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY = 86_400_000;
-
-function shortDate(isoDate: string) {
-  const [, m, d] = isoDate.split("-").map(Number);
-  return `${SHORT_MONTHS[m - 1]} ${d}`;
-}
-
-const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 const time = (isoDate: string) => Date.parse(`${isoDate}T00:00:00Z`);
 
 // Share of the requested dates the listing is free for (0 to 1).

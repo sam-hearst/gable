@@ -12,30 +12,61 @@ How we get our first signups. No paid ads yet. Every link we post goes to a Gabl
 
 ## Communities
 
-All on Reddit. These are where people looking for an NYC apartment or sublet already ask for help.
+Reddit, where students looking for an NYC sublet already ask for help. Several NYC subs ban self-promotion or moving questions (r/AskNYC rules 3 and 6, r/movingtoNYC), so posts with a link go to student and housing subs that allow them.
 
-- [r/movingtoNYC](https://www.reddit.com/r/movingtoNYC/)
-- [r/nyc_sublets](https://www.reddit.com/r/nyc_sublets/)
 - [r/NYCapartments](https://www.reddit.com/r/NYCapartments/)
-
-## First 3 posts
-
-Not posted yet. Each post needs:
-
-- **Where:** the community it goes in
-- **Owner:** who posts it
-- **Text:** the full post
-- **Link:** the landing page it points to, with a UTM
-- **Date posted:** when it went up
+- [r/nycollegestudents](https://www.reddit.com/r/nycollegestudents/)
+- [r/nyu](https://www.reddit.com/r/nyu/)
+- Next: r/columbia, r/barnard, r/nyc_sublets (check each sub's rules first)
 
 UTM format: `?utm_source=<channel>&utm_medium=<post-type>&utm_campaign=<campaign>`, all lowercase.
-Example: `https://www.gable.fit/?utm_source=reddit&utm_medium=post&utm_campaign=launch`
+Example: `https://www.gable.fit/together?utm_source=reddit&utm_medium=post&utm_campaign=together`
 
-One post per landing page, one per subreddit, so signups by `utm_campaign` tell us which promise and which community pull. Each post is useful on its own first, says plainly that we're students building Gable, and puts the link last. Check each subreddit's self-promotion rules before posting; if links aren't allowed, post without the link and reply with it when people ask.
+Each post is useful on its own first, says plainly that we're students building Gable for a class project, and puts the link last. One campaign per post, so signups by `utm_campaign` tell us which promise and which community pull.
 
-### Post 1
+## First 3 posts (posted)
 
-- Where: r/NYCapartments
+All three by Michelle Mai on October 23, 2026.
+
+| # | Where | Promise | Post | Link to edit in |
+|---|---|---|---|---|
+| 1 | r/NYCapartments | Sublet for two | [post](https://www.reddit.com/r/NYCapartments/comments/1xdk7k7/students_looking_for_a_sublet_with_a_friend_how/) | `https://www.gable.fit/together?utm_source=reddit&utm_medium=post&utm_campaign=together` |
+| 2 | r/nycollegestudents | Parents | [post](https://www.reddit.com/r/nycollegestudents/comments/1xdlt94/parents_helping_a_student_find_an_nyc_sublet_what/) | `https://www.gable.fit/summer?utm_source=reddit&utm_medium=post&utm_campaign=parents` |
+| 3 | r/nyu | New to NYC | [post](https://www.reddit.com/r/nyu/comments/1xdm28t/students_new_to_nyc_how_did_you_pick_a/) | `https://www.gable.fit/summer?utm_source=reddit&utm_medium=post&utm_campaign=new_to_nyc` |
+
+The posts went up with bare links (`/verified`, `/summer`, `/together`). Edit each post body to the link above so it lands on the matching page and shows up by campaign in Google Analytics. `/summer` is the closest page for parents and new-to-NYC students until those get their own pages.
+
+### Post 1: r/NYCapartments
+
+> **Title:** students looking for a sublet with a friend, how do you find two rooms with the same dates?
+>
+> When I was looking for a sublet last summer, I noticed almost every listing was for one room. If you're moving with a friend, you either find a 2BR that's gone in a day or end up in two different apartments. What seemed to help people: searching by both your dates first, splitting the budget per person upfront, and asking the lister if the second room is actually free.
+>
+> I'm a senior at Columbia working on Gable for a class project, and we're starting with students. Has anyone found a sublet for two? [link]
+
+### Post 2: r/nycollegestudents
+
+> **Title:** parents helping a student find an NYC sublet, what made you trust a listing?
+>
+> When I was looking for a sublet last summer, many posts I read were from parents trying to help, and one question kept coming up: how do you know it's real before you pay? What seemed to help: a live video tour, looking the building up on HPD, getting dates and rent in writing, and never paying by Zelle.
+>
+> I'm a senior at Columbia working on Gable for a class project, so parents can see what's been checked on a listing. We're opening to students first. Parents, what would you want to know? [link]
+
+### Post 3: r/nyu
+
+> **Title:** students new to NYC, how did you pick a neighborhood before you'd ever been here?
+>
+> When I was looking for a sublet last summer, I read a lot of posts from students moving here for the first time, and the hardest part for them was that neighborhood names meant nothing yet. What seemed to help: picking by commute to campus or work instead of vibe, checking the address on HPD, and asking on here which areas were easy to live in.
+>
+> I'm a senior at Columbia working on Gable for a class project, so each listing shows your commute and what's been checked. We're opening to students first. What do you wish you'd known? [link]
+
+## Next posts (drafts)
+
+For `/verified` and `/summer`. Post them in subs that allow links, like r/columbia or r/barnard.
+
+### Draft A: /verified
+
+- Where: r/columbia
 - Owner: Michelle Mai
 - Link: `https://www.gable.fit/verified?utm_source=reddit&utm_medium=post&utm_campaign=verified`
 - Date posted: TODO
@@ -43,13 +74,13 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 > **Title:** student here, what helped me spot fake sublets last summer
 >
-> I was looking for a sublet last summer, and finding listings wasn't the hard part. Figuring out which ones were real was. Stuff I picked up from this sub that actually helped: reverse image searching the photos, looking the address up on HPD, asking for a live video tour, and never sending money before seeing a lease.
+> I was looking for a sublet last summer, and finding listings wasn't the hard part. Figuring out which ones were real was. Stuff that actually helped: reverse image searching the photos, looking the address up on HPD, asking for a live video tour, and never sending money before seeing a lease.
 >
 > I'm a senior at Columbia, and for a class project I'm working on Gable, a search that shows what's been checked on each listing. We're opening to students first, would love to know what you'd want from it: [link]
 
-### Post 2
+### Draft B: /summer
 
-- Where: r/movingtoNYC
+- Where: r/barnard
 - Owner: Michelle Mai
 - Link: `https://www.gable.fit/summer?utm_source=reddit&utm_medium=post&utm_campaign=summer`
 - Date posted: TODO
@@ -57,24 +88,9 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 > **Title:** students moving to NYC for the summer, how do you find a place without seeing it first?
 >
-> Last summer I had to find a place in NYC without being able to see it in person, and it was honestly so stressful. What ended up helping me (mostly from reading posts here): searching by my exact dates first, picking a neighborhood based on my commute, and getting someone local to look at it before I paid anything.
+> Last summer I had to find a place in NYC without being able to see it in person, and it was honestly so stressful. What ended up helping me (mostly from reading Reddit): searching by my exact dates first, picking a neighborhood based on my commute, and getting someone local to look at it before I paid anything.
 >
 > I'm a college student at Columbia, and for a class project I'm building Gable to make this less of a headache for students. We're opening to students first. Any tips I missed? [link]
-
-### Post 3
-
-- Where: r/nyc_sublets
-- Owner: Michelle Mai
-- **On hold:** this post is for students listing their own room, and that page is paused while Gable is sublets only. Don't post it until it has a page to link to, or the last paragraph is rewritten for people looking for a sublet.
-- Link: none for now (was `/sublet-your-room`, which redirects home). When it's back: `https://www.gable.fit/sublet-your-room?utm_source=reddit&utm_medium=post&utm_campaign=sublet_your_room`
-- Date posted: TODO
-- Text:
-
-> **Title:** students subletting your room, how do you pick from a ton of replies?
->
-> When I was looking on here last summer, I noticed students subletting their rooms would get flooded with replies and had no real way to tell who was legit. From what I saw, people asked for a school email, did a quick video call, and put the dates and rent in writing.
->
-> I'm a college student at Columbia working on Gable for a class project. We're starting with students: you list your room once and get a short list of other students, verified with a school email, whose dates fit. Would you trust something like that? [link]
 
 ## Blog post
 

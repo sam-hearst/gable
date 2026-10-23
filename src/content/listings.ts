@@ -1,7 +1,7 @@
 // SAMPLE listings for the class demo. Every listing, lister and check here is
 // made up; the places are real neighborhoods and cross streets, with
-// approximate coordinates. Photos reuse the Pexels room photos the landing
-// pages already use (docs/style_guide.md, Imagery), never copied listing
+// approximate coordinates. Photos are Pexels stock photos of rooms
+// (docs/style_guide.md, Imagery), one per listing, never copied listing
 // photos. Real listings wait on the data source decision in
 // diagrams/system_overview.md.
 
@@ -34,6 +34,15 @@ const PHOTOS = {
   pillows: { id: 545025, alt: "Bed with patterned pillows and glasses on a book" },
   living: { id: 6969990, alt: "Apartment with a brick wall, orange sofa and wooden dining table" },
   studio: { id: 6782426, alt: "Bright studio apartment with a bed near a white kitchen" },
+  radiator: { id: 3999067, alt: "Sunlit bed by a window and an old radiator" },
+  desk: { id: 39338470, alt: "Single bed and desk in a bright white room" },
+  narrow: { id: 11295825, alt: "Narrow room with a single bed, desk and wardrobe" },
+  windowSeat: { id: 5425123, alt: "Window seat with a potted plant, looking out at brick buildings" },
+  counter: { id: 6447377, alt: "Studio with a bed beside the kitchen counter" },
+  cityView: { id: 30688040, alt: "Bedroom window looking out at high-rise buildings" },
+  kettle: { id: 32790956, alt: "Small room with a desk, a kettle and sheer curtains" },
+  monstera: { id: 3231743, alt: "Unmade white bed next to a large potted plant" },
+  headboard: { id: 5628406, alt: "Sunlit unmade bed with a wooden headboard" },
 };
 
 export const SAMPLE_LISTINGS: SampleListing[] = [
@@ -88,7 +97,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "private room",
     subway: "A/B/C/D at 145th St, 15 min to Midtown on the A",
-    photo: PHOTOS.vintage,
+    photo: PHOTOS.desk,
     lister: { firstName: "Lena", school: "City College" },
     replySpeed: "Usually replies in 5h",
     checked: ["CUNY email verified", "Lease on file", "Photos checked", "Price in the usual range"],
@@ -126,7 +135,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "private room",
     subway: "2/3 at 135th St, 20 min to Times Sq",
-    photo: PHOTOS.living,
+    photo: PHOTOS.windowSeat,
     lister: { firstName: "Aisha", school: "City College" },
     replySpeed: "Usually replies in 4h",
     checked: ["CUNY email verified", "Lease on file", "Photos checked", "Building record checked"],
@@ -164,7 +173,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "private room",
     subway: "1 train at 125th St, 22 min to Times Sq",
-    photo: PHOTOS.sunlit,
+    photo: PHOTOS.radiator,
     lister: { firstName: "Hannah", school: "Barnard" },
     replySpeed: "Usually replies in 6h",
     checked: ["Barnard email verified", "Lease on file", "Photos checked"],
@@ -183,7 +192,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "shared",
     subway: "1 train at 116th St, 21 min to Times Sq",
-    photo: PHOTOS.pillows,
+    photo: PHOTOS.narrow,
     lister: { firstName: "Kenji", school: "Columbia" },
     replySpeed: "Usually replies in 1h",
     checked: ["Columbia email verified", "Lease on file", "Photos checked"],
@@ -202,7 +211,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "studio",
     subway: "1/2/3 at 96th St, 12 min to Times Sq on the express",
-    photo: PHOTOS.studio,
+    photo: PHOTOS.counter,
     lister: { firstName: "Chloe", school: "Columbia" },
     replySpeed: "Usually replies in 3h",
     checked: ["Columbia email verified", "Lease on file", "Photos checked", "Building record checked"],
@@ -240,7 +249,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "studio",
     subway: "C/E at 50th St, walk to most Midtown offices",
-    photo: PHOTOS.studio,
+    photo: PHOTOS.cityView,
     lister: { firstName: "Ava", school: "NYU" },
     replySpeed: "Usually replies in 2h",
     checked: ["NYU email verified", "Lease on file", "Photos checked", "Building record checked"],
@@ -259,7 +268,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: true,
     roomType: "private room",
     subway: "6 at 33rd St, 5 min to Grand Central",
-    photo: PHOTOS.brick,
+    photo: PHOTOS.kettle,
     lister: { firstName: "Omar", school: "NYU" },
     replySpeed: "Usually replies in 4h",
     checked: ["NYU email verified", "Lease on file", "Photos checked"],
@@ -297,7 +306,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: false,
     roomType: "private room",
     subway: "2/3 at Bergen St, 30 min to Times Sq",
-    photo: PHOTOS.living,
+    photo: PHOTOS.monstera,
     lister: { firstName: "Leo", school: "Pratt" },
     replySpeed: "Usually replies within a day",
     checked: ["Pratt email verified", "Photos checked"],
@@ -316,7 +325,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     furnished: false,
     roomType: "studio",
     subway: "1 train at 137th St, 25 min to Times Sq",
-    photo: PHOTOS.sunlit,
+    photo: PHOTOS.headboard,
     lister: { firstName: "Grace", school: "City College" },
     replySpeed: "Usually replies in 5h",
     checked: ["CUNY email verified", "Lease on file", "Photos checked", "Building record checked"],

@@ -37,8 +37,7 @@ export type SearchFilters = {
 
 export type SearchResult = {
   listing: SampleListing;
-  why: string[]; // what fits, shown as "Why it fits"
-  misses: string[]; // what doesn't, only for the closest options
+  misses: string[]; // what doesn't fit, only for the closest options
 };
 
 export type SearchResponse = {
@@ -254,7 +253,7 @@ function coverage(l: SampleListing, f: SearchFilters) {
   return Math.max(0, end - start + DAY) / (time(f.moveOut) - time(f.moveIn) + DAY);
 }
 
-type Check = { pass: boolean; why: string; miss: string };
+type Check = { pass: boolean; miss: string };
 
 // One check per filter they gave. A listing matches when every check passes.
 function checks(l: SampleListing, f: SearchFilters): Check[] {
@@ -263,44 +262,31 @@ function checks(l: SampleListing, f: SearchFilters): Check[] {
 
   if (f.moveIn && f.moveOut) {
     const c = coverage(l, f);
-    out.push({
-      pass: c >= 0.8,
-      why: c >= 0.99 ? `${free}, all of your dates` : `${free}, most of your dates`,
-      miss: c > 0 ? `${free}, only part of your dates` : `${free}, outside your dates`,
-    });
+    out.push({ pass: c >= 0.8, miss: c > 0 ? `${free}, only part of your dates` : `${free}, outside your dates` });
   } else if (f.moveIn) {
     const pass = time(l.availableFrom) <= time(f.moveIn) + 14 * DAY && time(l.availableTo) > time(f.moveIn);
-    out.push({ pass, why: `${free}, around your move-in`, miss: `${free}, not around your move-in` });
+    out.push({ pass, miss: `${free}, not around your move-in` });
   }
   if (f.maxPrice) {
     const over = l.price - f.maxPrice;
-    out.push({ pass: over <= 0, why: `${money(l.price)}, under your ${money(f.maxPrice)}`, miss: `${money(over)} over your budget` });
+    out.push({ pass: over <= 0, miss: `${money(over)} over your budget` });
   }
   if (f.minPrice) {
-    out.push({ pass: l.price >= f.minPrice, why: `${money(l.price)} a month`, miss: `Under your ${money(f.minPrice)} minimum` });
+    out.push({ pass: l.price >= f.minPrice, miss: `Under your ${money(f.minPrice)} minimum` });
   }
   if (f.furnished !== null) {
-    out.push({
-      pass: l.furnished === f.furnished,
-      why: f.furnished ? "Furnished" : "Unfurnished",
-      miss: l.furnished ? "Comes furnished" : "Not furnished",
-    });
+    out.push({ pass: l.furnished === f.furnished, miss: l.furnished ? "Comes furnished" : "Not furnished" });
   }
   if (f.roomType) {
     const label = { "private room": "A private room", studio: "A studio", shared: "A shared room" };
-    out.push({ pass: l.roomType === f.roomType, why: label[f.roomType], miss: `${label[l.roomType]}, not ${label[f.roomType].toLowerCase()}` });
+    out.push({ pass: l.roomType === f.roomType, miss: `${label[l.roomType]}, not ${label[f.roomType].toLowerCase()}` });
   }
   if (f.neighborhoods.length) {
     const pass = f.neighborhoods.some((n) => l.neighborhood.toLowerCase().includes(n.toLowerCase()));
-    const near = f.neighborhoods.join(",") === NEAR_COLUMBIA.join(",");
-    out.push({
-      pass,
-      why: near ? `In ${l.neighborhood}, near Columbia` : `In ${l.neighborhood}`,
-      miss: `In ${l.neighborhood}, not where you asked`,
-    });
+    out.push({ pass, miss: `In ${l.neighborhood}, not where you asked` });
   }
   if (f.wantsRoommate) {
-    out.push({ pass: l.sleeps >= 2, why: "Two beds, so you can share with a friend", miss: "Fits one person" });
+    out.push({ pass: l.sleeps >= 2, miss: "Fits one person" });
   }
   return out;
 }
@@ -315,7 +301,6 @@ export function rank(f: SearchFilters): { results: SearchResult[]; matched: bool
     const passed = cs.filter((c) => c.pass);
     return {
       listing,
-      why: passed.map((c) => c.why),
       misses: cs.filter((c) => !c.pass).map((c) => c.miss),
       score: passed.length / Math.max(cs.length, 1),
       cover: coverage(listing, f),
@@ -325,8 +310,8 @@ export function rank(f: SearchFilters): { results: SearchResult[]; matched: bool
   scored.sort((a, b) => b.score - a.score || b.cover - a.cover || a.listing.price - b.listing.price);
 
   const matches = scored.filter((s) => s.misses.length === 0);
-  if (matches.length) return { results: matches.map(({ listing, why }) => ({ listing, why, misses: [] })), matched: true };
-  return { results: scored.slice(0, 3).map(({ listing, why, misses }) => ({ listing, why, misses })), matched: false };
+  if (matches.length) return { results: matches.map(({ listing }) => ({ listing, misses: [] })), matched: true };
+  return { results: scored.slice(0, 3).map(({ listing, misses }) => ({ listing, misses })), matched: false };
 }
 
 // ---------- Putting it together ----------
@@ -359,7 +344,7 @@ export async function search(q: string): Promise<SearchResponse> {
       reply: q
         ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished room near Columbia, June to August, under $1,600.\""
         : "Tell me the place you want: your dates, your budget, the area. For now, here's everything.",
-      results: SAMPLE_LISTINGS.map((listing) => ({ listing, why: [], misses: [] })),
+      results: SAMPLE_LISTINGS.map((listing) => ({ listing, misses: [] })),
       matched: true,
       source,
     };

@@ -44,7 +44,7 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
       {!matched && <h2 className="closest-head">Closest options</h2>}
       <div className="results">
         {results.map((r) => (
-          <ResultCard key={r.listing.id} l={r.listing} why={r.why} misses={r.misses} />
+          <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
         ))}
       </div>
     </>

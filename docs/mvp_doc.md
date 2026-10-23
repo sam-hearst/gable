@@ -75,8 +75,8 @@ Subject: Thanks for signing up for Gable
 |---|---|---|
 | Updated side search UI on the live site | In scope | |
 | NYC student wording across pages | In scope | Change "Columbia" copy to "NYC students" where it means the audience. The email fields still say `you@columbia.edu`; change them to `you@school.edu`. |
-| A link ready for the Reddit posts | In scope | `gable-one.vercel.app` works today. Posts use lowercase UTMs. |
-| Custom domain | Undecided | Looks more trustworthy and is needed for the welcome email to land well. Costs about $10 to $15 a year. If we buy one, update the post links before posting. |
+| A link ready for the Reddit posts | In scope | Done: `www.gable.fit`. Posts use lowercase UTMs. |
+| Custom domain | In scope | Done: `www.gable.fit`. Next, verify it in an email service so the welcome email can send from it. |
 | Test changes before they reach the live site | In scope | `main` is the live site. A `staging` branch gets its own Vercel link that only the team uses. Changes go to staging first, then merge to `main`. |
 | Keep test data out of real data | In scope | Staging uses a separate Supabase project. GA should only run on the live site (`VERCEL_ENV === "production"`, not `NODE_ENV`). |
 | Welcome email working (automatic or by hand) | In scope | See section 3. |
@@ -107,11 +107,15 @@ These are done by people behind the scenes. They should look like samples or man
 
 ## Roles
 
-We don't have fixed roles. All three of us work on research, building, and outreach, and split tasks each week. For launch, each open item has one person who makes sure it gets done.
+| Owner | Builds | Owns traffic |
+|---|---|---|
+| Sam Hearst | The app: search, sign-in, favorites, landing pages, production and staging on Vercel | Facebook and Instagram housing groups |
+| Michelle Mai | Waitlist, welcome email, MVP doc, demand strategy | Reddit posts and replies |
+| Lookman Mustapha | Blog post, homework submission | The blog, linked from posts |
 
 ## What we're measuring
 
-- Signups by landing page and `utm_campaign`: which promise pulls (real listings, summer from out of town, or subletting your room)
+- Signups by landing page and `utm_campaign`: which promise pulls (real listings, summer from out of town, or sublets for two)
 - Searches typed (`chat_request`) vs. visitors who leave
 - Booking requests per search
 - What people type, saved as `looking_for`

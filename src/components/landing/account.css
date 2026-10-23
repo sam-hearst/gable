@@ -1,0 +1,30 @@
+/* The header's Sign in / Sign out link: plain text, so the header looks the
+   same as before apart from these words. */
+
+.account-link {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px;
+  border: 0; background: none; color: var(--ink-faint); font: inherit; font-size: 14px; font-weight: 500;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.account-link:hover { color: var(--ink); }
+
+/* Favorites shows here only when the header's tabs are hidden. */
+.account-fav { display: none; }
+.account-fav svg { display: none; }
+
+@media (max-width: 860px) {
+  .account-fav {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 6px;
+    color: var(--ink-faint); font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap;
+  }
+  .account-fav:hover { color: var(--accent-dark); }
+}
+
+/* Phones: just a heart icon. Sign in happens from Favorites, and Sign out is
+   on the Favorites page. */
+@media (max-width: 719px) {
+  .account-link { display: none; }
+  .account-fav { padding: 0; color: var(--accent); }
+  .account-fav svg { display: block; }
+  .account-fav-text { display: none; }
+}

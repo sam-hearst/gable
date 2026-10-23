@@ -20,6 +20,8 @@ flowchart LR
 - Search (demo): the homepage chat box sends people to `/search?q=...`. It
   shows hand-written sample listings from `src/content/listings.ts`; no real
   listing source is connected yet.
+- Accounts: Supabase Auth (email + password). Each user's hearted listings
+  are rows in a Supabase `favorites` table, shown on `/favorites` with a map.
 
 ## What's still open
 - **Where listing data comes from.** MLS access is the main blocker. Scraping

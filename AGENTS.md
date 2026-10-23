@@ -27,12 +27,21 @@ and use only the colors and fonts in the style guide.
   `/search` read requests with Claude (server only, never `NEXT_PUBLIC_`);
   without it, or if Claude is slow or fails, search falls back to keyword
   matching. It's also set in Vercel.
+  `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` turn on
+  sign-in and favorites (public values, safe in the browser; set in Vercel
+  for all environments). Without them, `/signin` says sign-in isn't set up.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in
   `src/content/listings.ts` (logic in `src/lib/search.ts`). Those are made-up
   SAMPLE listings for the demo, not real data. The other landing pages still
   open the email popup.
+- Accounts and favorites: email + password sign-in at `/signin` (Supabase
+  Auth, with "Confirm email" turned off so accounts work right away). Hearts on
+  `/search` save to the `favorites` table (create it with
+  `supabase/favorites.sql`; row level security keeps each person's saves
+  private), and `/favorites` shows them on a map (Leaflet + OpenStreetMap).
+  `src/proxy.ts` refreshes the sign-in session on those routes only.
 - The blog post lives at `/blog/how-to-find-your-dream-apartment-in-nyc`, with its copy in `src/content/blog.ts`.
 
 ## How we work

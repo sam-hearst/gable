@@ -1,15 +1,8 @@
 import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import type { SampleListing } from "@/content/listings";
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-// "2027-06-01" -> "Jun 1". Parsed by hand so the server's time zone can't
-// shift the day.
-function shortDate(iso: string) {
-  const [, m, d] = iso.split("-").map(Number);
-  return `${MONTHS[m - 1]} ${d}`;
-}
+import { shortDate } from "@/lib/format";
+import { HeartButton } from "./HeartButton";
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
 
@@ -24,6 +17,7 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
           <span className="dot" />
           {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
         </span>
+        <HeartButton id={l.id} title={l.title} />
       </div>
       <div className="body">
         <div className="price">

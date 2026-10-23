@@ -3,10 +3,13 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { CtaPhoto } from "@/components/landing/blocks";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
-import { ResultCard } from "@/components/search/ResultCard";
+import { SiteFooter } from "@/components/landing/SiteChrome";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
+import { ChatThread } from "@/components/search/ChatThread";
+import { ResultCard } from "@/components/search/ResultCard";
+import { SearchHeader } from "@/components/search/SearchHeader";
+import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import "./search.css";
@@ -16,54 +19,81 @@ export const metadata: Metadata = {
   description: "Places that fit what you asked for, and what we checked about each one.",
 };
 
-// Everything that depends on the request (?q=). It sits in Suspense so the
-// rest of the page is prerendered and this streams in once Claude (or the
-// keyword fallback) has read the request.
+function GableSays({ children, busy = false }: { children: React.ReactNode; busy?: boolean }) {
+  return (
+    <div className="search-msg search-msg-gable" role="status" aria-busy={busy || undefined}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="search-msg-icon" src="/logo/gable-favicon.svg" alt="Gable" width={28} height={28} />
+      <p>{children}</p>
+    </div>
+  );
+}
+
+// Left column under the chat: what these listings are, and a way to start over.
+function SideNotes() {
+  return (
+    <>
+      <p className="search-fine">These are sample places for our demo, not real listings yet.</p>
+      <Link className="search-new" href="/">
+        Start a new search
+      </Link>
+    </>
+  );
+}
+
+// The conversation so far: every ?q= in order (the first request, then
+// follow-ups), trimmed, at most the last 10.
+function readMessages(raw: string | string[] | undefined) {
+  const all = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  return all
+    .map((m) => m.trim().slice(0, 500))
+    .filter(Boolean)
+    .slice(-10);
+}
+
+// Everything that depends on the conversation (?q=). It sits in Suspense so
+// the rest of the page is prerendered and this streams in once Claude (or the
+// keyword fallback) has read it.
 async function Results({ searchParams }: { searchParams: PageProps<"/search">["searchParams"] }) {
-  const raw = (await searchParams).q;
-  const q = (Array.isArray(raw) ? raw[0] : raw)?.trim().slice(0, 500) ?? "";
+  const messages = readMessages((await searchParams).q);
   // Calling Claude is per-request work: without this, Next.js also runs it
   // during its prerender check, which errors on the SDK's Date.now() and
   // makes a second, aborted API call.
   await connection();
-  const [{ reply, results, matched }, favorites] = await Promise.all([search(q), getFavorites()]);
+  const [{ reply, results, matched }, favorites] = await Promise.all([search(messages), getFavorites()]);
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
-      <div className="search-thread">
-        {q && (
-          <div className="search-msg search-msg-you">
-            <h1>{q}</h1>
-          </div>
-        )}
-        <div className="search-msg search-msg-gable" role="status">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="search-avatar" src="/logo/gable-favicon.svg" alt="Gable" width={32} height={32} />
-          <p>{reply}</p>
+      <SearchSession messages={messages}>
+        <div className="search-side">
+          <ChatThread reply={reply} />
+          <SideNotes />
         </div>
-      </div>
-      {!q && <h1 className="sr-only">Search</h1>}
 
-      <div className="search-saved">
-        <SavedCount />
-      </div>
-      {!matched && <h2 className="closest-head">Closest options</h2>}
-      <div className="results">
-        {results.map((r) => (
-          <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
-        ))}
-      </div>
+        <div className="search-results">
+          <div className="search-results-top">
+            {!matched && <h2 className="closest-head">Closest options</h2>}
+            <SavedCount />
+          </div>
+          <div className="results">
+            {results.map((r) => (
+              <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
+            ))}
+          </div>
+        </div>
+      </SearchSession>
     </FavoritesProvider>
   );
 }
 
 function Loading() {
   return (
-    <div className="search-thread" aria-busy="true">
-      <div className="search-msg search-msg-gable">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="search-avatar" src="/logo/gable-favicon.svg" alt="Gable" width={32} height={32} />
-        <p>Reading your request…</p>
+    <div className="search-layout">
+      <div className="search-side">
+        <div className="search-thread">
+          <GableSays busy>Reading your request…</GableSays>
+        </div>
+        <SideNotes />
       </div>
     </div>
   );
@@ -72,23 +102,10 @@ function Loading() {
 export default function Search({ searchParams }: PageProps<"/search">) {
   return (
     <>
-      <SiteHeader current="none" />
+      <SearchHeader />
       <main>
-        <section className="section search-head">
-          <div className="wrap">
-            <div className="search-top">
-              <div className="eyebrow">Your search</div>
-              <Link className="btn btn-secondary btn-sm" href="/">
-                New search
-              </Link>
-            </div>
-            <div className="search-note">
-              <span className="badge">
-                <span className="dot" />
-                Sample listings
-              </span>
-              <p>These are sample places for our demo, not real listings yet.</p>
-            </div>
+        <section className="search-main">
+          <div className="search-wrap">
             <Suspense fallback={<Loading />}>
               <Results searchParams={searchParams} />
             </Suspense>

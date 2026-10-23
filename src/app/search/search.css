@@ -1,50 +1,123 @@
 /* Styles for the /search route only, so the shared landing.css stays
    untouched. Colors are the style guide tokens defined in landing.css. */
 
-/* Header area and result cards */
+.search-wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
 
-.search-head { padding-bottom: 24px; }
-.search-head h1 { margin-top: 6px; font-size: clamp(28px, 4vw, 44px); max-width: 24ch; overflow-wrap: anywhere; }
-.search-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 20px; }
-.search-note p { font-size: 15px; color: var(--ink-faint); max-width: 65ch; }
+/* Header: logo left; "Sample listings" pill and account on the right */
 
-.results-section { padding-top: 0; }
-.results { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 720px) { .results { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1040px) { .results { grid-template-columns: repeat(3, 1fr); } }
+.search-topbar { background: var(--bg); border-bottom: 1px solid var(--sage-line); }
+.search-topbar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 76px; }
+.search-topbar-right { display: flex; align-items: center; gap: 12px; }
+.sample-pill {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; border-radius: 999px;
+  background: var(--sage); color: var(--accent-dark);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+}
+.search-account, .search-account-slot { width: 44px; height: 44px; flex-shrink: 0; }
+.search-account {
+  display: grid; place-items: center; border-radius: 999px;
+  background: var(--sage); color: var(--accent-dark); font-size: 17px; font-weight: 700; text-decoration: none;
+}
+.search-account:hover { background: var(--sage-line); }
+.search-signin {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px;
+  color: var(--accent-dark); font-size: 15px; font-weight: 700; text-decoration: none; white-space: nowrap;
+}
+.search-signin:hover { text-decoration: underline; }
 
-.result { background: var(--sage); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
-.result .photo { position: relative; aspect-ratio: 4 / 3; }
+/* Two columns on desktop: the chat on the left, the cards on the right */
+
+.search-main { padding: 36px 0 72px; }
+.search-layout { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+
+.search-thread { display: flex; flex-direction: column; gap: 14px; }
+.search-msg { border-radius: 20px; padding: 16px 20px; }
+.search-msg p { font-size: 17px; line-height: 1.55; }
+.search-msg-you {
+  align-self: flex-end; max-width: 92%;
+  background: var(--ink); color: var(--bg); border-bottom-right-radius: 6px;
+}
+.search-msg-gable {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: var(--sage); color: var(--ink); border-bottom-left-radius: 6px;
+}
+.search-msg-icon { width: 28px; height: 28px; flex-shrink: 0; margin-top: 1px; }
+.search-msg-gable[aria-busy="true"] p { color: var(--ink-faint); }
+.search-fine { margin-top: 16px; font-size: 14px; color: var(--ink-faint); }
+.search-new {
+  display: inline-flex; align-items: center; min-height: 44px; margin-top: 4px;
+  color: var(--accent-dark); font-size: 14px; font-weight: 500; text-decoration: underline;
+}
+
+/* The conversation: each turn is your message, then Gable's reply */
+.search-turn { display: flex; flex-direction: column; gap: 14px; }
+.search-msg-you p { font-weight: 500; overflow-wrap: anywhere; }
+
+/* Follow-up box under the chat */
+.search-followup {
+  display: flex; align-items: flex-end; gap: 8px; margin-top: 16px; padding: 8px 8px 8px 16px;
+  background: var(--bg); border: 2px solid var(--sage-line); border-radius: 20px;
+}
+.search-followup:focus-within { border-color: var(--accent); }
+.search-followup textarea {
+  flex: 1; min-height: 40px; max-height: 140px; padding: 9px 0; resize: none; border: 0; outline: 0;
+  background: transparent; color: var(--ink); font: inherit; font-size: 16px; line-height: 1.4; field-sizing: content;
+}
+.search-followup textarea::placeholder { color: var(--ink-faint); }
+.search-send {
+  display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; padding: 0;
+  border: 0; border-radius: 999px; background: var(--accent); color: var(--bg); cursor: pointer;
+}
+.search-send:hover { background: var(--accent-dark); }
+.search-send:disabled { background: var(--sage-line); color: var(--ink-faint); cursor: default; }
+
+/* While a follow-up is being answered, dim the old results */
+.search-results { transition: opacity 0.2s ease; }
+.search-layout[data-pending] .search-results { opacity: 0.45; pointer-events: none; }
+
+.search-results-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 14px; }
+.search-results-top .saved-count { margin-left: auto; }
+.closest-head { font-size: 20px; }
+
+/* Cards: 1 across on phones, 2 on tablets, 3 next to the chat on desktop */
+
+.results { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media (min-width: 640px) { .results { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.result {
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg); border: 1px solid var(--sage-line); border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(30, 43, 36, 0.04), 0 10px 28px -16px rgba(30, 43, 36, 0.22);
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.result:hover {
+  border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 1px 2px rgba(30, 43, 36, 0.05), 0 16px 32px -16px rgba(30, 43, 36, 0.28);
+}
+.result .photo { position: relative; aspect-ratio: 4 / 3; background: var(--sage); }
 .result .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.result .photo .badge { position: absolute; top: 10px; left: 10px; }
-.result .body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
-.result .price { font-weight: 700; font-size: 20px; }
-.result .price span { font-weight: 400; font-size: 13px; color: var(--ink-faint); }
-.result h2 { font-size: 17px; margin-top: 2px; }
-.result .where { font-size: 14px; margin-top: 4px; }
-.result .meta { margin-top: 4px; font-size: 13px; color: var(--ink-faint); line-height: 1.5; }
-.result .good-for { margin-top: 10px; font-size: 15px; line-height: 1.5; }
-.result .checked { margin: 12px 0; }
-.result .checked .k { font-size: 12px; font-weight: 700; color: var(--ink-faint); }
-.result .checked ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
-.result .checked li { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.result .checked li svg { color: var(--accent); flex-shrink: 0; }
-.result .src { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--sage-line); font-size: 12px; color: var(--ink-faint); }
+.result .photo .badge { position: absolute; top: 12px; left: 12px; background: var(--bg); }
+.result .body { display: flex; flex-direction: column; flex: 1; padding: 18px 20px 20px; }
+.result .price { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+.result .price span { margin-left: 4px; font-size: 15px; font-weight: 400; letter-spacing: 0; color: var(--ink-faint); }
+.result .kind { margin-top: 6px; font-size: 17px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.35; }
+.result .when { margin-top: 4px; font-size: 15px; color: var(--ink-faint); }
+.result .fit { margin-top: 12px; font-size: 14px; font-weight: 700; color: var(--accent); line-height: 1.45; }
+.result .misses { margin-top: 8px; font-size: 13px; color: var(--ink-faint); line-height: 1.45; }
 
-/* Chat-style reply and match notes */
+@media (min-width: 1100px) {
+  .search-layout { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 40px; }
+  .search-side { position: sticky; top: 24px; }
+  /* A long conversation scrolls inside the chat column, not the page. */
+  .search-thread { max-height: calc(100vh - 300px); overflow-y: auto; padding-right: 4px; }
+}
+@media (min-width: 1200px) {
+  .results { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
-.search-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-
-.search-thread { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; max-width: 720px; }
-.search-msg { border-radius: var(--radius); padding: 14px 18px; }
-.search-msg p { font-size: 17px; line-height: 1.6; max-width: 65ch; }
-.search-msg-you { align-self: flex-end; background: var(--accent); color: var(--bg); border-bottom-right-radius: 4px; max-width: 85%; }
-.search-msg-you h1 { font-size: 17px; font-weight: 500; letter-spacing: 0; line-height: 1.5; overflow-wrap: anywhere; }
-.search-msg-gable { align-self: flex-start; display: flex; gap: 12px; align-items: flex-start; background: var(--sage); border-bottom-left-radius: 4px; }
-.search-msg-gable .search-avatar { width: 32px; height: 32px; flex-shrink: 0; }
-.search-msg[aria-busy="true"] p, .search-thread[aria-busy="true"] p { color: var(--ink-faint); }
-
-.closest-head { font-size: 20px; margin-bottom: 14px; }
-
-.result .misses { margin-top: 10px; padding: 8px 10px; border-radius: 12px; background: var(--bg); font-size: 13px; line-height: 1.5; }
-.result .misses b { display: block; font-size: 12px; color: var(--ink-faint); }
+@media (max-width: 719px) {
+  .search-wrap { padding: 0 16px; }
+  .search-topbar-inner { min-height: 64px; }
+  .search-main { padding: 24px 0 48px; }
+  .sample-pill { padding: 0 10px; font-size: 11px; }
+}

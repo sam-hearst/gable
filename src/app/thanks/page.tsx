@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ShareCard } from "./ShareCard";
 import { SignupTracker } from "./SignupTracker";
 
 export const metadata: Metadata = {
@@ -29,17 +30,14 @@ export default function ThanksPage() {
             <img src="/logo/gable-mark.svg" alt="" width={72} height={72} style={{ margin: "0 auto" }} />
             <h1 style={{ marginTop: 20 }}>You&apos;re on the list.</h1>
             <p className="sub">Thanks for trusting us with this. We&apos;ll email you as soon as we have verified matches. No spam, ever.</p>
-            <div className="callout" style={{ margin: "40px auto 0", maxWidth: 560, textAlign: "left" }}>
-              <h3>Know someone else looking?</h3>
-              <p>
-                Most students find housing through friends. Send Gable to a classmate who&apos;s hunting for a sublet.
-              </p>
-              <p style={{ marginTop: 16 }}>
-                <Link className="btn btn-secondary" href="/">
-                  Back to Gable
-                </Link>
-              </p>
-            </div>
+            <Suspense>
+              <ShareCard />
+            </Suspense>
+            <p style={{ marginTop: 24 }}>
+              <Link className="btn btn-secondary" href="/">
+                Back to Gable
+              </Link>
+            </p>
           </div>
         </section>
       </main>

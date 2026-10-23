@@ -41,6 +41,8 @@ and use only the colors and fonts in the style guide.
   - Locally, add `NEXT_PUBLIC_GABLE_MODE=demo` to `.env.local` to see the demo.
   - To update staging: `git push origin main:staging` (or merge into `staging`
     first and test there before merging to `main`).
+- `/thanks` has a share card with each signup's personal referral link; `npm run referrals`
+  lists who brought whom (see `docs/landing_pages.md`).
 - Gable is **sublets only** for now: no rooms or apartments as categories, and no page for
   listing your own room (`/sublet-your-room` redirects home). Listings still say what the
   space is, as "Sublet · private room".

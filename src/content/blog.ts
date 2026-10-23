@@ -1,7 +1,7 @@
 // Copy for the blog. Same rules as pages.ts: canonical language in, "language
 // to avoid" out (docs/brand_position.md). Quotes are verbatim from our Reddit
 // research. Facts about NYC rules were current as of the post's date; recheck
-// them before republishing.
+// them before republishing. Gable is sublets only for now, so the guide is too.
 
 // A run of text inside a paragraph or list item: plain, or a link.
 export type Inline = string | { text: string; href: string };
@@ -12,8 +12,9 @@ export type Block =
   | { type: "ul"; items: Inline[][] }
   | { type: "ol"; items: Inline[][] }
   | { type: "quote"; text: string; source: string; href: string }
-  // Points the reader to the landing page that matches the section they just read.
-  | { type: "next"; text: string; label: string; href: string };
+  // Points the reader to the landing page that matches the section they just
+  // read. The demo site has no landing pages, so `demo` runs a search instead.
+  | { type: "next"; text: string; label: string; href: string; demo: { label: string; q: string } };
 
 // A Pexels photo (docs/style_guide.md, Imagery), rendered through px() in Photo.tsx.
 export type BlogPhoto = {
@@ -39,13 +40,18 @@ export type BlogPost = {
   body: Block[];
   closingHeadline: string;
   closingBody: string;
+  // The demo site's ending: a search instead of the waitlist.
+  demoClosingHeadline: string;
+  demoClosingBody: string;
 };
 
-export const dreamApartmentPost: BlogPost = {
-  slug: "how-to-find-your-dream-apartment-in-nyc",
-  title: "How to Find Your Dream Apartment in NYC",
+const UTM = "?utm_source=blog&utm_medium=post&utm_campaign=dream_sublet";
+
+export const dreamSubletPost: BlogPost = {
+  slug: "how-to-find-your-dream-sublet-in-nyc",
+  title: "How to Find Your Dream Sublet in NYC",
   metaDescription:
-    "A plain guide to finding an NYC apartment: what to decide first, the money rules, when to search, how to tell which listings are real, and what to check before you sign.",
+    "A plain guide to finding a sublet in New York: what to decide first, when to look, how to tell which listings are real, and what to check before you pay or sign.",
   author: "Lookman Mustapha",
   authorBio:
     "Lookman Mustapha is a Columbia student and one of the three people building Gable. This guide comes from our team’s interviews with students about their housing searches, and from NYC housing threads on Reddit.",
@@ -57,10 +63,10 @@ export const dreamApartmentPost: BlogPost = {
     pexelsUrl: "https://www.pexels.com/photo/red-brick-building-with-fire-escape-staircase-11872593/",
   },
   ctaPhoto: 5928131,
-  readMinutes: 9,
+  readMinutes: 8,
   intro: [
     [
-      "Your dream apartment in New York probably isn’t the one with the best photos. It’s the one that fits your life: a commute you don’t dread, a rent you can carry without stress, a landlord who answers, and a lease that says what you were told.",
+      "Your dream sublet in New York probably isn’t the one with the best photos. It’s the one that fits your dates exactly, sits on a commute you don’t dread, costs what you can carry, and comes from a tenant who answers and is allowed to sublet.",
     ],
     [
       "We’re three Columbia students who have been through this search, and we’ve talked to a lot of people going through it now. Over and over, they told us the same thing: finding listings isn’t the hard part. Knowing which ones fit, and which ones are real, is. This guide is everything we wish we’d known before we started.",
@@ -77,41 +83,35 @@ export const dreamApartmentPost: BlogPost = {
     {
       type: "ul",
       items: [
-        ["**Your move-in date,** and how flexible it is. A week either way opens up a lot more places."],
+        ["**Your exact dates.** Move-in and move-out. “Summer” isn’t a date; June 1 to August 15 is. A few days of give on either end opens up a lot more places."],
         ["**Your real budget,** including utilities, internet, and the deposit you’ll pay up front."],
         ["**Where you need to get to,** every day. Work, campus, the gym. Write down the commute you’d accept, in minutes."],
-        ["**Your three must-haves.** Only three. Laundry in the building, a dog, a second bedroom, light."],
-        ["**Your nice-to-haves.** Everything else goes here, so you can trade them off later."],
+        ["**What kind of space.** A private room in a shared apartment, a whole studio, or a room for you and a friend."],
+        ["**Your three must-haves.** Only three. Furnished, a lister who replies fast, laundry in the building, a cat."],
       ],
     },
     {
       type: "p",
       text: [
-        "If you can say it in one sentence, like “quiet 1-bedroom near the 1 train, under $3,000, with laundry, from January 1,” you’re ready. That sentence is your search. Every listing either fits it or it doesn’t.",
+        "If you can say it in one sentence, like “furnished room near the 1 train, June 1 to August 15, under $1,700,” you’re ready. That sentence is your search. Every listing either fits it or it doesn’t.",
       ],
     },
 
-    { type: "h2", id: "money", text: "2. Know the money rules before you apply" },
+    { type: "h2", id: "money", text: "2. Know what you should pay, and when" },
     {
       type: "p",
       text: [
-        "NYC has its own rules for what a landlord can ask for. Knowing them keeps you from overpaying and helps you spot a bad deal fast.",
+        "Sublets are less formal than leases, which is exactly why money is where people get burned. A few rules keep you out of trouble:",
       ],
     },
     {
       type: "ul",
       items: [
-        ["**The 40x rule.** Most landlords want your yearly income to be about 40 times the monthly rent. For a $2,500 apartment, that’s $100,000 a year."],
-        ["**Guarantors.** If you don’t meet 40x (most students don’t), landlords usually ask for a guarantor earning about 80 times the rent. If you don’t have one, guarantor companies will co-sign for a fee."],
-        ["**Application fees are capped at $20** in New York State, and that should cover the background and credit check."],
-        ["**Security deposits are capped at one month’s rent.** A landlord can’t ask for two or three months up front."],
-        ["**Broker fees.** Since June 2025, NYC’s FARE Act means that if a landlord hires a broker to list an apartment, the landlord pays that broker, not you. You only pay a broker you hire yourself."],
-      ],
-    },
-    {
-      type: "p",
-      text: [
-        "If someone asks for a $200 application fee, three months up front, or a fee for a broker you never hired, that’s a reason to walk away, or at least to ask why.",
+        ["**Nothing before you’ve seen it and signed.** No deposit “to hold it,” no first month before a tour. A written sublease comes first, then money."],
+        ["**Expect about one month’s deposit.** Ask in writing how and when you get it back. A deposit of more than one month’s rent is a reason to ask questions."],
+        ["**Most sublets have no broker.** You’re renting from the tenant. If someone wants a fee for a broker you never hired, walk away."],
+        ["**If the apartment is rent stabilized,** the tenant can only charge you the legal rent, plus up to 10% if it comes furnished."],
+        ["**Pay in a way you can trace,** like a check or a platform that protects you. Never Zelle, Venmo, wire, crypto, or gift cards to someone you haven’t met."],
       ],
     },
 
@@ -119,27 +119,20 @@ export const dreamApartmentPost: BlogPost = {
     {
       type: "p",
       text: [
-        "Most NYC apartments go on the market about 30 days before they’re free. Start looking more than six weeks early and you’ll mostly see places that are gone by the time you can move. Start two to four weeks before your move-in date, and be ready to apply the same day you see something you like.",
+        "Most sublets go up a few weeks before they’re free, when the tenant’s plans firm up. Summer sublets tend to show up from March through May, as students lock in internships and travel. Spring semester sublets cluster around November and December. Start looking about four to six weeks before your move-in date, and be ready to say yes the day you find one that fits.",
       ],
     },
     {
       type: "p",
-      text: [
-        "Summer is the busiest and most expensive time, because graduates and new hires all move at once. Winter is quieter, and landlords are more willing to negotiate. If your dates are flexible, a November to February move can save real money.",
-      ],
-    },
-    {
-      type: "p",
-      text: ["Keep these in one folder on your phone so you can apply in minutes:"],
+      text: ["Tenants pick the person who seems easiest to trust. Keep these ready to share:"],
     },
     {
       type: "ul",
       items: [
-        ["A photo ID"],
-        ["Your offer letter or last two pay stubs (or your student ID and proof of aid, if you’re a student)"],
-        ["Your last two bank statements"],
-        ["Your most recent tax return, if you filed one"],
-        ["The same set from your guarantor, if you have one"],
+        ["A photo ID, and your student ID or offer letter"],
+        ["A line about who you are and why you’re in the city (“summer intern at a bank in Midtown, quiet, no parties”)"],
+        ["Your exact dates and how you’ll pay"],
+        ["A reference, like a past roommate or landlord, if you have one"],
       ],
     },
 
@@ -153,7 +146,7 @@ export const dreamApartmentPost: BlogPost = {
     {
       type: "p",
       text: [
-        "Before you commit, ride the commute once at the hour you’d actually take it. A 20-minute trip on the map can be 40 minutes at 8:30 a.m. with a transfer. Then walk the blocks around the apartment at night, and see if you like it.",
+        "If you can, ride the commute once at the hour you’d actually take it. A 20-minute trip on the map can be 40 minutes at 8:30 a.m. with a transfer.",
       ],
     },
 
@@ -161,21 +154,21 @@ export const dreamApartmentPost: BlogPost = {
     {
       type: "p",
       text: [
-        "It’s tempting to search everywhere at once. That’s how people end up on seven sites, messaging dozens of people, and touring 30 places. Pick two or three sources that match the kind of place you need:",
+        "It’s tempting to search everywhere at once. That’s how people end up on seven sites, messaging dozens of people, and touring 30 places. Pick two or three:",
       ],
     },
     {
       type: "ul",
       items: [
-        ["**For a 12-month lease:** the big listing sites, plus walking around the neighborhood you want and calling the numbers on “for rent” signs. Smaller buildings often never list online."],
-        ["**For a sublet or a room:** your school’s housing groups and group chats, where people have to show they’re a student to join. Ask friends of friends first. A place from somebody who knows somebody is still the best kind."],
-        ["**For anything on Facebook Marketplace or open groups:** go slowly. That’s where most of the scams are."],
+        ["**Ask friends of friends first.** A sublet from somebody who knows somebody is still the best kind."],
+        ["**Your school’s housing groups and group chats,** where people have to show they’re a student to join."],
+        ["**Facebook Marketplace and open groups:** go slowly. That’s where most of the scams are."],
       ],
     },
     {
       type: "p",
       text: [
-        "Set up alerts for your one-sentence search on the sites you picked, and check them every morning. Good places go in a day or two.",
+        "Write a short post of your own too, with your dates, budget, and one line about you. Tenants who are leaving often scroll the groups looking for someone like you.",
       ],
     },
 
@@ -188,45 +181,46 @@ export const dreamApartmentPost: BlogPost = {
     },
     {
       type: "p",
-      text: ["Rental scams in NYC follow the same pattern almost every time. Watch for these:"],
+      text: ["Sublet scams in NYC follow the same pattern almost every time. Watch for these:"],
     },
     {
       type: "ul",
       items: [
-        ["**They want money before you see the place.** A deposit “to hold it,” or the first month before a tour. Real landlords let you see it first."],
-        ["**They want Zelle, Venmo, wire, crypto, or gift cards.** None of these can be taken back once sent. Pay by check or through a platform that protects you, and only after you’ve signed a lease."],
-        ["**They can’t show it.** They’re “out of the country,” “a missionary,” or “the keys will be mailed.” If no one can open the door, there’s no apartment."],
-        ["**The price is far below the area.** A $1,400 one-bedroom in the West Village isn’t a lucky find."],
+        ["**They want money before you see the place.** A deposit “to hold it,” or the first month before a tour. Real tenants let you see it first."],
+        ["**They want Zelle, Venmo, wire, crypto, or gift cards.** None of these can be taken back once sent."],
+        ["**They can’t show it.** They’re “out of the country,” “a missionary,” or “the keys will be mailed.” If no one can open the door, there’s no sublet."],
+        ["**The price is far below the area.** A $900 furnished room steps from campus isn’t a lucky find."],
         ["**The photos show up elsewhere.** Run them through a reverse image search like ", { text: "Google Lens", href: "https://lens.google.com/" }, ". Scammers copy photos from real listings."],
-        ["**There’s pressure.** “Five other people want it, pay today.” Real places do go fast, but a real landlord will still wait for you to see it and sign."],
+        ["**There’s pressure.** “Five other people want it, pay today.” Good sublets do go fast, but a real tenant will still wait for you to see it and sign."],
       ],
     },
     {
       type: "p",
       text: [
-        "One more check: ask to see proof that the person is on the lease or owns the building, and look the address up (next section). Someone who’s real won’t mind.",
+        "One more check: ask to see proof that the person is on the lease, like a lease page or a utility bill with their name and the address. Someone who’s real won’t mind.",
       ],
     },
     {
       type: "next",
       text: "Looking for a sublet near Columbia? Every sublet on Gable comes from a verified student tenant, with photos checked and the address confirmed.",
-      label: "See how we verify listings",
-      href: "/verified?utm_source=blog&utm_medium=post&utm_campaign=dream_apartment",
+      label: "See how we verify sublets",
+      href: `/verified${UTM}`,
+      demo: { label: "Search verified sublets", q: "Sublet near Columbia, lister who replies" },
     },
 
     { type: "h2", id: "check-building", text: "7. Check the building without visiting" },
     {
       type: "p",
       text: [
-        "NYC publishes a lot about its buildings, and almost nobody looks. Five minutes here can save you a year in a bad one.",
+        "NYC publishes a lot about its buildings, and almost nobody looks. Five minutes here can save you a summer in a bad one.",
       ],
     },
     {
       type: "ul",
       items: [
         [{ text: "HPD Online", href: "https://hpdonline.nyc.gov/hpdonline/" }, " shows a building’s open housing violations and complaints (heat, hot water, mold, pests) and who the registered owner is. A long list of open violations is a warning sign."],
-        ["**Ask for the bedbug history.** NYC landlords have to tell you whether the building has had bedbugs in the past year."],
-        ["**Check if it’s rent stabilized.** About half of NYC rentals are. If it is, your rent increases are limited each year. You can request the apartment’s rent history from ", { text: "NY State Homes and Community Renewal", href: "https://hcr.ny.gov/" }, "."],
+        ["**Ask about bedbugs.** NYC landlords have to disclose the building’s bedbug history from the past year, so the tenant can ask theirs if they don’t know."],
+        ["**Check if it’s rent stabilized.** About half of NYC rentals are, and it caps what the tenant can charge you. The tenant can request the apartment’s rent history from ", { text: "NY State Homes and Community Renewal", href: "https://hcr.ny.gov/" }, "."],
         ["**Look at it on Street View.** It takes a minute, and it tells you whether the building in the photos is the building at the address."],
       ],
     },
@@ -242,17 +236,16 @@ export const dreamApartmentPost: BlogPost = {
       type: "ul",
       items: [
         ["Turn on the shower and the kitchen tap. Is the water pressure OK, and how long does hot water take?"],
-        ["Check your phone signal in every room."],
-        ["Open the windows. What do you hear? Where does the light come from, and at what time of day?"],
-        ["Count the outlets, and look inside the closets."],
+        ["Check your phone signal in your room."],
+        ["Open the window. What do you hear? Where does the light come from?"],
+        ["Meet the roommates if there are any. You’ll share a kitchen with them for months."],
         ["Look for signs of pests: droppings under the sink, traps in corners."],
-        ["Ask a neighbor in the hallway how they like the building. People are surprisingly honest."],
       ],
     },
     {
       type: "p",
       text: [
-        "**Searching from out of town?** Ask for a live video call, not a pre-recorded video, and ask them to do the checks above while you watch. Better yet, ask a friend in the city to go for you. Never pay for a place you haven’t seen, live, in some form.",
+        "**Searching from out of town?** Ask for a live video call, not a pre-recorded video, and ask the tenant to do the checks above while you watch. Better yet, ask a friend in the city to go for you. Never pay for a place you haven’t seen, live, in some form.",
       ],
     },
     {
@@ -264,67 +257,62 @@ export const dreamApartmentPost: BlogPost = {
     {
       type: "next",
       text: "Coming to NYC for a summer internship or as an incoming student? Gable has 10 to 12 week sublets near Columbia with exact dates, and someone on our team sees every place in person, so you don’t have to fly in first.",
-      label: "Find a summer room",
-      href: "/summer?utm_source=blog&utm_medium=post&utm_campaign=dream_apartment",
+      label: "Find a summer sublet",
+      href: `/summer${UTM}`,
+      demo: { label: "Search summer sublets", q: "Summer sublet near Columbia for my internship, June to August" },
     },
 
-    { type: "h2", id: "before-you-sign", text: "9. Before you sign the lease" },
-    {
-      type: "ul",
-      items: [
-        ["**Read the whole lease, including the riders.** That’s where the rules about pets, guests, subletting, and moving out early are."],
-        ["**Get every promise in writing.** “We’ll paint before you move in” means nothing unless it’s in the lease or an email."],
-        ["**Know who pays for what.** Heat, hot water, gas, electric, internet. Ask what last winter’s bills looked like."],
-        ["**Pay the landlord or management company directly,** by check or a traceable payment, and get a receipt. Never pay cash, and never pay before the lease is signed by both sides."],
-        ["**Photograph everything on move-in day,** with dates. It’s how you get your deposit back."],
-      ],
-    },
-
-    { type: "h2", id: "sublets", text: "10. If you’re subletting, a few extra checks" },
+    { type: "h2", id: "allowed", text: "9. Make sure the sublet is allowed" },
     {
       type: "p",
       text: [
-        "Sublets are how a lot of students and interns live in NYC, and they come with their own risks, because you’re renting from a tenant, not the landlord.",
+        "You’re renting from a tenant, not the landlord. If the landlord never agreed, you could be asked to leave mid-stay, even if you paid.",
       ],
     },
     {
       type: "ul",
       items: [
-        ["**Make sure the person is on the lease,** and ask whether their landlord has agreed to the sublet. In many NYC buildings the tenant has to ask the landlord in writing first. Without that, you could be asked to leave."],
-        ["**Sign a written sublease** with your exact dates, the rent, the deposit, and what happens to the deposit at the end."],
-        ["**If the apartment is rent stabilized,** the tenant can only charge you the legal rent, plus up to 10% if it comes furnished."],
-        ["**Pin down the dates.** “Summer” isn’t a date. June 1 to August 15 is."],
+        ["**Make sure the person is on the lease.** Ask to see it."],
+        ["**Ask whether the landlord has agreed in writing.** In many NYC buildings the tenant has to ask the landlord first, and the landlord can’t say no without a good reason. Ask to see the approval."],
+        ["**Check how long the tenant is gone.** They should be coming back. Someone “subletting” a place they’ve already left for good is a warning sign."],
       ],
     },
+
+    { type: "h2", id: "before-you-sign", text: "10. Before you sign the sublease" },
     {
-      type: "next",
-      text: "On the other side of this? If you’re leaving for a semester or the summer, Gable sends you a short list of Columbia-verified students who fit your dates, instead of 40 messages from strangers.",
-      label: "Sublet your room",
-      href: "/sublet-your-room?utm_source=blog&utm_medium=post&utm_campaign=dream_apartment",
+      type: "ul",
+      items: [
+        ["**Get a written sublease** with your exact dates, the rent, the deposit, who pays which utilities, and when you get the deposit back."],
+        ["**Get every promise in writing.** “The room will be cleared out before you move in” means nothing unless it’s in the sublease or a text."],
+        ["**Pay the tenant in a traceable way** and get a receipt. Never pay before both of you have signed."],
+        ["**Photograph everything on move-in day,** with dates. It’s how you get your deposit back."],
+      ],
     },
 
     { type: "h2", id: "checklist", text: "The short version" },
     {
       type: "ol",
       items: [
-        ["Write your search as one sentence: dates, budget, commute, three must-haves."],
-        ["Have your documents ready before you tour anything."],
-        ["Start two to four weeks before your move-in date."],
+        ["Write your search as one sentence: exact dates, budget, commute, three must-haves."],
+        ["Start four to six weeks before your move-in date."],
         ["Pick neighborhoods by subway line, not by name."],
-        ["Use two or three sources, not twenty."],
-        ["Never pay before you’ve seen the place and signed a lease. Never pay by Zelle or wire."],
+        ["Use two or three sources, not twenty, and post your own ask."],
+        ["Never pay before you’ve seen the place and signed. Never pay by Zelle or wire."],
         ["Look up the building on HPD Online."],
-        ["Tour for the things photos hide."],
-        ["Get every promise in writing."],
+        ["Make sure the tenant is on the lease and the landlord said yes."],
+        ["Get a written sublease, and get every promise in writing."],
       ],
     },
   ],
   closingHeadline: "Get early access to Gable.",
   closingBody:
-    "We’re building Gable to do the hard part of this guide for you: sublets and rooms near Columbia where every lister is a verified student tenant. It’s opening to Columbia students first. Leave your email and we’ll let you know.",
+    "We’re building Gable to do the hard part of this guide for you: sublets near Columbia where every lister is a verified student tenant. It’s opening to Columbia students first. Leave your email and we’ll let you know.",
+  demoClosingHeadline: "Find your sublet.",
+  demoClosingBody:
+    "Gable does the hard part of this guide for you: tell it your dates and budget, and see the sublets that fit, with what we checked about each one.",
 };
 
-export const blogPosts: BlogPost[] = [dreamApartmentPost];
+export const blogPosts: BlogPost[] = [dreamSubletPost];
 
 export function findBlogPost(slug: string) {
   return blogPosts.find((post) => post.slug === slug);

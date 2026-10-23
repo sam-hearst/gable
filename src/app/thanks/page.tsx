@@ -32,8 +32,7 @@ export default function ThanksPage() {
             <div className="callout" style={{ margin: "40px auto 0", maxWidth: 560, textAlign: "left" }}>
               <h3>Know someone else looking?</h3>
               <p>
-                Most students find housing through friends. Send Gable to a classmate who&apos;s hunting for a sublet, or who has a
-                room to fill.
+                Most students find housing through friends. Send Gable to a classmate who&apos;s hunting for a sublet.
               </p>
               <p style={{ marginTop: 16 }}>
                 <Link className="btn btn-secondary" href="/">

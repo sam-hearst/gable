@@ -29,7 +29,7 @@ Not posted yet. Each post needs:
 - **Date posted:** when it went up
 
 UTM format: `?utm_source=<channel>&utm_medium=<post-type>&utm_campaign=<campaign>`, all lowercase.
-Example: `https://gable-one.vercel.app/?utm_source=reddit&utm_medium=post&utm_campaign=launch`
+Example: `https://www.gable.fit/?utm_source=reddit&utm_medium=post&utm_campaign=launch`
 
 One post per landing page, one per subreddit, so signups by `utm_campaign` tell us which promise and which community pull. Each post is useful on its own first, says plainly that we're students building Gable, and puts the link last. Check each subreddit's self-promotion rules before posting; if links aren't allowed, post without the link and reply with it when people ask.
 
@@ -37,70 +37,44 @@ One post per landing page, one per subreddit, so signups by `utm_campaign` tell 
 
 - Where: r/NYCapartments
 - Owner: Michelle Mai
-- Link: `https://gable-one.vercel.app/verified?utm_source=reddit&utm_medium=post&utm_campaign=verified`
+- Link: `https://www.gable.fit/verified?utm_source=reddit&utm_medium=post&utm_campaign=verified`
 - Date posted: TODO
 - Text:
 
-> **Title:** How I check if an NYC sublet listing is real before I message anyone
+> **Title:** student here, what helped me spot fake sublets last summer
 >
-> After a lot of fake listings, here's the checklist I run now:
+> I was looking for a sublet last summer, and finding listings wasn't the hard part. Figuring out which ones were real was. Stuff I picked up from this sub that actually helped: reverse image searching the photos, looking the address up on HPD, asking for a live video tour, and never sending money before seeing a lease.
 >
-> 1. **Reverse image search the photos.** Scam listings reuse photos from old StreetEasy or Airbnb posts.
-> 2. **Look the address up on HPD Online.** If the unit number doesn't exist or the building has a pile of open violations, move on.
-> 3. **Ask for a live video tour.** Not a recorded one. Real tenants can walk you through in five minutes.
-> 4. **Never pay before you've seen it and seen a lease.** No deposits over Zelle or Venmo to "hold" a place.
-> 5. **Too cheap for the neighborhood = not real.** A $1,100 furnished room in the West Village is bait.
->
-> The hardest part was never finding listings. It was figuring out which ones were real.
->
-> Full disclosure: I'm one of three Columbia students building Gable. You describe the place you want in your own words, and each match says what we checked: who's behind the listing, whether they reply, whether the photos and price hold up, and the building's HPD record. We're not live yet. If you want in when it is: [link]
->
-> What else do you check? I'll add it to the list.
+> I'm a senior at Columbia, and for a class project I'm working on Gable, a search that shows what's been checked on each listing. We're opening to students first, would love to know what you'd want from it: [link]
 
 ### Post 2
 
 - Where: r/movingtoNYC
 - Owner: Michelle Mai
-- Link: `https://gable-one.vercel.app/summer?utm_source=reddit&utm_medium=post&utm_campaign=summer`
+- Link: `https://www.gable.fit/summer?utm_source=reddit&utm_medium=post&utm_campaign=summer`
 - Date posted: TODO
 - Text:
 
-> **Title:** Moving to NYC for a summer internship and can't tour in person? What worked for you?
+> **Title:** students moving to NYC for the summer, how do you find a place without seeing it first?
 >
-> Asking for my friends and for us. Every year we watch people coming in for 10 to 12 week internships try to lock in a room from another state, often with a parent paying part of it. The usual problem: it's too far away to just swing by.
+> Last summer I had to find a place in NYC without being able to see it in person, and it was honestly so stressful. What ended up helping me (mostly from reading posts here): searching by my exact dates first, picking a neighborhood based on my commute, and getting someone local to look at it before I paid anything.
 >
-> What I've seen work so far:
->
-> - Searching by your **exact dates** first, since most summer sublets are June 1 to Aug 15 and won't flex.
-> - Picking a neighborhood by **commute to the office**, not by vibe.
-> - Getting **someone local to see it** before any money moves: a friend, a classmate, anyone.
-> - Asking the tenant for their **lease and their landlord's OK** to sublet.
->
-> We're three Columbia students building Gable for exactly this. You type something like "furnished room near Midtown, June 2 to Aug 15, under $2,000" and get a short list with why each one fits and what we checked, so the trust part works without a visit. It's early and we're starting a waitlist: [link]
->
-> If you've done this before, what do you wish you'd known?
+> I'm a college student at Columbia, and for a class project I'm building Gable to make this less of a headache for students. We're opening to students first. Any tips I missed? [link]
 
 ### Post 3
 
 - Where: r/nyc_sublets
 - Owner: Michelle Mai
-- **On hold:** this post was for students listing their own room, and that page is paused while Gable is sublets only. Don't post it until it has a page to link to.
-- Link: none for now (was `/sublet-your-room`, which redirects home)
+- **On hold:** this post is for students listing their own room, and that page is paused while Gable is sublets only. Don't post it until it has a page to link to, or the last paragraph is rewritten for people looking for a sublet.
+- Link: none for now (was `/sublet-your-room`, which redirects home). When it's back: `https://www.gable.fit/sublet-your-room?utm_source=reddit&utm_medium=post&utm_campaign=sublet_your_room`
 - Date posted: TODO
 - Text:
 
-> **Title:** Subletting your room for the spring or summer? How do you pick from 40 replies?
+> **Title:** students subletting your room, how do you pick from a ton of replies?
 >
-> Every time a friend posts their room, they get flooded with strangers: half never reply again, some are bots, and it's hard to tell who'll pay on time and leave the place in one piece.
+> When I was looking on here last summer, I noticed students subletting their rooms would get flooded with replies and had no real way to tell who was legit. From what I saw, people asked for a school email, did a quick video call, and put the dates and rent in writing.
 >
-> What has helped them:
->
-> - Asking for a **school or work email** before a call.
-> - A **15-minute video call** before saying yes.
-> - **A written sublet agreement** with the dates, rent, deposit and who pays utilities.
-> - Checking your **lease and getting your landlord's OK** first, so it doesn't come back on you.
->
-> We're building Gable to make this easier: cover your rent while you're away by listing once and getting a short list of students (signed in with a school email) whose dates fit. You pick one. We're three Columbia students and it's early, so tell us what would make you trust it: [link]
+> I'm a college student at Columbia working on Gable for a class project. We're starting with students: you list your room once and get a short list of other students, verified with a school email, whose dates fit. Would you trust something like that? [link]
 
 ## Blog post
 

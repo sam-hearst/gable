@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Photo } from "@/components/landing/Photo";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
@@ -46,6 +47,9 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
         </div>
         <div className="fit">{quickFacts(l)}</div>
         {misses.length > 0 && <div className="misses">Not quite: {misses.join(" · ")}</div>}
+        <Link className="btn btn-sm" href={`/listing/${l.id}`} style={{ marginTop: 12, alignSelf: "flex-start" }}>
+          View and book
+        </Link>
       </div>
     </article>
   );

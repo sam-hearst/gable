@@ -1,5 +1,6 @@
 "use server";
 
+import { referralCode } from "@/lib/referral";
 import { saveSignup } from "@/lib/signups";
 
 export type SignupInput = {
@@ -12,7 +13,8 @@ export type SignupInput = {
   utm_campaign?: string;
 };
 
-export type SignupResult = { ok: true } | { ok: false; error: string };
+// `ref` is the signup's own share code, for the link on /thanks.
+export type SignupResult = { ok: true; ref: string } | { ok: false; error: string };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -44,5 +46,5 @@ export async function joinWaitlist(input: SignupInput): Promise<SignupResult> {
     console.error(err);
     return { ok: false, error: "Something went wrong saving your email. Please try again." };
   }
-  return { ok: true };
+  return { ok: true, ref: referralCode(email) };
 }

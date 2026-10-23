@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { ArrowUp, ShieldCheck } from "./icons";
@@ -24,10 +25,12 @@ type ChatHeroProps = {
   collage: CollageItem[];
   strip: StripItem[];
   modal: { title: string; lead: string; button: string; placeholder?: string };
+  searchOnSend?: boolean;
 };
 
 // The Daydream-style hero: describe what you want in one chat box. Sending a
-// request opens a popup that asks for an email and saves what they typed.
+// request opens a popup that asks for an email and saves what they typed, or,
+// with searchOnSend, goes to /search with what they typed.
 export function ChatHero({
   source,
   announce = false,
@@ -42,7 +45,9 @@ export function ChatHero({
   collage,
   strip,
   modal,
+  searchOnSend = false,
 }: ChatHeroProps) {
+  const router = useRouter();
   const [mode, setMode] = useState(modes?.[0]?.id);
   const [value, setValue] = useState("");
   const [placeholder, setPlaceholder] = useState<string | null>(null);
@@ -93,6 +98,10 @@ export function ChatHero({
     const q = value.trim() || activePrompts[0] || "";
     setRequest(q);
     trackEvent("chat_request", { page_variant: source, mode: mode ?? "" });
+    if (searchOnSend) {
+      router.push(`/search?q=${encodeURIComponent(q)}`);
+      return;
+    }
     dialogRef.current?.showModal();
   }
 

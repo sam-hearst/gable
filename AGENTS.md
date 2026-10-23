@@ -25,6 +25,10 @@ and use only the colors and fonts in the style guide.
   signups to `.data/signups.jsonl`; production refuses signups until it's set.
   Create the table with `supabase/signups.sql`.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/sublet-your-room`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
+- Search: on the homepage, sending the chat box goes to `/search?q=...`
+  (`src/app/search/page.tsx`), which for now shows every listing in
+  `src/content/listings.ts`. Those are made-up SAMPLE listings for the demo,
+  not real data. The other landing pages still open the email popup.
 - The blog post lives at `/blog/how-to-find-your-dream-apartment-in-nyc`, with its copy in `src/content/blog.ts`.
 
 ## How we work

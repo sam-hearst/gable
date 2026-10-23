@@ -56,6 +56,7 @@ export default function Home() {
         <ChatHero
           source="home"
           announce
+          searchOnSend
           title={
             <>
               Find a <Mark>real</Mark> place near Columbia through one chat.

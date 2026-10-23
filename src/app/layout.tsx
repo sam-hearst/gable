@@ -23,7 +23,7 @@ const gaId = isDemo
 export const metadata: Metadata = {
   title: "Gable",
   description:
-    "Tell Gable what you need and get sublets, rooms and apartments near Columbia where every listing is checked.",
+    "Tell Gable what you need and get sublets near Columbia where every listing is checked.",
   icons: { icon: "/logo/gable-favicon.svg" },
   // Keep the demo site out of search results.
   ...(isDemo ? { robots: { index: false, follow: false } } : {}),

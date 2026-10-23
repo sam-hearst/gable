@@ -312,7 +312,8 @@ export function rank(f: SearchFilters): { results: SearchResult[]; matched: bool
 // Plain summary of the filters, used when Claude didn't write a reply.
 function describe(f: SearchFilters) {
   const adjective = f.furnished ? "furnished " : f.furnished === false ? "unfurnished " : "";
-  const noun = f.roomType === "studio" ? "studio" : f.roomType === "shared" ? "shared room" : f.roomType ? "room" : "place";
+  const noun =
+    f.roomType === "studio" ? "studio sublet" : f.roomType === "shared" ? "shared-room sublet" : f.roomType ? "private-room sublet" : "sublet";
   // "a studio in Brooklyn", then dates and budget after commas
   const head = [`${/^[aeiou]/.test(adjective + noun) ? "an" : "a"} ${adjective}${noun}`];
   if (f.wantsRoommate) head.push("for you and a friend");
@@ -335,7 +336,7 @@ export async function search(q: string): Promise<SearchResponse> {
   if (!hasFilters(filters)) {
     return {
       reply: q
-        ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished room near Columbia, June to August, under $1,600.\""
+        ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished sublet near Columbia, June to August, under $1,600.\""
         : "Tell me the place you want: your dates, your budget, the area. For now, here's everything.",
       results: SAMPLE_LISTINGS.map((listing) => ({ listing, misses: [] })),
       matched: true,

@@ -1,5 +1,6 @@
 // Server-rendered building blocks shared by the landing pages.
 
+import Link from "next/link";
 import { Fragment } from "react";
 import { Check, CircleCheck } from "./icons";
 import { Photo } from "./Photo";
@@ -185,7 +186,7 @@ export function SpotTheScam({ title }: { title: string }) {
                 photo: 8089268,
                 alt: "Bedroom with a brick accent wall and a blue bedspread",
                 price: "$1,550",
-                where: "Private room in a 2BR, W 109th St",
+                where: "Sublet · private room in a 2BR, W 109th St",
                 tags: ["Photos are theirs", "Lease allows sublet", "Pay through Gable"],
               }}
             />
@@ -196,7 +197,8 @@ export function SpotTheScam({ title }: { title: string }) {
   );
 }
 
-// Final call to action on a darkened photo.
+// Final call to action on a darkened photo: the waitlist form, or with `href`,
+// a button link (the demo site has no waitlist).
 export function CtaPhoto({
   photo,
   title,
@@ -205,14 +207,16 @@ export function CtaPhoto({
   fine,
   source,
   placeholder,
+  href,
 }: {
   photo: number;
   title: string;
   body: string;
   button: string;
-  fine: string;
+  fine?: string;
   source: string;
   placeholder?: string;
+  href?: string;
 }) {
   return (
     <section className="cta cta-photo" id="join">
@@ -220,8 +224,14 @@ export function CtaPhoto({
       <div className="wrap reveal">
         <h2>{title}</h2>
         <p>{body}</p>
-        <SignupForm source={source} button={button} placeholder={placeholder} />
-        <p className="fine">{fine}</p>
+        {href ? (
+          <Link className="btn" href={href} style={{ marginTop: 22 }}>
+            {button}
+          </Link>
+        ) : (
+          <SignupForm source={source} button={button} placeholder={placeholder} />
+        )}
+        {fine && <p className="fine">{fine}</p>}
       </div>
     </section>
   );

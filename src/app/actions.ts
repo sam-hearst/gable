@@ -5,7 +5,7 @@ import { saveSignup } from "@/lib/signups";
 
 export type SignupInput = {
   email: string;
-  source: string; // which page: home | verified | summer | sublet | blog | search
+  source: string; // which page: home | verified | summer | together | blog | search
   mode?: string; // the hero toggle the visitor picked, e.g. "intern"
   request?: string; // what they typed in the chat box
   utm_source?: string;

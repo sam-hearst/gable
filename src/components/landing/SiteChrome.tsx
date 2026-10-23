@@ -71,6 +71,7 @@ const FOOTER_LINKS = isDemo
       { href: "/", label: "Home" },
       { href: "/verified", label: "How we verify" },
       { href: "/summer", label: "Summer sublets" },
+      { href: "/together", label: "Sublets for two" },
     ];
 
 export function SiteFooter({ current }: { current: string }) {

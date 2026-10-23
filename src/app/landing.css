@@ -985,33 +985,3 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 @media (prefers-reduced-motion: reduce) {
   .hero > .wrap > *, .pulse::after { animation: none; }
 }
-
-/* ---------- Search results (/search) ---------- */
-
-.search-head { padding-bottom: 24px; }
-.search-head h1 { margin-top: 6px; font-size: clamp(28px, 4vw, 44px); max-width: 24ch; overflow-wrap: anywhere; }
-.search-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0 20px; }
-.search-note p { font-size: 15px; color: var(--ink-faint); max-width: 65ch; }
-
-.results-section { padding-top: 0; }
-.results { display: grid; grid-template-columns: 1fr; gap: 20px; }
-@media (min-width: 720px) { .results { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1040px) { .results { grid-template-columns: repeat(3, 1fr); } }
-
-.result { background: var(--sage); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
-.result .photo { position: relative; aspect-ratio: 4 / 3; }
-.result .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.result .photo .badge { position: absolute; top: 10px; left: 10px; }
-.result .body { padding: 14px 16px 16px; display: flex; flex-direction: column; flex: 1; }
-.result .price { font-weight: 700; font-size: 20px; }
-.result .price span { font-weight: 400; font-size: 13px; color: var(--ink-faint); }
-.result h2 { font-size: 17px; margin-top: 2px; }
-.result .where { font-size: 14px; margin-top: 4px; }
-.result .meta { margin-top: 4px; font-size: 13px; color: var(--ink-faint); line-height: 1.5; }
-.result .good-for { margin-top: 10px; font-size: 15px; line-height: 1.5; }
-.result .checked { margin: 12px 0; }
-.result .checked .k { font-size: 12px; font-weight: 700; color: var(--ink-faint); }
-.result .checked ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
-.result .checked li { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.result .checked li svg { color: var(--accent); flex-shrink: 0; }
-.result .src { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--sage-line); font-size: 12px; color: var(--ink-faint); }

@@ -13,8 +13,9 @@ function shortDate(iso: string) {
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
 
-// A search result: photo first, then why it might fit and what we checked.
-export function ResultCard({ l }: { l: SampleListing }) {
+// A search result: photo first, then why it fits and what we checked. For a
+// closest option (no full match), `misses` says honestly what's different.
+export function ResultCard({ l, why = [], misses = [] }: { l: SampleListing; why?: string[]; misses?: string[] }) {
   return (
     <article className="result">
       <div className="photo">
@@ -35,6 +36,18 @@ export function ResultCard({ l }: { l: SampleListing }) {
         <div className="meta">
           {ROOM_LABEL[l.roomType]} · {l.furnished ? "Furnished" : "Unfurnished"} · {l.subway}
         </div>
+        {why.length > 0 && (
+          <div className="why">
+            <b>{misses.length ? "What fits" : "Why it fits"}</b>
+            {why.join(" · ")}
+          </div>
+        )}
+        {misses.length > 0 && (
+          <div className="why miss">
+            <b>What&apos;s different</b>
+            {misses.join(" · ")}
+          </div>
+        )}
         <p className="good-for">{l.goodFor}</p>
         <div className="checked">
           <div className="k">What we checked</div>

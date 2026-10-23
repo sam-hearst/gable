@@ -1,35 +1,68 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { CtaPhoto } from "@/components/landing/blocks";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { ResultCard } from "@/components/search/ResultCard";
-import { SAMPLE_LISTINGS } from "@/content/listings";
+import { search } from "@/lib/search";
+import "./search.css";
 
 export const metadata: Metadata = {
   title: "Your search | Gable",
   description: "Places that fit what you asked for, and what we checked about each one.",
 };
 
-// The request from the homepage chat box (?q=). It's the only part of the page
-// that reads the URL, so it sits in Suspense and the rest can be prerendered.
-async function Request({ searchParams }: { searchParams: PageProps<"/search">["searchParams"] }) {
+// Everything that depends on the request (?q=). It sits in Suspense so the
+// rest of the page is prerendered and this streams in once Claude (or the
+// keyword fallback) has read the request.
+async function Results({ searchParams }: { searchParams: PageProps<"/search">["searchParams"] }) {
   const raw = (await searchParams).q;
-  const q = (Array.isArray(raw) ? raw[0] : raw)?.trim() ?? "";
-  return <RequestHeading q={q} />;
-}
+  const q = (Array.isArray(raw) ? raw[0] : raw)?.trim().slice(0, 500) ?? "";
+  // Calling Claude is per-request work: without this, Next.js also runs it
+  // during its prerender check, which errors on the SDK's Date.now() and
+  // makes a second, aborted API call.
+  await connection();
+  const { reply, results, matched } = await search(q);
 
-function RequestHeading({ q }: { q: string }) {
   return (
     <>
-      <div className="eyebrow">{q ? "You asked for" : "Search"}</div>
-      <h1>{q ? `“${q}”` : "Tell us the place you want."}</h1>
+      <div className="search-thread">
+        {q && (
+          <div className="search-msg search-msg-you">
+            <h1>{q}</h1>
+          </div>
+        )}
+        <div className="search-msg search-msg-gable" role="status">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="search-avatar" src="/logo/gable-favicon.svg" alt="Gable" width={32} height={32} />
+          <p>{reply}</p>
+        </div>
+      </div>
+      {!q && <h1 className="sr-only">Search</h1>}
+
+      {!matched && <h2 className="closest-head">Closest options</h2>}
+      <div className="results">
+        {results.map((r) => (
+          <ResultCard key={r.listing.id} l={r.listing} why={r.why} misses={r.misses} />
+        ))}
+      </div>
     </>
   );
 }
 
-// Results for what someone typed into the homepage chat box. For the demo it
-// shows every sample listing; matching to the request comes next.
+function Loading() {
+  return (
+    <div className="search-thread" aria-busy="true">
+      <div className="search-msg search-msg-gable">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="search-avatar" src="/logo/gable-favicon.svg" alt="Gable" width={32} height={32} />
+        <p>Reading your request…</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Search({ searchParams }: PageProps<"/search">) {
   return (
     <>
@@ -37,32 +70,22 @@ export default function Search({ searchParams }: PageProps<"/search">) {
       <main>
         <section className="section search-head">
           <div className="wrap">
-            <Suspense fallback={<RequestHeading q="" />}>
-              <Request searchParams={searchParams} />
-            </Suspense>
+            <div className="search-top">
+              <div className="eyebrow">Your search</div>
+              <Link className="btn btn-secondary btn-sm" href="/">
+                New search
+              </Link>
+            </div>
             <div className="search-note">
               <span className="badge">
                 <span className="dot" />
                 Sample listings
               </span>
-              <p>
-                These {SAMPLE_LISTINGS.length} places are samples for our demo, not real listings yet. For now we show all
-                of them; soon this list will only show places that fit what you asked for.
-              </p>
+              <p>These are sample places for our demo, not real listings yet.</p>
             </div>
-            <Link className="btn btn-secondary btn-sm" href="/">
-              New search
-            </Link>
-          </div>
-        </section>
-
-        <section className="section results-section">
-          <div className="wrap">
-            <div className="results">
-              {SAMPLE_LISTINGS.map((l) => (
-                <ResultCard key={l.id} l={l} />
-              ))}
-            </div>
+            <Suspense fallback={<Loading />}>
+              <Results searchParams={searchParams} />
+            </Suspense>
           </div>
         </section>
 

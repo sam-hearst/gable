@@ -40,6 +40,11 @@ Each page tests one promise with one audience, so signups by page tell us which 
 
 Not a landing page. It's a real guide people would read even if Gable didn't exist, and it's the "one blog post" in our demand strategy. Three sections link to the matching landing page (`/verified`, `/summer`, `/sublet-your-room`) with `utm_source=blog`, and it ends with the waitlist form, saved with `page=blog`. Unlike the landing pages, it links out to sources like HPD Online.
 
+## Production and staging
+
+- **Production** (gable-one.vercel.app, from `main`) is the waitlist: the pages above, the blog and `/thanks`. Link to it in every post.
+- **Staging** (from the `staging` branch, with `NEXT_PUBLIC_GABLE_MODE=demo`) is the MVP demo: search, sign-in and favorites. Use it for demos only. It isn't tracked in GA and isn't indexed.
+
 ## How it's built
 
 - Shared pieces live in `src/components/landing/`: `ChatHero` (chat box, toggle, chips, signup popup), `SignupForm`, `SiteChrome` (header and footer), and `blocks.tsx` (quotes, steps, listing cards, spot-the-scam, photo CTA). Scroll reveal is CSS-only (scroll-driven animations), so no script touches the rendered markup.

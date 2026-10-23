@@ -1,10 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isDemo } from "@/lib/mode";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 // Refreshes the Supabase sign-in session before the routes that use it render,
 // and writes the refreshed cookies back. The landing pages don't run this.
+// On the waitlist site (production) these MVP routes don't exist: send
+// visitors to the homepage instead (see src/lib/mode.ts).
 export async function proxy(request: NextRequest) {
+  if (!isDemo) return NextResponse.redirect(new URL("/", request.url));
   let response = NextResponse.next({ request });
   if (!supabaseConfigured) return response;
 

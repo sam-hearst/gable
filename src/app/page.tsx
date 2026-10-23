@@ -5,6 +5,7 @@ import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CtaPhoto, Listing, Mark, Marquee, SectionHead, SpotTheScam } from "@/components/landing/blocks";
+import { isDemo } from "@/lib/mode";
 
 export const metadata: Metadata = {
   title: "Gable: real sublets near Columbia, through one chat",
@@ -56,7 +57,7 @@ export default function Home() {
         <ChatHero
           source="home"
           announce
-          searchOnSend
+          searchOnSend={isDemo}
           title={
             <>
               Find a <Mark>real</Mark> place near Columbia through one chat.

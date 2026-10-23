@@ -30,5 +30,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/search", "/favorites", "/signin", "/auth/:path*"],
+  // The MVP routes. Booking (/listing, /book, /booked) is demo only too.
+  matcher: ["/search", "/favorites", "/signin", "/auth/:path*", "/listing/:path*", "/book/:path*", "/booked/:path*"],
 };

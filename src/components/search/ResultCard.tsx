@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import type { SampleListing } from "@/content/listings";
@@ -48,6 +49,9 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
             ))}
           </ul>
         </div>
+        <Link className="btn btn-sm" href={`/listing/${l.id}`} style={{ marginBottom: 12 }}>
+          View and book
+        </Link>
         <div className="src">
           Listed by {l.lister.firstName}, {l.lister.school} · {l.replySpeed}
         </div>

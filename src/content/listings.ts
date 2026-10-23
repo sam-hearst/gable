@@ -348,3 +348,7 @@ export const SAMPLE_LISTINGS: SampleListing[] = [
     goodFor: "A grad student who wants their own studio for the spring for under $1,800.",
   },
 ];
+
+export function findListing(id: string) {
+  return SAMPLE_LISTINGS.find((l) => l.id === id);
+}

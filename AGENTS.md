@@ -37,7 +37,8 @@ and use only the colors and fonts in the style guide.
   - **Staging** (the `staging` branch) sets `NEXT_PUBLIC_GABLE_MODE=demo` in
     Vercel (Preview, branch `staging` only). It shows the MVP: the chat box goes
     to `/search`, the header shows Favorites and Sign in, GA is off and search
-    engines are told not to index it.
+    engines are told not to index it. It also has the demo booking flow:
+    `/listing/[id]` → `/book/[id]` → `/booked/[id]` (no real payment, nothing sent).
   - Locally, add `NEXT_PUBLIC_GABLE_MODE=demo` to `.env.local` to see the demo.
   - To update staging: `git push origin main:staging` (or merge into `staging`
     first and test there before merging to `main`).

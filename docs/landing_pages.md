@@ -37,7 +37,7 @@ Not a landing page. It's a real guide people would read even if Gable didn't exi
 ## Production and staging
 
 - **Production** (gable-one.vercel.app, from `main`) is the waitlist: the pages above, the blog and `/thanks`. Link to it in every post.
-- **Staging** (from the `staging` branch, with `NEXT_PUBLIC_GABLE_MODE=demo`) is the MVP demo: search, sign-in and favorites. It reads like the working product, so it has no early-access wording: no Get early access or How we verify buttons, no waitlist forms, and `/verified` and `/summer` redirect home. Browse links and blog links run searches. Use it for demos only. It isn't tracked in GA and isn't indexed.
+- **Staging** (from the `staging` branch, with `NEXT_PUBLIC_GABLE_MODE=demo`) is the MVP demo: search, sign-in and favorites. It reads like the working product, so it has no early-access wording: no Get early access or How we verify buttons, no waitlist forms, and `/verified` and `/summer` redirect home. Browse links and blog links run searches. It also has a demo booking flow: a search result's **View and book** opens `/listing/[id]`, then **Request to book** goes to `/book/[id]` (dates inside the availability, people, a note to the lister, a demo card, agree to terms) and **Confirm booking** shows `/booked/[id]` with a reference, next steps and an Add to calendar file. Every booking page says no real payment is taken and nothing is sent. On production these routes redirect home. Use it for demos only. It isn't tracked in GA and isn't indexed.
 
 ## How it's built
 

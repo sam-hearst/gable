@@ -44,15 +44,30 @@ and use only the colors and fonts in the style guide.
     first and test there before merging to `main`).
 - `/thanks` has a share card with each signup's personal referral link; `npm run referrals`
   lists who brought whom (see `docs/landing_pages.md`).
-- Gable is **sublets only** for now: no rooms or apartments as categories, and no page for
-  listing your own room (`/sublet-your-room` redirects home). Listings still say what the
-  space is, as "Sublet · private room".
+- Gable is **sublets only** for now: no rooms or apartments as categories. Listings still
+  say what the space is, as "Sublet · private room".
+- List your room (demo site only; the team agreed Nov 5, 2026): signed-in students post a
+  sublet at `/sublet-your-room` (on the waitlist site it still redirects home). It saves
+  to the Supabase `student_listings` table as `pending`, with photos in the public
+  `listing-photos` Storage bucket (create both with `supabase/student_listings.sql`).
+  Row level security keeps pending listings visible only to their lister, and the lister's
+  email visible only to signed-in users. Approved listings show in `/search` next to
+  the samples with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
+  renters can email the lister. No booking or payment for real listings yet, and they
+  can't be hearted. Feature record: `docs/features/list-your-room/`.
+- Approving a listing (team, by hand): Supabase dashboard → Table Editor →
+  `student_listings`. For each `pending` row, email the lister at `contact_email` to
+  check they're a student and on the lease, and look at the photos (`photos` holds paths
+  in the `listing-photos` bucket, under Storage). Then set `checked` to what you
+  confirmed, e.g. `["Columbia email verified","Lease on file","Photos checked"]`, and
+  set `status` to `approved` (or `rejected`). It shows in search right away.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in
-  `src/content/listings.ts` (logic in `src/lib/search.ts`). Those are made-up
-  SAMPLE listings for the demo, not real data. The other landing pages still
-  open the email popup.
+  `src/content/listings.ts` plus approved real listings
+  (`src/lib/student-listings.ts`), with the logic in `src/lib/search.ts`. The ones in
+  `listings.ts` are made-up SAMPLE listings for the demo. The other landing pages
+  still open the email popup.
 - Accounts and favorites: email + password sign-in at `/signin` (Supabase
   Auth, with "Confirm email" turned off so accounts work right away). Hearts on
   `/search` save to the `favorites` table (create it with
@@ -71,8 +86,8 @@ and use only the colors and fonts in the style guide.
 - Keep commits small, with a message that says what changed and why.
 - Ask before adding a new library, service, or paid API.
 - Listing data: do not scrape any site or call an MLS or listing API until the
-  team has confirmed it is allowed. The data source is still undecided (see
-  diagrams/system_overview.md).
+  team has confirmed it is allowed. For now, real listings come only from
+  students posting on `/sublet-your-room` (see diagrams/system_overview.md).
 - Never commit secrets. Keys go in `.env.local`, which is gitignored.
 - When you change how the project runs or is structured, update this file and
   the diagrams in the same pull request.

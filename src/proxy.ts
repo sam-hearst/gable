@@ -30,6 +30,17 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // The MVP routes. Booking (/listing, /book, /booked) is demo only too.
-  matcher: ["/search", "/favorites", "/signin", "/auth/:path*", "/listing/:path*", "/book/:path*", "/booked/:path*"],
+  // The MVP routes. Booking (/listing, /book, /booked) and real student
+  // listings (/sublet-your-room, /sublet) are demo only too.
+  matcher: [
+    "/search",
+    "/favorites",
+    "/signin",
+    "/auth/:path*",
+    "/listing/:path*",
+    "/book/:path*",
+    "/booked/:path*",
+    "/sublet-your-room",
+    "/sublet/:path*",
+  ],
 };

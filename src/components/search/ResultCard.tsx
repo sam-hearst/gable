@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Photo } from "@/components/landing/Photo";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
+import { isStudentListing, type AnyListing } from "@/lib/student-listing-fields";
 import { HeartButton } from "./HeartButton";
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
@@ -22,17 +23,25 @@ function quickFacts(l: SampleListing) {
 
 // A search result: photo with one check and the heart, then price, what and
 // where, dates, and a short line of facts. For a closest option (no full
-// match), `misses` says honestly what's different.
-export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: string[] }) {
+// match), `misses` says honestly what's different. A real student listing is
+// badged "Real listing", opens its own page (/sublet/[id]) and has no heart
+// yet, since favorites only cover the samples.
+export function ResultCard({ l, misses = [] }: { l: AnyListing; misses?: string[] }) {
+  const real = isStudentListing(l);
   return (
     <article className="result">
       <div className="photo">
-        <Photo id={l.photo.id} width={600} alt={l.photo.alt} />
-        <span className="badge">
+        {real ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={l.photos[0].src} alt={l.photos[0].alt} loading="lazy" />
+        ) : (
+          <Photo id={l.photo.id} width={600} alt={l.photo.alt} />
+        )}
+        <span className={real ? "badge badge-real" : "badge"}>
           <span className="dot" />
-          {photoBadge(l)}
+          {real ? "Real listing" : photoBadge(l)}
         </span>
-        <HeartButton id={l.id} title={l.title} />
+        {!real && <HeartButton id={l.id} title={l.title} />}
       </div>
       <div className="body">
         <div className="price">
@@ -45,10 +54,14 @@ export function ResultCard({ l, misses = [] }: { l: SampleListing; misses?: stri
         <div className="when">
           Sublet · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)} · {l.furnished ? "furnished" : "unfurnished"}
         </div>
-        <div className="fit">{quickFacts(l)}</div>
+        <div className="fit">{real ? `Posted by ${l.lister.firstName}, ${l.lister.school}` : quickFacts(l)}</div>
         {misses.length > 0 && <div className="misses">Not quite: {misses.join(" · ")}</div>}
-        <Link className="btn btn-sm" href={`/listing/${l.id}`} style={{ marginTop: 12, alignSelf: "flex-start" }}>
-          View and book
+        <Link
+          className="btn btn-sm"
+          href={real ? `/sublet/${l.id}` : `/listing/${l.id}`}
+          style={{ marginTop: 12, alignSelf: "flex-start" }}
+        >
+          {real ? "View and contact" : "View and book"}
         </Link>
       </div>
     </article>

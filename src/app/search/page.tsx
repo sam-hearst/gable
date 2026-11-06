@@ -11,6 +11,8 @@ import { SearchHeader } from "@/components/search/SearchHeader";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
+import { getApprovedListings } from "@/lib/student-listings";
+import { SAMPLE_LISTINGS } from "@/content/listings";
 import "./search.css";
 
 export const metadata: Metadata = {
@@ -32,7 +34,10 @@ function GableSays({ children, busy = false }: { children: React.ReactNode; busy
 function SideNotes() {
   return (
     <>
-      <p className="search-fine">These are sample places for our demo, not real listings yet.</p>
+      <p className="search-fine">
+        Places marked Real listing were posted by students and checked by our team. The rest are samples for our
+        demo. <Link href="/sublet-your-room">List your room</Link>
+      </p>
       <Link className="search-new" href="/">
         Start a new search
       </Link>
@@ -59,7 +64,10 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // during its prerender check, which errors on the SDK's Date.now() and
   // makes a second, aborted API call.
   await connection();
-  const [{ reply, results, matched }, favorites] = await Promise.all([search(messages), getFavorites()]);
+  // Real student listings (approved only) are searched next to the samples.
+  // If they can't be read, search goes on with the samples alone.
+  const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
+  const { reply, results, matched } = await search(messages, [...real, ...SAMPLE_LISTINGS]);
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>

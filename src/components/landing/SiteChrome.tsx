@@ -2,14 +2,20 @@ import Link from "next/link";
 import { isDemo, searchHref } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
-type NavKey = "home" | "summer" | "favorites" | "none";
+type NavKey = "home" | "summer" | "favorites" | "list" | "none";
 
-// Favorites and sign-in are part of the MVP, so only the demo site shows them.
+// Favorites, sign-in and listing your room are part of the MVP, so only the
+// demo site shows them.
 // On the demo site, "Summer" runs a search instead of opening the waitlist page.
 const NAV: { key: NavKey; href: string; label: string }[] = [
   { key: "home", href: "/", label: "Explore" },
   { key: "summer", href: isDemo ? searchHref("Summer sublet near Columbia, June to August") : "/summer", label: "Summer" },
-  ...(isDemo ? [{ key: "favorites" as const, href: "/favorites", label: "Favorites" }] : []),
+  ...(isDemo
+    ? [
+        { key: "favorites" as const, href: "/favorites", label: "Favorites" },
+        { key: "list" as const, href: "/sublet-your-room", label: "List your room" },
+      ]
+    : []),
 ];
 
 function Brand({ small = false }: { small?: boolean }) {
@@ -66,6 +72,7 @@ const FOOTER_LINKS = isDemo
       { href: "/", label: "Home" },
       { href: "/search", label: "All sublets" },
       { href: "/favorites", label: "Favorites" },
+      { href: "/sublet-your-room", label: "List your room" },
     ]
   : [
       { href: "/", label: "Home" },

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AccountAvatar } from "./AccountAvatar";
 
-// The /search header: logo on the left; the "Sample listings" label and the
+// The /search header: logo on the left; the "Demo" label and the
 // account avatar on the right. Only /search uses it, so the shared site header
 // on the other pages is unchanged.
 export function SearchHeader() {
@@ -14,7 +14,7 @@ export function SearchHeader() {
           Gable
         </Link>
         <div className="search-topbar-right">
-          <span className="sample-pill">Sample listings</span>
+          <span className="sample-pill">Demo</span>
           <AccountAvatar />
         </div>
       </div>

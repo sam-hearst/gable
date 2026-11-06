@@ -2,8 +2,9 @@
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEffect, useRef, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { LeafletContext, createLeafletContext, type LeafletContextInterface } from "@react-leaflet/core";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { CircleCheck } from "@/components/landing/icons";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
@@ -18,6 +19,44 @@ function pricePin(price: number, active: boolean) {
     iconAnchor: [40, 36],
     popupAnchor: [0, -34],
   });
+}
+
+// Stands in for react-leaflet's MapContainer. Next keeps a page you navigate
+// away from alive but hidden; MapContainer removes its map when hidden and then
+// reuses the removed map when you come back, which crashed /favorites. This one
+// keeps the map while its div is still on the page and removes it only once
+// the div is gone for good.
+function LeafletMap({ onReady, children }: { onReady: (map: L.Map) => void; children: ReactNode }) {
+  const [context, setContext] = useState<LeafletContextInterface | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const attach = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+      if (mapRef.current) {
+        // Back from hidden: the div may have changed size while it was away.
+        mapRef.current.invalidateSize();
+      } else {
+        const map = L.map(node, { scrollWheelZoom: false }).setView([40.8075, -73.9626], 13);
+        mapRef.current = map;
+        setContext(createLeafletContext(map));
+        onReady(map);
+      }
+      return () => {
+        setTimeout(() => {
+          if (node.isConnected || !mapRef.current) return;
+          mapRef.current.remove();
+          mapRef.current = null;
+        });
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  return (
+    <div ref={attach} style={{ height: "100%", width: "100%" }}>
+      {context && <LeafletContext value={context}>{children}</LeafletContext>}
+    </div>
+  );
 }
 
 // Zooms to show every saved pin; refits when a pin is added or removed.
@@ -60,7 +99,7 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
   return (
     <div className="fav-map-layout">
       <div className="fav-map">
-        <MapContainer ref={setMap} center={[40.8075, -73.9626]} zoom={13} scrollWheelZoom={false} style={{ height: "100%", width: "100%" }}>
+        <LeafletMap onReady={setMap}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -97,7 +136,7 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
               </Popup>
             </Marker>
           ))}
-        </MapContainer>
+        </LeafletMap>
       </div>
 
       <ul className="fav-list" ref={list} aria-label="Your saved places">

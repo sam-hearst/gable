@@ -47,3 +47,38 @@ export function pillImage(text: string, sub: string, bg: string) {
   }
   return { image: x.getImageData(0, 0, c.width, c.height), pixelRatio: SCALE };
 }
+
+// A subway stop: its lines as small MTA-style bullets (1, B C, A B C D…).
+export function stopImage(lines: [string, string][]) {
+  const d = 15;
+  const gap = 2;
+  const pad = 3;
+  const w = lines.length * d + (lines.length - 1) * gap + pad * 2;
+  const h = d + pad * 2;
+  const c = document.createElement("canvas");
+  c.width = Math.ceil(w * SCALE);
+  c.height = Math.ceil(h * SCALE);
+  const x = c.getContext("2d")!;
+  x.scale(SCALE, SCALE);
+  x.shadowColor = "rgba(30,43,36,0.25)";
+  x.shadowBlur = 4;
+  x.shadowOffsetY = 1;
+  x.fillStyle = "#FFFFFF";
+  x.beginPath();
+  x.roundRect(0, 0, w, h, h / 2);
+  x.fill();
+  x.shadowColor = "transparent";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = `700 9.5px ${family()}`;
+  lines.forEach(([line, color], i) => {
+    const cx = pad + d / 2 + i * (d + gap);
+    x.fillStyle = color;
+    x.beginPath();
+    x.arc(cx, h / 2, d / 2, 0, Math.PI * 2);
+    x.fill();
+    x.fillStyle = "#FFFFFF";
+    x.fillText(line, cx, h / 2 + 0.5);
+  });
+  return { image: x.getImageData(0, 0, c.width, c.height), pixelRatio: SCALE };
+}

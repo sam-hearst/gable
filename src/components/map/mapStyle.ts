@@ -1,19 +1,8 @@
-import type { LngLat } from "@/content/morningside";
-
 // The look of the map: a clean, model-like city. Real OpenStreetMap streets,
 // parks, water and building footprints at their real heights (OpenFreeMap:
 // free, no key), drawn in soft colors on cream, lit like a model.
 
-function circle([lng, lat]: LngLat, meters: number, steps = 96) {
-  const ring: LngLat[] = [];
-  for (let i = 0; i <= steps; i++) {
-    const a = (i / steps) * 2 * Math.PI;
-    ring.push([lng + (meters / (111320 * Math.cos((lat * Math.PI) / 180))) * Math.cos(a), lat + (meters / 110540) * Math.sin(a)]);
-  }
-  return { type: "Feature", geometry: { type: "Polygon", coordinates: [ring] }, properties: {} };
-}
-
-export function cityStyle(campus: LngLat) {
+export function cityStyle() {
   return {
     version: 8,
     glyphs: "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
@@ -24,8 +13,6 @@ export function cityStyle(campus: LngLat) {
     light: { anchor: "map", position: [1.3, 200, 40], color: "#ffffff", intensity: 0.42 },
     sources: {
       omt: { type: "vector", url: "https://tiles.openfreemap.org/planet" },
-      // 5 and 10 minute walks to campus.
-      rings: { type: "geojson", data: { type: "FeatureCollection", features: [circle(campus, 800), circle(campus, 400)] } },
     },
     layers: [
       { id: "bg", type: "background", paint: { "background-color": "#EFE8DA" } },
@@ -44,9 +31,6 @@ export function cityStyle(campus: LngLat) {
         filter: ["in", ["get", "class"], ["literal", ["primary", "secondary", "tertiary", "trunk", "motorway"]]],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: { "line-color": "#FFFFFF", "line-width": ["interpolate", ["exponential", 1.6], ["zoom"], 12, 1, 18, 18] } },
-      { id: "rings", type: "fill", source: "rings", paint: { "fill-color": "#2B7A4B", "fill-opacity": 0.07 } },
-      { id: "ring-edge", type: "line", source: "rings",
-        paint: { "line-color": "#2B7A4B", "line-opacity": 0.35, "line-width": 1.2, "line-dasharray": [2, 2] } },
       { id: "buildings", type: "fill-extrusion", source: "omt", "source-layer": "building", minzoom: 13,
         paint: {
           // A few soft tones, one per building, at its real height.

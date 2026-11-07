@@ -6,7 +6,7 @@ import { CAMPUS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/
 import { money, shortDate } from "@/lib/format";
 import { HeartButton } from "@/components/search/HeartButton";
 import { type MapLibreNS, loadMapLibre } from "./loadMapLibre";
-import { pillImage } from "./mapArt";
+import { pillImage, stopImage } from "./mapArt";
 import { cityStyle } from "./mapStyle";
 import "./city-map.css";
 
@@ -94,7 +94,7 @@ export function CityMap({
         const flyIn = !seen && !reduceMotion();
         map = new maplibregl.Map({
           container: canvas,
-          style: cityStyle(CAMPUS),
+          style: cityStyle(),
           ...(flyIn ? { center: [-73.975, 40.77], zoom: 12.2, pitch: 30, bearing: 0 } : HOME),
           maxPitch: 75,
           attributionControl: false,
@@ -133,27 +133,30 @@ export function CityMap({
             features: places.map((p) => ({ type: "Feature", properties: { id: p.id }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })),
           },
         });
+        STOPS.forEach((s, i) => {
+          const { image, pixelRatio } = stopImage(s.lines);
+          map.addImage(`stop-${i}`, image, { pixelRatio });
+        });
         map.addSource("stops", {
           type: "geojson",
           data: {
             type: "FeatureCollection",
-            features: STOPS.map((s) => ({
+            features: STOPS.map((s, i) => ({
               type: "Feature",
-              properties: { name: s.name, color: s.lines[0][1], lines: s.lines.map(([l]) => l).join(" ") },
+              properties: { name: s.name, icon: `stop-${i}` },
               geometry: { type: "Point", coordinates: s.at },
             })),
           },
         });
-        // Subway: small dots in the line's color; the station name only up close.
-        map.addLayer({ id: "stops-dot", type: "circle", source: "stops", minzoom: 13.5,
-          paint: {
-            "circle-color": ["get", "color"],
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 13.5, 3, 17, 7],
-            "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5, "circle-pitch-alignment": "viewport",
-          } });
-        map.addLayer({ id: "stops-name", type: "symbol", source: "stops", minzoom: 15.5,
-          layout: { "text-field": ["concat", ["get", "name"], "  ", ["get", "lines"]], "text-font": ["Noto Sans Bold"], "text-size": 11,
-            "text-offset": [0, 1.2], "text-anchor": "top" },
+        // Subway: each stop's train bullets (1, B C…); the station name only up close.
+        map.addLayer({ id: "stops-dot", type: "symbol", source: "stops", minzoom: 13.5,
+          layout: {
+            "icon-image": ["get", "icon"],
+            "icon-size": ["interpolate", ["linear"], ["zoom"], 13.5, 0.7, 16, 1],
+            "icon-allow-overlap": true,
+            "text-field": ["step", ["zoom"], "", 15.5, ["get", "name"]],
+            "text-font": ["Noto Sans Bold"], "text-size": 11, "text-offset": [0, 1.3], "text-anchor": "top", "text-optional": true,
+          },
           paint: { "text-color": "#1E2B24", "text-halo-color": "#FFFCF6", "text-halo-width": 1.6 } });
         map.addLayer({ id: "groups", type: "symbol", source: "places", filter: ["has", "point_count"],
           layout: { "icon-image": ["concat", "group-", ["to-string", ["min", ["get", "point_count"], 20]]], "icon-anchor": "bottom", "icon-allow-overlap": true } });
@@ -214,7 +217,7 @@ export function CityMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    for (const l of ["stops-dot", "stops-name"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", subway ? "visible" : "none");
+    for (const l of ["stops-dot"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", subway ? "visible" : "none");
   }, [subway, ready]);
 
   const ease = reduceMotion() ? 0 : 500;

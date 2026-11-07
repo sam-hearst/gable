@@ -61,6 +61,8 @@ and use only the colors and fonts in the style guide.
   in the `listing-photos` bucket, under Storage). Then set `checked` to what you
   confirmed, e.g. `["Columbia email verified","Lease on file","Photos checked"]`, and
   set `status` to `approved` (or `rejected`). It shows in search right away.
+- `/privacy` is the privacy policy (public on both sites, linked in the footer; Google sign-in needs it).
+  When the app starts collecting something new, update it in the same pull request.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in

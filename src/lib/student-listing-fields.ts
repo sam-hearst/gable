@@ -71,3 +71,8 @@ export type ListingInput = {
 
 export const photoUrl = (path: string) =>
   `${SUPABASE_URL}/storage/v1/object/public/${PHOTO_BUCKET}/${path.split("/").map(encodeURIComponent).join("/")}`;
+
+// Today's date (YYYY-MM-DD) in New York, where every listing is. Plain
+// toISOString() is UTC, which is already tomorrow after about 8pm here.
+export const nycToday = () =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());

@@ -46,15 +46,22 @@ drop policy if exists "Read own listings" on public.student_listings;
 create policy "Read own listings" on public.student_listings
   for select to authenticated using ((select auth.uid()) = user_id);
 
--- New listings: your own, pending, nothing checked yet, photos only from your
--- own folder.
+-- New listings: your own, pending, nothing checked yet, contact email is your
+-- account email, posted now (not dated ahead to sit at the top of search), and
+-- photos only from your own folder. These hold even for someone who skips the
+-- form and calls Supabase directly with the public key.
 drop policy if exists "Post own listings" on public.student_listings;
 create policy "Post own listings" on public.student_listings
   for insert to authenticated with check (
     (select auth.uid()) = user_id
     and status = 'pending'
     and checked = '{}'
-    and not exists (select 1 from unnest(photos) p where p not like (select auth.uid())::text || '/%')
+    and contact_email = (select auth.jwt() ->> 'email')
+    and created_at <= now() + interval '1 minute'
+    and not exists (
+      select 1 from unnest(photos) p
+      where p not like (select auth.uid())::text || '/%' or p like '%..%'
+    )
   );
 
 drop policy if exists "Remove own listings" on public.student_listings;

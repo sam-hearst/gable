@@ -9,6 +9,7 @@ import {
   NEIGHBORHOODS,
   PHOTO_BUCKET,
   PHOTO_TYPES,
+  nycToday,
   type ListingInput,
 } from "@/lib/student-listing-fields";
 import { createClient } from "@/lib/supabase/client";
@@ -60,7 +61,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = nycToday();
 
   // Free the preview URLs when photos are removed or the form goes away.
   const previews = useRef<string[]>([]);

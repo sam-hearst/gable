@@ -4,6 +4,7 @@ import {
   PHOTO_BUCKET,
   MAX_PHOTOS,
   ROOM_TYPES,
+  nycToday,
   photoUrl,
   type ListingInput,
   type ListingStatus,
@@ -66,7 +67,7 @@ function toListing(r: Row): StudentListing {
   };
 }
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = nycToday;
 
 // Approved listings that are still available, newest first. Empty (and a
 // server warning) if Supabase isn't set up or the table doesn't exist yet, so

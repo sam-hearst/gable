@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app/AppShell";
-import { BrowseSection, HomeHero } from "@/components/landing/HomeSections";
+import { HomeHero } from "@/components/landing/HomeSections";
 
 export const metadata: Metadata = {
   title: "Explore | Gable",
@@ -8,13 +8,13 @@ export const metadata: Metadata = {
 };
 
 // Where signed-in people land (the homepage sends them here). It's the
-// homepage's hero and Browse cards in the sidebar, minus the waitlist sign-up.
+// homepage's search, centered, with the sidebar.
 export default function ExplorePage() {
   return (
     <AppShell current="explore">
-      <main>
+      {/* Just the search, centered on the page. */}
+      <main className="explore-main">
         <HomeHero source="explore" />
-        <BrowseSection />
       </main>
     </AppShell>
   );

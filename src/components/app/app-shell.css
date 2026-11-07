@@ -154,3 +154,7 @@ button.app-me:hover { background: var(--sage); }
   .app, .app-sidebar, .app-edge-toggle, .app-edge-toggle svg, .app-nav-link { transition: none; }
   .app-nav-link:active, button.app-me:active, .app-iconbtn:active, .app-edge-toggle:active { transform: none; }
 }
+
+/* Explore (signed in): only the search, centered top to bottom. */
+.explore-main { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; }
+.explore-main .hero { padding-top: 24px; padding-bottom: 48px; }

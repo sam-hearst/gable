@@ -183,7 +183,23 @@ export function CityMap({
         map.on("pitchend", () => setFlat(map.getPitch() < 10));
         sync();
 
-        if (flyIn) map.flyTo({ ...HOME, duration: 4500, curve: 1.4, essential: true });
+        // Frame the places near campus; farther ones are there when you zoom out.
+        const nearby = places.filter((p) => walkMinutes([p.lng, p.lat], CAMPUS) <= 60);
+        const framed = nearby.length ? nearby : places;
+        if (framed.length) {
+          const bounds = new maplibregl.LngLatBounds();
+          framed.forEach((p) => bounds.extend([p.lng, p.lat]));
+          map.fitBounds(bounds, {
+            padding: { top: 70, bottom: 40, left: 50, right: 50 },
+            maxZoom: 15.8,
+            pitch: HOME.pitch,
+            bearing: HOME.bearing,
+            duration: flyIn ? 4000 : 0,
+            essential: true,
+          });
+        } else if (flyIn) {
+          map.flyTo({ ...HOME, duration: 4500, curve: 1.4, essential: true });
+        }
         setReady(true);
       })
       .catch(() => !cancelled && setFailed(true));

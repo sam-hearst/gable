@@ -95,11 +95,11 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
               </>
             }
           >
-            <div className="results">
-              {results.map((r) => (
-                <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
-              ))}
-            </div>
+            {results.map((r) => (
+              <div key={r.listing.id} data-place-id={r.listing.id}>
+                <ResultCard l={r.listing} misses={r.misses} />
+              </div>
+            ))}
           </ResultsWithMap>
         </div>
       </SearchSession>

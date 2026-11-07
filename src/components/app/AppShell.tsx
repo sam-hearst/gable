@@ -55,7 +55,9 @@ function firstName(session: Session): string {
 export function AppShell({ current, children }: { current: AppPage; children: React.ReactNode }) {
   // undefined while checking; null when signed out.
   const [session, setSession] = useState<Session | null | undefined>(supabaseConfigured ? undefined : null);
-  const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
+  // On the home/Explore page the sidebar is always open, so people notice it.
+  const storedCollapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
+  const collapsed = current === "explore" ? false : storedCollapsed;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");

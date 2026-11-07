@@ -65,9 +65,9 @@ function pill(opts: {
   }
 
   ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,0.45)";
-  ctx.shadowBlur = 10;
-  ctx.shadowOffsetY = 4;
+  ctx.shadowColor = "rgba(0,0,0,0.22)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
   if (opts.ring) {
     ctx.fillStyle = opts.ring;
     roundRect(ctx, x - 3, y - 3, bodyW + 6, height + 6, r + 3);
@@ -134,9 +134,9 @@ export function stopArt(name: string, lines: [string, string][]) {
   const pad = 6;
   const { c, ctx } = canvas(w + pad * 2, height + pad * 2);
   ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,0.35)";
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetY = 3;
+  ctx.shadowColor = "rgba(0,0,0,0.2)";
+  ctx.shadowBlur = 5;
+  ctx.shadowOffsetY = 2;
   ctx.fillStyle = "rgba(15,21,18,0.82)";
   roundRect(ctx, pad, pad, w, height, height / 2);
   ctx.fill();
@@ -162,4 +162,44 @@ export function stopArt(name: string, lines: [string, string][]) {
 
 export function labelFont(size: number, weight = 700) {
   return `${weight} ${size}px ${family()}`;
+}
+
+// Several places too close to tell apart: one bubble with the count.
+export function clusterArt(count: number) {
+  return pill({
+    parts: [
+      { text: String(count), weight: 700, size: 15 },
+      { text: "places", weight: 500, size: 12, alpha: 0.85 },
+    ],
+    bg: ACCENT,
+    fg: CREAM,
+    ring: "rgba(255,252,246,0.95)",
+    stem: { color: "rgba(255,252,246,0.95)", length: 22 },
+  });
+}
+
+// Columbia from far away: just a small star, so it doesn't cover the pins.
+export function campusDotArt() {
+  const size = 26;
+  const pad = 6;
+  const { c, ctx } = canvas(size + pad * 2, size + pad * 2);
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.22)";
+  ctx.shadowBlur = 6;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = SUN;
+  ctx.beginPath();
+  ctx.arc(pad + size / 2, pad + size / 2, size / 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = INK;
+  ctx.beginPath();
+  ctx.arc(pad + size / 2, pad + size / 2, size / 2 - 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = SUN;
+  ctx.font = `700 13px ${family()}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("★", pad + size / 2, pad + size / 2 + 1);
+  return c;
 }

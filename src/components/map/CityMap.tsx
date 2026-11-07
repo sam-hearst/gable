@@ -5,7 +5,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CAMPUS, HOODS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
 import { money } from "@/lib/format";
 import { type CesiumNS, loadCesium } from "./loadCesium";
-import { ART_SCALE, campusArt, labelFont, priceArt, ringArt, stopArt } from "./pinArt";
+import { ART_SCALE, campusArt, campusDotArt, clusterArt, labelFont, priceArt, ringArt, stopArt } from "./pinArt";
 import "./city-map.css";
 
 export type MapPlace = {
@@ -131,8 +131,8 @@ export function CityMap({
         const near = (m: number) => new Cesium.DistanceDisplayCondition(0, m);
         const at = (ll: LngLat, lift: number) => Cesium.Cartesian3.fromDegrees(ll[0], ll[1], 40 + lift);
         const placed: { entity: CesiumNS; ll: LngLat; lift: number }[] = [];
-        const add = (ll: LngLat, lift: number, options: CesiumNS) => {
-          const entity = viewer.entities.add({ position: at(ll, lift), ...options });
+        const add = (ll: LngLat, lift: number, options: CesiumNS, into: CesiumNS = viewer.entities) => {
+          const entity = into.add({ position: at(ll, lift), ...options });
           placed.push({ entity, ll, lift });
           return entity;
         };
@@ -142,7 +142,9 @@ export function CityMap({
 
         add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, art(ringArt("5 min walk"), C, { distanceDisplayCondition: near(5000) }));
         add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, art(ringArt("10 min walk"), C, { distanceDisplayCondition: near(5000) }));
-        add(CAMPUS, 30, art(campusArt(), B));
+        // Columbia: the full label up close, a small star from far away.
+        add(CAMPUS, 30, art(campusArt(), B, { distanceDisplayCondition: near(4200) }));
+        add(CAMPUS, 30, art(campusDotArt(), C, { distanceDisplayCondition: new Cesium.DistanceDisplayCondition(4200, always) }));
         HOODS.forEach((h) =>
           add(h.at, 120, {
             label: {
@@ -160,14 +162,34 @@ export function CityMap({
         stopsRef.current = STOPS.map((s) =>
           add(s.at, 8, art(stopArt(s.name, s.lines), C, { distanceDisplayCondition: near(4500) })),
         );
+        // Price pins live in their own group, so pins that would overlap merge
+        // into one "N places" bubble (like Apple Maps) instead of piling up.
+        const pinGroup = new Cesium.CustomDataSource("places");
+        await viewer.dataSources.add(pinGroup);
+        if (cancelled) return;
+        const clustering = pinGroup.clustering;
+        clustering.enabled = true;
+        clustering.pixelRange = 30;
+        clustering.minimumClusterSize = 2;
+        const bubbles: Record<number, HTMLCanvasElement> = {};
+        clustering.clusterEvent.addEventListener((entities: CesiumNS[], cluster: CesiumNS) => {
+          cluster.label.show = false;
+          cluster.point.show = false;
+          cluster.billboard.show = true;
+          cluster.billboard.image = bubbles[entities.length] ??= clusterArt(entities.length);
+          cluster.billboard.scale = 1 / ART_SCALE;
+          cluster.billboard.verticalOrigin = B;
+          cluster.billboard.disableDepthTestDistance = always;
+        });
+
         pinsRef.current = {};
         places.forEach((p) => {
           const walk = `${walkMinutes([p.lng, p.lat], CAMPUS)} min`;
           const normal = priceArt(money(p.price), walk, false);
           const active = priceArt(money(p.price), walk, true);
           const entity = add([p.lng, p.lat], 10, art(normal, B, {
-            scaleByDistance: new Cesium.NearFarScalar(600, 1, 9000, 0.7),
-          }));
+            scaleByDistance: new Cesium.NearFarScalar(600, 1, 9000, 0.75),
+          }), pinGroup.entities);
           entity.gablePlaceId = p.id;
           pinsRef.current[p.id] = { entity, normal, active };
         });
@@ -184,12 +206,37 @@ export function CityMap({
           } catch {}
         });
 
-        // Tap a pin to open it; the pointer becomes a hand over pins.
+        // Tap a pin to open it. Tap a bubble to zoom in until its pins separate.
+        // The pointer becomes a hand over either.
         const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-        const pinAt = (position: CesiumNS) => scene.pick(position)?.id?.gablePlaceId as string | undefined;
+        const toWindow = Cesium.SceneTransforms.worldToWindowCoordinates ?? Cesium.SceneTransforms.wgs84ToWindowCoordinates;
+        const pinAt = (position: CesiumNS) => {
+          const id = scene.pick(position)?.id;
+          if (id?.gablePlaceId) return { place: id.gablePlaceId as string };
+          // A bubble: the pins drawn within a fingertip (the bubble's size) of the tap.
+          const now = viewer.clock.currentTime;
+          const group = Object.values(pinsRef.current)
+            .map((p) => p.entity)
+            .filter((e) => {
+              const w = toWindow(scene, e.position.getValue(now));
+              return w && Math.hypot(w.x - position.x, w.y - (position.y + 20)) < 60;
+            });
+          if (group.length === 1) return { place: group[0].gablePlaceId as string };
+          return group.length ? { group } : null;
+        };
+        const openGroup = (group: CesiumNS[]) => {
+          const now = viewer.clock.currentTime;
+          const points = group.map((e) => e.position.getValue(now)).filter(Boolean);
+          const sphere = Cesium.BoundingSphere.fromPoints(points);
+          viewer.camera.flyToBoundingSphere(sphere, {
+            offset: new Cesium.HeadingPitchRange(viewer.camera.heading, Cesium.Math.toRadians(-40), Math.max(420, sphere.radius * 2.2)),
+            duration: reduceMotion() ? 0 : 1.2,
+          });
+        };
         handler.setInputAction((e: CesiumNS) => {
-          const id = pinAt(e.position);
-          if (id) onSelectRef.current(id);
+          const hit = pinAt(e.position);
+          if (hit?.place) onSelectRef.current(hit.place);
+          else if (hit?.group) openGroup(hit.group);
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
         let hoverQueued = false;
         handler.setInputAction((e: CesiumNS) => {
@@ -229,11 +276,20 @@ export function CityMap({
         const middle = () => {
           const c = scene.canvas;
           const at = new Cesium.Cartesian2(c.clientWidth / 2, c.clientHeight / 2);
+          // Only trust a picked point that's really on the city (before the
+          // buildings load, picking can return a point far off in space).
           const hit = scene.pickPositionSupported ? scene.pickPosition(at) : undefined;
-          if (hit) return hit;
+          if (hit) {
+            const c = Cesium.Cartographic.fromCartesian(hit);
+            const fromCampus = Cesium.Cartesian3.distance(hit, Cesium.Cartesian3.fromDegrees(...CAMPUS));
+            if (c && c.height > -150 && c.height < 800 && fromCampus < 40000) return hit;
+          }
           const ray = viewer.camera.getPickRay(at);
           const t = ray && Cesium.IntersectionTests.rayEllipsoid(ray, Cesium.Ellipsoid.WGS84);
-          return t ? Cesium.Ray.getPoint(ray, t.start) : Cesium.Cartesian3.fromDegrees(...CAMPUS);
+          const ground = t ? Cesium.Ray.getPoint(ray, t.start) : null;
+          return ground && Cesium.Cartesian3.distance(ground, Cesium.Cartesian3.fromDegrees(...CAMPUS)) < 40000
+            ? ground
+            : Cesium.Cartesian3.fromDegrees(CAMPUS[0], CAMPUS[1], 30);
         };
         const orbit = (change: { heading?: number; pitch?: number; zoom?: number }) => {
           const target = middle();

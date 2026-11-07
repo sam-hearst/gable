@@ -21,7 +21,7 @@ export const STOPS: { name: string; at: LngLat; lines: [string, string][] }[] = 
 ];
 
 export const HOODS: { name: string; at: LngLat; water?: boolean }[] = [
-  { name: "Morningside Heights", at: [-73.961, 40.811] },
+  { name: "Morningside Heights", at: [-73.9585, 40.8128] },
   { name: "Harlem", at: [-73.946, 40.812] },
   { name: "Manhattanville", at: [-73.956, 40.8185] },
   { name: "Manhattan Valley", at: [-73.964, 40.7975] },

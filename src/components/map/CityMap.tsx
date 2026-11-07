@@ -5,7 +5,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CAMPUS, HOODS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
 import { money } from "@/lib/format";
 import { type CesiumNS, loadCesium } from "./loadCesium";
-import { ART_SCALE, campusArt, campusDotArt, clusterArt, labelFont, priceArt, ringArt, stopArt } from "./pinArt";
+import { ART_SCALE, campusArt, campusDotArt, clusterArt, labelFont, priceArt, stopArt } from "./pinArt";
 import "./city-map.css";
 
 export type MapPlace = {
@@ -108,7 +108,7 @@ export function CityMap({
         scene.primitives.add(tileset);
 
         // Walking zones, painted onto the buildings and streets themselves.
-        for (const [radius, alpha] of [[800, 0.16], [400, 0.22]]) {
+        for (const [radius, alpha] of [[800, 0.08], [400, 0.12]]) {
           viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(...CAMPUS),
             ellipse: {
@@ -140,28 +140,32 @@ export function CityMap({
           billboard: { image, scale: 1 / ART_SCALE, verticalOrigin: origin, disableDepthTestDistance: always, ...extra },
         });
 
-        add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, art(ringArt("5 min walk"), C, { distanceDisplayCondition: near(5000) }));
-        add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, art(ringArt("10 min walk"), C, { distanceDisplayCondition: near(5000) }));
+        // Quiet text labels: white type with a soft dark edge, no boxes.
+        const text = (t: string, size: number, weight: number, show: number, color = "#ffffff") => ({
+          label: {
+            text: t,
+            font: labelFont(size, weight),
+            fillColor: Cesium.Color.fromCssColorString(color),
+            outlineColor: Cesium.Color.fromCssColorString("rgba(15,21,18,0.55)"),
+            outlineWidth: 2.5,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            disableDepthTestDistance: always,
+            distanceDisplayCondition: near(show),
+          },
+        });
+        add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, text("5 min walk", 11, 600, 3500, "#c9f5dc"));
+        add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, text("10 min walk", 11, 600, 3500, "#c9f5dc"));
         // Columbia: the full label up close, a small star from far away.
         add(CAMPUS, 30, art(campusArt(), B, { distanceDisplayCondition: near(4200) }));
         add(CAMPUS, 30, art(campusDotArt(), C, { distanceDisplayCondition: new Cesium.DistanceDisplayCondition(4200, always) }));
         HOODS.forEach((h) =>
-          add(h.at, 120, {
-            label: {
-              text: h.water ? h.name : h.name.toUpperCase(),
-              font: labelFont(h.water ? 14 : 13, h.water ? 500 : 700),
-              fillColor: Cesium.Color.fromCssColorString(h.water ? "#dbeefa" : "#ffffff"),
-              outlineColor: Cesium.Color.fromCssColorString("rgba(0,0,0,0.75)"),
-              outlineWidth: 3,
-              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-              disableDepthTestDistance: always,
-              distanceDisplayCondition: near(7000),
-            },
-          }),
+          add(h.at, 120, text(h.water ? h.name : h.name.toUpperCase(), h.water ? 12 : 11, h.water ? 500 : 600, 7000, h.water ? "#dbeefa" : "rgba(255,255,255,0.92)")),
         );
-        stopsRef.current = STOPS.map((s) =>
-          add(s.at, 8, art(stopArt(s.name, s.lines), C, { distanceDisplayCondition: near(4500) })),
-        );
+        // Subway: small line dots from a distance, the station name only up close.
+        stopsRef.current = STOPS.flatMap((s) => [
+          add(s.at, 8, art(stopArt(null, s.lines), C, { distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1400, 4500) })),
+          add(s.at, 8, art(stopArt(s.name, s.lines), C, { distanceDisplayCondition: near(1400) })),
+        ]);
         // Price pins live in their own group, so pins that would overlap merge
         // into one "N places" bubble (like Apple Maps) instead of piling up.
         const pinGroup = new Cesium.CustomDataSource("places");

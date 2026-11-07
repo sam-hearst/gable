@@ -39,6 +39,7 @@ function pill(opts: {
   stem?: { color: string; length: number };
   padX?: number;
   height?: number;
+  ringWidth?: number;
 }) {
   const padX = opts.padX ?? 12;
   const height = opts.height ?? 32;
@@ -69,8 +70,9 @@ function pill(opts: {
   ctx.shadowBlur = 6;
   ctx.shadowOffsetY = 2;
   if (opts.ring) {
+    const rw = opts.ringWidth ?? 2;
     ctx.fillStyle = opts.ring;
-    roundRect(ctx, x - 3, y - 3, bodyW + 6, height + 6, r + 3);
+    roundRect(ctx, x - rw, y - rw, bodyW + rw * 2, height + rw * 2, r + rw);
     ctx.fill();
   }
   ctx.restore();
@@ -91,61 +93,66 @@ function pill(opts: {
   return c;
 }
 
+// Slim price pin: price, then the walk to campus in lighter type.
 export function priceArt(price: string, walk: string, active: boolean) {
   return pill({
     parts: [
-      { text: price, weight: 700, size: 15 },
-      { text: walk, weight: 500, size: 12, alpha: 0.85 },
+      { text: price, weight: 700, size: 13 },
+      { text: walk, weight: 500, size: 11, alpha: 0.8 },
     ],
     bg: active ? ACCENT_DARK : ACCENT,
     fg: CREAM,
     ring: "rgba(255,252,246,0.95)",
-    stem: { color: "rgba(255,252,246,0.95)", length: 28 },
+    ringWidth: 1.5,
+    height: 26,
+    padX: 10,
+    stem: { color: "rgba(255,252,246,0.9)", length: 14 },
   });
 }
 
+// Columbia: a slim dark label with a thin gold edge.
 export function campusArt() {
   return pill({
     parts: [
-      { text: "★", weight: 700, size: 14 },
-      { text: "Columbia University", weight: 700, size: 14 },
+      { text: "★", weight: 700, size: 12 },
+      { text: "Columbia", weight: 700, size: 13 },
     ],
     bg: INK,
     fg: CREAM,
-    ring: "rgba(242,166,90,0.95)",
-    radius: 12,
-    height: 34,
-    stem: { color: SUN, length: 38 },
+    ring: "rgba(242,166,90,0.9)",
+    ringWidth: 1.5,
+    height: 26,
+    padX: 10,
+    stem: { color: SUN, length: 18 },
   });
 }
 
-export function ringArt(text: string) {
-  return pill({ parts: [{ text, weight: 700, size: 12 }], bg: "rgba(43,122,75,0.9)", fg: "#fff", height: 24, padX: 9 });
-}
 
-// A subway stop: line bullets in MTA colors, then the stop name.
-export function stopArt(name: string, lines: [string, string][]) {
-  const height = 26;
-  const bullet = 18;
+
+// A subway stop: small line bullets in MTA colors, plus the stop name when
+// `name` is given (only shown up close, to keep the map quiet).
+export function stopArt(name: string | null, lines: [string, string][]) {
+  const height = 20;
+  const bullet = 14;
   const { ctx: measure } = canvas(1, 1);
-  measure.font = `700 11px ${family()}`;
-  const nameW = measure.measureText(name).width;
-  const w = 4 + lines.length * (bullet + 3) + 4 + nameW + 9;
+  measure.font = `600 10px ${family()}`;
+  const nameW = name ? measure.measureText(name).width + 4 : 0;
+  const w = 3 + lines.length * (bullet + 2) - 2 + 3 + nameW + (name ? 6 : 0);
   const pad = 6;
   const { c, ctx } = canvas(w + pad * 2, height + pad * 2);
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,0.2)";
   ctx.shadowBlur = 5;
   ctx.shadowOffsetY = 2;
-  ctx.fillStyle = "rgba(15,21,18,0.82)";
+  ctx.fillStyle = "rgba(15,21,18,0.72)";
   roundRect(ctx, pad, pad, w, height, height / 2);
   ctx.fill();
   ctx.restore();
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 11px ${family()}`;
+  ctx.font = `700 9px ${family()}`;
   lines.forEach(([line, color], i) => {
-    const cx = pad + 4 + i * (bullet + 3) + bullet / 2;
+    const cx = pad + 3 + i * (bullet + 2) + bullet / 2;
     const cy = pad + height / 2;
     ctx.fillStyle = color;
     ctx.beginPath();
@@ -154,9 +161,12 @@ export function stopArt(name: string, lines: [string, string][]) {
     ctx.fillStyle = "#fff";
     ctx.fillText(line, cx, cy + 1);
   });
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#fff";
-  ctx.fillText(name, pad + 4 + lines.length * (bullet + 3) + 4, pad + height / 2 + 1);
+  if (name) {
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#fff";
+    ctx.font = `600 10px ${family()}`;
+    ctx.fillText(name, pad + 3 + lines.length * (bullet + 2) + 4, pad + height / 2 + 1);
+  }
   return c;
 }
 

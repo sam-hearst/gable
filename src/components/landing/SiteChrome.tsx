@@ -3,8 +3,8 @@ import { isDemo } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
 // "current" is kept so pages can still say where they are, but the header no
-// longer has tab links: the logo goes home, "List your room" sits on the right,
-// and Favorites shows once you're signed in (see AccountLink).
+// longer has tab links: the logo goes home, and Favorites shows once you're
+// signed in (see AccountLink). Demo pages with the app sidebar don't use it.
 type NavKey = "home" | "summer" | "favorites" | "list" | "none";
 
 function Brand({ small = false }: { small?: boolean }) {
@@ -33,16 +33,6 @@ export function SiteHeader({
         <Brand />
         {/* The demo site is the working product, so it has no waitlist buttons. */}
         <div className="top-actions">
-          {/* Listing your room is part of the MVP, so only the demo site shows it. */}
-          {isDemo && (
-            <Link
-              className="account-link"
-              href="/sublet-your-room"
-              aria-current={current === "list" ? "page" : undefined}
-            >
-              List your room
-            </Link>
-          )}
           {isDemo && <AccountLink />}
           {!isDemo && showVerify && (
             <Link className="btn btn-secondary btn-sm" href="/verified">

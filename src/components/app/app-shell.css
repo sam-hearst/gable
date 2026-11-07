@@ -75,13 +75,6 @@
 }
 @media (prefers-reduced-motion: reduce) { .app-sidebar { transition: none; } }
 
-/* Explore: the chat box centered on the page. */
-.explore-main { display: grid; place-items: center; min-height: calc(100vh - 0px); min-height: 100dvh; padding: 48px 24px 96px; }
-.explore { width: 100%; max-width: 760px; text-align: center; }
-.explore h1 { font-size: clamp(32px, 4.4vw, 52px); line-height: 1.05; letter-spacing: -0.04em; }
-.explore-sub { margin: 12px auto 28px; max-width: 52ch; color: var(--ink-faint); font-size: 17px; }
-.explore .chat-box { text-align: left; }
-@media (max-width: 860px) { .explore-main { min-height: calc(100dvh - 60px); padding: 32px 16px 64px; } }
 
 /* Your name at the bottom of the sidebar: click to add or change it. */
 button.app-me { width: 100%; border: 0; border-radius: 12px; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
@@ -95,4 +88,21 @@ button.app-me:hover { background: var(--sage); }
 .app-name-form button {
   min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px;
   background: var(--accent); color: var(--bg); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+
+/* Signed out: Log in / Sign up at the top right of the page. */
+.app-main { position: relative; }
+.app-guestbar { position: absolute; z-index: 25; top: 14px; right: 24px; }
+.app-guest { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.app-mobilebar .app-guest .account-link:not(.account-signin) { display: inline-flex; }
+@media (max-width: 860px) { .app-guestbar { display: none; } }
+
+/* The homepage hero inside the app: size it to the space beside the sidebar,
+   not the whole window, and use the photo strip when the floating cards
+   would run into the headline. */
+.app-main { container-type: inline-size; }
+.app-main .hero h1 { font-size: clamp(40px, 7.4cqi, 96px); }
+@container (max-width: 1279px) {
+  .app-main .collage { display: none; }
+  .app-main .photo-strip { display: flex; }
 }

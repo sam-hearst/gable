@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Gift, Heart, LogOut, Menu, PanelLeft, Search, SquarePlus, X } from "@/components/landing/icons";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseConfigured } from "@/lib/supabase/config";
+import "@/components/landing/account.css";
 import "./app-shell.css";
 
 export type AppPage = "explore" | "favorites" | "list" | "refer" | "none";
@@ -46,10 +47,11 @@ function firstName(session: Session): string {
   return typeof name === "string" && name.trim() ? name.trim().split(/\s+/)[0] : "";
 }
 
-// The signed-in app: a sidebar on the left (Explore, Favorites, List your
-// room, Refer a friend, and your account at the bottom) and the page on the
-// right. It folds down to icons, and on phones it's a drawer behind a menu
-// button. Signed out, the same pages get the normal site header and footer.
+// The app layout: a sidebar on the left (Explore, Favorites, List your room,
+// Refer a friend, and your account at the bottom) and the page on the right.
+// It folds down to icons, and on phones it's a drawer behind a menu button.
+// Signed out it looks the same, so signing in isn't a jump to another site:
+// the items send you to log in first, and Log in / Sign up sit top right.
 export function AppShell({ current, children }: { current: AppPage; children: React.ReactNode }) {
   // undefined while checking; null when signed out.
   const [session, setSession] = useState<Session | null | undefined>(supabaseConfigured ? undefined : null);
@@ -57,6 +59,7 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");
+  const pathname = usePathname();
 
   useEffect(() => {
     const supabase = createClient();
@@ -81,15 +84,22 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
     writeCollapsed(!collapsed);
   }
 
-  if (session === null) {
-    return (
-      <>
-        <SiteHeader current={current === "explore" ? "home" : current === "refer" ? "none" : current} />
-        {children}
-        <SiteFooter />
-      </>
-    );
-  }
+  const guest = session === null;
+  // Signed out, Explore is the homepage and everything else asks you to log in.
+  const hrefFor = (key: AppPage, href: string) =>
+    !guest ? href : key === "explore" ? "/" : `/signin?next=${encodeURIComponent(href)}`;
+  const homeHref = guest ? "/" : "/explore";
+  const signin = `/signin?next=${encodeURIComponent(pathname)}`;
+  const guestButtons = (
+    <div className="app-guest">
+      <Link className="account-link" href={signin}>
+        Log in
+      </Link>
+      <Link className="account-link account-signin" href={`${signin}&mode=signup`}>
+        Sign up
+      </Link>
+    </div>
+  );
 
   const name = session ? firstName(session) : "";
 
@@ -99,18 +109,19 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
         <button className="app-iconbtn" type="button" aria-label="Open menu" onClick={() => setDrawerOpen(true)}>
           <Menu />
         </button>
-        <Link className="brand" href="/explore">
+        <Link className="brand" href={homeHref}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo/gable-mark.svg" alt="" />
           Gable
         </Link>
+        {guest && guestButtons}
       </div>
 
       <div className="app-scrim" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
 
       <aside className="app-sidebar" aria-label="Gable">
         <div className="app-sidebar-top">
-          <Link className="brand" href="/explore" onClick={() => setDrawerOpen(false)}>
+          <Link className="brand" href={homeHref} onClick={() => setDrawerOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo/gable-mark.svg" alt="" />
             <span className="app-label">Gable</span>
@@ -133,7 +144,7 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
           {NAV.map(({ key, href, label, Icon }) => (
             <Link
               key={key}
-              href={href}
+              href={hrefFor(key, href)}
               className="app-nav-link"
               aria-current={key === current ? "page" : undefined}
               title={collapsed ? label : undefined}
@@ -144,6 +155,14 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
             </Link>
           ))}
         </nav>
+
+        {guest && (
+          <div className="app-account">
+            <Link className="app-privacy app-label" href="/privacy">
+              Privacy
+            </Link>
+          </div>
+        )}
 
         {session && (
           <div className="app-account">
@@ -193,7 +212,10 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
         )}
       </aside>
 
-      <div className="app-main">{children}</div>
+      <div className="app-main">
+        {guest && <div className="app-guestbar">{guestButtons}</div>}
+        {children}
+      </div>
     </div>
   );
 }

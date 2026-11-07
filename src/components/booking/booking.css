@@ -1,0 +1,79 @@
+/* Listing, booking and booked pages (demo site only). Colors are the style
+   guide tokens defined in landing.css. */
+
+.demo-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 22px; }
+.demo-note p { font-size: 15px; color: var(--ink-faint); max-width: 70ch; }
+.back-link { display: inline-block; margin-bottom: 16px; font-size: 15px; font-weight: 700; color: var(--accent-dark); }
+
+/* Listing */
+.listing-detail { display: grid; gap: 28px; }
+@media (min-width: 960px) { .listing-detail { grid-template-columns: 1.3fr 1fr; align-items: start; } }
+.listing-photo { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: var(--sage); }
+.listing-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.listing-photo .badge { position: absolute; top: 14px; left: 14px; }
+.listing-info h1 { font-size: clamp(28px, 3.6vw, 40px); margin-top: 8px; }
+.listing-info .price { font-size: 26px; font-weight: 700; margin-top: 10px; }
+.listing-info .price span { font-size: 15px; font-weight: 400; color: var(--ink-faint); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.fact { padding: 6px 12px; border-radius: 999px; background: var(--sage); font-size: 14px; }
+.good-fit { margin-top: 16px; font-size: 17px; line-height: 1.6; }
+.check-box { margin-top: 18px; padding: 16px 18px; border-radius: var(--radius); background: var(--warm); }
+.check-box .k { font-size: 13px; font-weight: 700; color: var(--ink-faint); }
+.check-box ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.check-box li { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.check-box li svg { color: var(--accent); flex-shrink: 0; }
+.lister { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-size: 15px; }
+.lister .av { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+.lister small { display: block; color: var(--ink-faint); font-size: 13px; }
+.cta-full { width: 100%; margin-top: 20px; min-height: 52px; font-size: 16px; }
+.under-cta { margin-top: 10px; font-size: 13px; color: var(--ink-faint); text-align: center; }
+
+/* Booking */
+.book-grid { display: grid; gap: 28px; }
+@media (min-width: 960px) { .book-grid { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+.book-grid h1 { font-size: clamp(28px, 3.6vw, 40px); }
+.book-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--sage-line); }
+.book-section h2 { font-size: 20px; }
+.book-section p.hint { margin-top: 4px; font-size: 14px; color: var(--ink-faint); }
+.field-row { display: grid; gap: 12px; margin-top: 12px; }
+@media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+.field label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid var(--sage-line); border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--ink); font: inherit; font-size: 16px;
+}
+.field textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(43, 122, 75, 0.18); }
+.pay-option { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 14px 16px; border: 2px solid var(--accent); border-radius: var(--radius-sm); background: var(--bg); }
+.pay-option .card { width: 44px; height: 30px; border-radius: 6px; background: var(--ink); color: var(--bg); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.pay-option small { display: block; color: var(--ink-faint); font-size: 13px; }
+.safe-note { display: flex; gap: 10px; margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--sage); font-size: 14px; line-height: 1.5; }
+.safe-note svg { color: var(--accent-dark); flex-shrink: 0; margin-top: 2px; }
+.agree { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; font-size: 15px; line-height: 1.5; }
+.agree input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
+.form-err { margin-top: 10px; color: #B3382C; font-size: 14px; }
+
+.summary { padding: 20px; border-radius: var(--radius); background: var(--sage); }
+@media (min-width: 960px) { .summary { position: sticky; top: 90px; } }
+.summary-head { display: flex; gap: 14px; align-items: center; }
+.summary-head img { width: 96px; height: 72px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.summary-head b { display: block; font-size: 16px; line-height: 1.3; }
+.summary-head small { color: var(--ink-faint); font-size: 13px; }
+.lines { margin-top: 16px; display: grid; gap: 10px; font-size: 15px; }
+.line { display: flex; justify-content: space-between; gap: 12px; }
+.line span:first-child { color: var(--ink-faint); }
+.line.total { padding-top: 12px; border-top: 1px solid var(--sage-line); font-weight: 700; font-size: 17px; }
+.line.total span:first-child { color: var(--ink); }
+
+/* Booked */
+.booked-hero { text-align: center; padding-top: 12px; }
+.booked-check { width: 120px; height: 120px; margin: 0 auto; border-radius: 50%; background: var(--accent); color: var(--bg); display: flex; align-items: center; justify-content: center; animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes pop-in { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .booked-check { animation: none; } }
+.booked-hero h1 { font-size: clamp(44px, 7vw, 76px); margin-top: 18px; }
+.booked-hero .sub { margin: 8px auto 0; max-width: 56ch; color: var(--ink-faint); font-size: 18px; line-height: 1.5; }
+.booked-card { max-width: 640px; margin: 28px auto 0; padding: 20px; border-radius: var(--radius); background: var(--sage); text-align: left; }
+.next-steps { max-width: 640px; margin: 24px auto 0; text-align: left; }
+.next-steps h2 { font-size: 20px; }
+.next-steps ol { margin: 12px 0 0; padding-left: 22px; display: grid; gap: 10px; font-size: 16px; line-height: 1.5; }
+.booked-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 26px; }

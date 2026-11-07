@@ -143,15 +143,22 @@ export function CityMap({
           });
         });
 
-        // Camera: look at a spot from a distance, at a downward angle.
-        const look = (at: LngLat, range: number, pitch: number, duration: number) =>
-          viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(at[0], at[1], 40), 1), {
+        // Camera: look at a spot from a distance, at a downward angle. `aimLeft`
+        // (meters) aims left of the spot, so it lands right of the card.
+        const look = (at: LngLat, range: number, pitch: number, duration: number, aimLeft = 0) => {
+          const target = Cesium.Cartesian3.fromDegrees(at[0], at[1], 40);
+          if (aimLeft) {
+            const left = Cesium.Cartesian3.multiplyByScalar(viewer.camera.rightWC, -aimLeft, new Cesium.Cartesian3());
+            Cesium.Cartesian3.add(target, left, target);
+          }
+          viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(target, 1), {
             offset: new Cesium.HeadingPitchRange(viewer.camera.heading, Cesium.Math.toRadians(pitch), range),
             duration,
           });
+        };
         flyRef.current = (id) => {
           const p = places.find((x) => x.id === id);
-          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6);
+          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, 130);
         };
 
         // First time this visit: fly in from above Midtown, so the area makes sense.

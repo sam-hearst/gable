@@ -45,6 +45,13 @@ export function CityMap({
 }) {
   const box = useRef<HTMLDivElement>(null);
   const flyRef = useRef<(id: string) => void>(() => {});
+  const controlsRef = useRef<{
+    rotate: (deg: number) => void;
+    north: () => void;
+    tilt: () => boolean;
+    zoom: (factor: number) => void;
+  } | null>(null);
+  const [flat, setFlat] = useState(false);
   const [failed, setFailed] = useState(!KEY);
   const [subway, setSubway] = useState(true);
 
@@ -66,17 +73,23 @@ export function CityMap({
         });
         const scene = viewer.scene;
         scene.skyAtmosphere.show = true;
-        // Sharp on Retina screens, smooth edges, and no zooming in past where it blurs.
+        // Sharp but smooth: up to 1.5× pixel density on Retina (full 2× drops frames),
+        // smoothed edges, and no zooming in past where Google's model blurs.
         viewer.useBrowserRecommendedResolution = false;
-        viewer.resolutionScale = 1;
+        viewer.resolutionScale = Math.min(1, 1.5 / (window.devicePixelRatio || 1));
         scene.postProcessStages.fxaa.enabled = true;
-        scene.screenSpaceCameraController.minimumZoomDistance = 150;
-        scene.screenSpaceCameraController.maximumZoomDistance = 9000;
+        const ctrl = scene.screenSpaceCameraController;
+        ctrl.minimumZoomDistance = 150;
+        ctrl.maximumZoomDistance = 9000;
+        // Like Google Maps: drag to move, right-drag (or Ctrl-drag) to tilt and turn, wheel or pinch to zoom.
+        const E = Cesium.CameraEventType, K = Cesium.KeyboardEventModifier;
+        ctrl.zoomEventTypes = [E.WHEEL, E.PINCH];
+        ctrl.tiltEventTypes = [E.RIGHT_DRAG, E.MIDDLE_DRAG, E.PINCH, { eventType: E.LEFT_DRAG, modifier: K.CTRL }];
 
         let tileset: CesiumNS;
         try {
           tileset = await Cesium.createGooglePhotorealistic3DTileset(undefined, {
-            maximumScreenSpaceError: 6,
+            maximumScreenSpaceError: 8,
             cacheBytes: 1024 * 1024 * 1024,
           });
         } catch {
@@ -122,24 +135,32 @@ export function CityMap({
           } catch {}
         });
 
-        // Look each label up by its data-anchor name (cached after the first find).
-        const els: Record<string, HTMLElement | null> = {};
-        const find = (key: string) =>
-          els[key]?.isConnected ? els[key] : (els[key] = box.current?.querySelector<HTMLElement>(`[data-anchor="${CSS.escape(key)}"]`) ?? null);
+        // Look each label up by its data-anchor name, and measure it once
+        // (measuring every frame is what made the map stutter).
+        const els: Record<string, { el: HTMLElement; w: number; h: number } | null> = {};
+        const find = (key: string) => {
+          const hit = els[key];
+          if (hit?.el.isConnected) return hit;
+          const el = box.current?.querySelector<HTMLElement>(`[data-anchor="${CSS.escape(key)}"]`);
+          return (els[key] = el ? { el, w: el.offsetWidth, h: el.offsetHeight } : null);
+        };
+        const needle = box.current?.querySelector<HTMLElement>(".city-compass-needle");
         const toWindow = Cesium.SceneTransforms.worldToWindowCoordinates ?? Cesium.SceneTransforms.wgs84ToWindowCoordinates;
         const spot = new Cesium.Cartesian2();
         scene.postRender.addEventListener(() => {
           const cam = scene.camera.positionWC;
+          if (needle) needle.style.transform = `rotate(${-Cesium.Math.toDegrees(scene.camera.heading)}deg)`;
           anchors.forEach((a, i) => {
-            const el = find(a.key);
-            if (!el) return;
+            const hit = find(a.key);
+            if (!hit) return;
+            const { el, w, h } = hit;
             const p = toWindow(scene, positions[i], spot);
             if (!p || Cesium.Cartesian3.distance(cam, positions[i]) > 8000) {
-              el.style.visibility = "hidden";
+              if (el.style.visibility !== "hidden") el.style.visibility = "hidden";
               return;
             }
-            el.style.visibility = "";
-            el.style.transform = `translate(${p.x - el.offsetWidth / 2}px, ${p.y - (a.bottom ? el.offsetHeight : el.offsetHeight / 2)}px)`;
+            if (el.style.visibility) el.style.visibility = "";
+            el.style.transform = `translate3d(${(p.x - w / 2).toFixed(1)}px, ${(p.y - (a.bottom ? h : h / 2)).toFixed(1)}px, 0)`;
           });
         });
 
@@ -156,6 +177,40 @@ export function CityMap({
             duration,
           });
         };
+        // The point in the middle of the view (on the city), used to turn and zoom around.
+        const middle = () => {
+          const c = scene.canvas;
+          const at = new Cesium.Cartesian2(c.clientWidth / 2, c.clientHeight / 2);
+          const hit = scene.pickPositionSupported ? scene.pickPosition(at) : undefined;
+          if (hit) return hit;
+          const ray = viewer.camera.getPickRay(at);
+          const t = ray && Cesium.IntersectionTests.rayEllipsoid(ray, Cesium.Ellipsoid.WGS84);
+          return t ? Cesium.Ray.getPoint(ray, t.start) : Cesium.Cartesian3.fromDegrees(...CAMPUS);
+        };
+        const orbit = (change: { heading?: number; pitch?: number; zoom?: number }) => {
+          const target = middle();
+          const cam = viewer.camera;
+          const range = Cesium.Cartesian3.distance(cam.positionWC, target) * (change.zoom ?? 1);
+          cam.flyToBoundingSphere(new Cesium.BoundingSphere(target, 1), {
+            offset: new Cesium.HeadingPitchRange(
+              change.heading ?? cam.heading,
+              change.pitch ?? cam.pitch,
+              Math.min(9000, Math.max(160, range)),
+            ),
+            duration: reduceMotion() ? 0 : 0.6,
+          });
+        };
+        controlsRef.current = {
+          rotate: (deg) => orbit({ heading: viewer.camera.heading + Cesium.Math.toRadians(deg) }),
+          north: () => orbit({ heading: 0 }),
+          tilt: () => {
+            const flat = viewer.camera.pitch < Cesium.Math.toRadians(-70);
+            orbit({ pitch: Cesium.Math.toRadians(flat ? -32 : -89) });
+            return !flat;
+          },
+          zoom: (factor) => orbit({ zoom: factor }),
+        };
+
         flyRef.current = (id) => {
           const p = places.find((x) => x.id === id);
           if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, 130);
@@ -186,6 +241,7 @@ export function CityMap({
     return () => {
       cancelled = true;
       flyRef.current = () => {};
+      controlsRef.current = null;
       if (viewer && !viewer.isDestroyed()) viewer.destroy();
     };
     // Rebuild only when the set of places changes.
@@ -253,6 +309,44 @@ export function CityMap({
         <button type="button" className="city-chip" aria-pressed={subway} onClick={() => setSubway((s) => !s)}>
           Subway
         </button>
+      </div>
+
+      {/* Like Google Maps: compass (tap to face north), turn, tilt, zoom. */}
+      <div className="city-nav" aria-label="Map controls">
+        <button type="button" className="city-nav-btn city-compass" aria-label="Face north" title="Face north" onClick={() => controlsRef.current?.north()}>
+          <svg className="city-compass-needle" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2 15 12H9z" fill="#C4622D" />
+            <path d="M12 22 9 12h6z" fill="currentColor" opacity="0.45" />
+          </svg>
+        </button>
+        <div className="city-nav-group">
+          <button type="button" className="city-nav-btn" aria-label="Turn left" title="Turn left" onClick={() => controlsRef.current?.rotate(-45)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
+          </button>
+          <button type="button" className="city-nav-btn" aria-label="Turn right" title="Turn right" onClick={() => controlsRef.current?.rotate(45)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>
+          </button>
+        </div>
+        <button
+          type="button"
+          className="city-nav-btn city-nav-text"
+          aria-pressed={!flat}
+          title={flat ? "Tilt to 3D" : "Look straight down"}
+          onClick={() => {
+            const nowFlat = controlsRef.current?.tilt();
+            if (nowFlat !== undefined) setFlat(nowFlat);
+          }}
+        >
+          {flat ? "3D" : "2D"}
+        </button>
+        <div className="city-nav-group">
+          <button type="button" className="city-nav-btn" aria-label="Zoom in" title="Zoom in" onClick={() => controlsRef.current?.zoom(0.6)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          </button>
+          <button type="button" className="city-nav-btn" aria-label="Zoom out" title="Zoom out" onClick={() => controlsRef.current?.zoom(1.6)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
+          </button>
+        </div>
       </div>
 
       {active && <PlaceCard place={active} onClose={() => onSelect(null)} />}

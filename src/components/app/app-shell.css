@@ -82,3 +82,17 @@
 .explore-sub { margin: 12px auto 28px; max-width: 52ch; color: var(--ink-faint); font-size: 17px; }
 .explore .chat-box { text-align: left; }
 @media (max-width: 860px) { .explore-main { min-height: calc(100dvh - 60px); padding: 32px 16px 64px; } }
+
+/* Your name at the bottom of the sidebar: click to add or change it. */
+button.app-me { width: 100%; border: 0; border-radius: 12px; background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+button.app-me:hover { background: var(--sage); }
+.app-name-form { display: flex; gap: 6px; padding: 4px 0; }
+.app-name-form input {
+  flex: 1; min-width: 0; min-height: 40px; padding: 0 12px;
+  border: 1.5px solid var(--sage-line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 14px;
+}
+.app-name-form input:focus { outline: none; border-color: var(--accent); }
+.app-name-form button {
+  min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px;
+  background: var(--accent); color: var(--bg); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}

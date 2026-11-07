@@ -8,15 +8,14 @@ import { supabaseConfigured } from "@/lib/supabase/config";
 import type { Session } from "@supabase/supabase-js";
 import "./account.css";
 
-// The first name from sign-up, or the start of the email for accounts made
-// before we asked for a name.
+// The first name from sign-up or Google. Accounts made before we asked for a
+// name have none until they add it in the sidebar, so the header just says Sign out.
 function displayName(session: Session | null): string {
   if (!session) return "";
   // Email sign-up stores a first name; Google gives a full name, so use the first word.
   const meta = session.user.user_metadata ?? {};
   const name = meta.name ?? meta.full_name;
-  if (typeof name === "string" && name.trim()) return name.trim().split(/\s+/)[0];
-  return session.user.email?.split("@")[0] ?? "";
+  return typeof name === "string" && name.trim() ? name.trim().split(/\s+/)[0] : "";
 }
 
 // The right side of the site header. Signed out: "Log in" and "Sign up".

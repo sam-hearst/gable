@@ -43,8 +43,7 @@ function subscribeCollapsed(listener: () => void) {
 function firstName(session: Session): string {
   const meta = session.user.user_metadata ?? {};
   const name = meta.name ?? meta.full_name;
-  if (typeof name === "string" && name.trim()) return name.trim().split(/\s+/)[0];
-  return session.user.email?.split("@")[0] ?? "";
+  return typeof name === "string" && name.trim() ? name.trim().split(/\s+/)[0] : "";
 }
 
 // The signed-in app: a sidebar on the left (Explore, Favorites, List your
@@ -56,6 +55,8 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
   const [session, setSession] = useState<Session | null | undefined>(supabaseConfigured ? undefined : null);
   const collapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [draftName, setDraftName] = useState("");
 
   useEffect(() => {
     const supabase = createClient();
@@ -64,6 +65,17 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
     const { data } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
     return () => data.subscription.unsubscribe();
   }, []);
+
+  // Saves your first name on your account, so the app can say "Hi, Michelle".
+  async function saveName(e: React.FormEvent) {
+    e.preventDefault();
+    const supabase = createClient();
+    const value = draftName.trim();
+    if (!supabase || !value) return;
+    const { data } = await supabase.auth.updateUser({ data: { name: value } });
+    if (data.user) setSession((s) => (s ? { ...s, user: data.user } : s));
+    setEditingName(false);
+  }
 
   function toggleCollapsed() {
     writeCollapsed(!collapsed);
@@ -135,12 +147,39 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
 
         {session && (
           <div className="app-account">
-            <div className="app-me" title={session.user.email ?? undefined}>
-              <span className="app-avatar" aria-hidden="true">
-                {(name[0] ?? "?").toUpperCase()}
-              </span>
-              <span className="app-label app-me-name">{name}</span>
-            </div>
+            {editingName && !collapsed ? (
+              <form className="app-name-form" onSubmit={saveName}>
+                <label htmlFor="app-name" className="sr-only">
+                  Your first name
+                </label>
+                <input
+                  id="app-name"
+                  autoFocus
+                  autoComplete="given-name"
+                  placeholder="Your first name"
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Escape" && setEditingName(false)}
+                />
+                <button type="submit">Save</button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                className="app-me"
+                title={collapsed ? (name ? `Hi, ${name}` : session.user.email ?? undefined) : "Change your name"}
+                onClick={() => {
+                  if (collapsed) return;
+                  setDraftName(name);
+                  setEditingName(true);
+                }}
+              >
+                <span className="app-avatar" aria-hidden="true">
+                  {(name[0] ?? session.user.email?.[0] ?? "?").toUpperCase()}
+                </span>
+                <span className="app-label app-me-name">{name ? `Hi, ${name}` : "Add your name"}</span>
+              </button>
+            )}
             <form action="/auth/signout" method="post">
               <button className="app-nav-link app-signout" type="submit" title={collapsed ? "Sign out" : undefined}>
                 <LogOut />

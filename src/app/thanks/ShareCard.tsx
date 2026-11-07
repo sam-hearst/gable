@@ -11,8 +11,10 @@ const SITE = "https://www.gable.fit";
 // with their own code (?ref= from the signup), so a friend who joins through it
 // is saved with utm_campaign=ref_<code> and we can match the two of them to
 // places for two (scripts/referrals.mjs lists the pairs).
-export function ShareCard() {
-  const raw = useSearchParams().get("ref");
+// Signed-in pages pass the code directly; /thanks reads it from ?ref=.
+export function ShareCard({ code: given }: { code?: string } = {}) {
+  const fromUrl = useSearchParams().get("ref");
+  const raw = given ?? fromUrl;
   const code = raw && /^[a-f0-9]{10}$/.test(raw) ? raw : null;
   const link = `${SITE}/?utm_source=referral&utm_medium=share&utm_campaign=${code ? `ref_${code}` : "thanks"}`;
   const message = `I'm looking for a sublet near Columbia on Gable, where every listing is checked. Want to find a place together? ${link}`;

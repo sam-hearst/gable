@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { ListingForm } from "@/components/listing/ListingForm";
 import { RemoveListingButton } from "@/components/listing/RemoveListingButton";
 import { money, shortDate } from "@/lib/format";
@@ -89,8 +89,7 @@ async function ForLister() {
 // keeps the old redirect there.
 export default function SubletYourRoom() {
   return (
-    <>
-      <SiteHeader current="list" />
+    <AppShell current="list">
       <main>
         <section className="section">
           <div className="wrap list-wrap">
@@ -119,7 +118,6 @@ export default function SubletYourRoom() {
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

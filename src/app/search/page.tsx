@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { SiteFooter } from "@/components/landing/SiteChrome";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
 import { ChatThread } from "@/components/search/ChatThread";
 import { ResultCard } from "@/components/search/ResultCard";
-import { SearchHeader } from "@/components/search/SearchHeader";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
@@ -38,7 +37,7 @@ function SideNotes() {
         Places marked Real listing were posted by students and checked by our team. The rest are samples for our
         demo. <Link href="/sublet-your-room">List your room</Link>
       </p>
-      <Link className="search-new" href="/">
+      <Link className="search-new" href="/explore">
         Start a new search
       </Link>
     </>
@@ -108,8 +107,7 @@ function Loading() {
 
 export default function Search({ searchParams }: PageProps<"/search">) {
   return (
-    <>
-      <SearchHeader />
+    <AppShell current="explore">
       <main>
         <section className="search-main">
           <div className="search-wrap">
@@ -119,7 +117,6 @@ export default function Search({ searchParams }: PageProps<"/search">) {
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking/BookingForm";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { findListing, SAMPLE_LISTINGS } from "@/content/listings";
 import "@/components/booking/booking.css";
 
@@ -18,8 +18,7 @@ export default async function BookPage({ params }: PageProps<"/book/[id]">) {
   if (!l) notFound();
 
   return (
-    <>
-      <SiteHeader current="none" />
+    <AppShell current="none">
       <main>
         <section className="section">
           <div className="wrap">
@@ -37,7 +36,6 @@ export default async function BookPage({ params }: PageProps<"/book/[id]">) {
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

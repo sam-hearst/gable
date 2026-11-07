@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { FavoritesView } from "@/components/search/FavoritesView";
 import { getFavorites } from "@/lib/favorites";
@@ -27,8 +27,7 @@ async function Saved() {
 
 export default function Favorites() {
   return (
-    <>
-      <SiteHeader current="favorites" />
+    <AppShell current="favorites">
       <main>
         <section className="section">
           <div className="wrap">
@@ -38,7 +37,6 @@ export default function Favorites() {
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

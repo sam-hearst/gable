@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookedDetails } from "@/components/booking/BookedDetails";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { findListing, SAMPLE_LISTINGS } from "@/content/listings";
 import "@/components/booking/booking.css";
 
@@ -18,8 +18,7 @@ export default async function BookedPage({ params }: PageProps<"/booked/[id]">) 
   if (!l) notFound();
 
   return (
-    <>
-      <SiteHeader current="none" />
+    <AppShell current="none">
       <main>
         <section className="section">
           <div className="wrap">
@@ -36,7 +35,6 @@ export default async function BookedPage({ params }: PageProps<"/booked/[id]">) 
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

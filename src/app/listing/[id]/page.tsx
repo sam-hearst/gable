@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import { findListing, SAMPLE_LISTINGS } from "@/content/listings";
@@ -26,8 +26,7 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
   if (!l) notFound();
 
   return (
-    <>
-      <SiteHeader current="none" />
+    <AppShell current="none">
       <main>
         <section className="section">
           <div className="wrap">
@@ -99,7 +98,6 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
           </div>
         </section>
       </main>
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

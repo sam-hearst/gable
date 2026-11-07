@@ -3,7 +3,6 @@
 
 .city-map { position: relative; height: 100%; min-height: 420px; border-radius: 22px; overflow: hidden; background: #0f1512; isolation: isolate; }
 .city-canvas { position: absolute; inset: 0; }
-.city-canvas .cesium-viewer-bottom { left: auto; right: 8px; }
 .city-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
 .city-chip, .city-card {
   background: rgba(255, 252, 246, 0.74); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
@@ -58,11 +57,6 @@
 .city-compass-needle { transition: none; }
 .city-nav-text { font: inherit; font-size: 13px; font-weight: 700; }
 
-/* Credits: no Cesium logo. Google's logo and data credit stay (Google's terms
-   require them on its 3D tiles), kept small in the corner. */
-.city-canvas .cesium-credit-logoContainer { display: none !important; }
-.city-canvas .cesium-viewer-bottom { left: auto; right: 10px; bottom: 6px; opacity: 0.85; font-size: 10px; }
-.city-canvas .cesium-credit-expand-link { font-size: 10px; }
 
 @media (prefers-reduced-transparency: reduce) { .city-nav-btn, .city-nav-group { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
 
@@ -110,3 +104,10 @@
 }
 @keyframes city-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .city-panel { animation: none; } }
+
+/* MapLibre's small credit (OpenStreetMap, OpenFreeMap): quiet, bottom left. */
+.city-canvas .maplibregl-ctrl-attrib { font-size: 10px; background: rgba(255, 252, 246, 0.7); }
+.city-map { background: #EFE8DA; }
+/* MapLibre's stylesheet loads after this one and sets its map box to
+   position: relative; keep ours filling the frame. */
+.city-map .city-canvas { position: absolute; inset: 0; }

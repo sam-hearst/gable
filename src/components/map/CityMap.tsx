@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { CAMPUS, HOODS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
+import { CAMPUS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
 import { money, shortDate } from "@/lib/format";
 import { HeartButton } from "@/components/search/HeartButton";
-import { type CesiumNS, loadCesium } from "./loadCesium";
-import { ART_SCALE, clusterArt, labelFont, priceArt, stopArt } from "./pinArt";
+import { type MapLibreNS, loadMapLibre } from "./loadMapLibre";
+import { pillImage } from "./mapArt";
+import { cityStyle } from "./mapStyle";
 import "./city-map.css";
 
 export type MapPlace = {
@@ -33,18 +34,19 @@ export type MapPlace = {
   };
 };
 
-// Google Maps key with Map Tiles API on, limited to Gable's sites. Public by
-// design: the browser asks Google for the 3D tiles directly.
-const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
 const FLY_IN_DONE = "gable-map-flyin";
+const HOME = { center: [-73.9605, 40.8055] as LngLat, zoom: 15.4, pitch: 58, bearing: -28 };
+const PIN = "#2B7A4B";
+const PIN_ON = "#1D5C37";
 
 const reduceMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// The real city in 3D (Google Photorealistic 3D Tiles, drawn with CesiumJS):
-// Columbia, 5 and 10 minute walking zones painted on the streets, subway stops,
-// neighborhood names, and a price pin for each place. Tapping a pin flies to it
-// and opens a card. `activeId`/`onSelect` let a list beside the map drive it.
-// Without a key, or if the 3D map can't load, it shows `fallback` instead.
+// The 3D map: a clean, model-like city (real streets and buildings at their
+// real heights, in soft colors) drawn with MapLibre from free OpenStreetMap
+// data. Price pins with walk time, "N places" bubbles that zoom in when tapped,
+// subway dots, 5 and 10 minute walking zones, and Google Maps-style controls.
+// Tapping a pin selects it; with `showPanel`, the whole listing opens on the right.
+// If the map can't load, it shows `fallback` instead.
 export function CityMap({
   places,
   activeId,
@@ -60,339 +62,170 @@ export function CityMap({
   showPanel?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
-  const flyRef = useRef<(id: string) => void>(() => {});
-  const controlsRef = useRef<{
-    rotate: (deg: number) => void;
-    north: () => void;
-    tilt: () => boolean;
-    zoom: (factor: number) => void;
-  } | null>(null);
-  const [flat, setFlat] = useState(false);
-  // The map's own objects, so later changes (selected pin, Subway on/off) can update them.
-  const pinsRef = useRef<Record<string, { entity: CesiumNS; normal: HTMLCanvasElement; active: HTMLCanvasElement }>>({});
-  const stopsRef = useRef<CesiumNS[]>([]);
+  const mapRef = useRef<MapLibreNS>(null);
   const onSelectRef = useRef(onSelect);
   const showPanelRef = useRef(showPanel);
-  const [failed, setFailed] = useState(!KEY);
+  const [ready, setReady] = useState(false);
+  const [flat, setFlat] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [subway, setSubway] = useState(true);
 
   const placesKey = places.map((p) => p.id).join(",");
-
-  useEffect(() => {
-    if (!KEY || !box.current) return;
-    let viewer: CesiumNS = null;
-    let cancelled = false;
-    // A pinch over the map zooms the map, not the whole page.
-    const el = box.current;
-    const noPageZoom = (e: WheelEvent) => e.ctrlKey && e.preventDefault();
-    el.addEventListener("wheel", noPageZoom, { passive: false });
-
-    loadCesium()
-      .then(async (Cesium) => {
-        if (cancelled || !box.current) return;
-        Cesium.GoogleMaps.defaultApiKey = KEY;
-        viewer = new Cesium.Viewer(box.current.querySelector(".city-canvas"), {
-          globe: false, baseLayer: false, baseLayerPicker: false, geocoder: false, homeButton: false, sceneModePicker: false,
-          navigationHelpButton: false, animation: false, timeline: false, fullscreenButton: false, infoBox: false,
-          selectionIndicator: false,
-        });
-        const scene = viewer.scene;
-        scene.skyAtmosphere.show = true;
-        // Sharp but smooth: up to 1.5× pixel density on Retina (full 2× drops frames),
-        // smoothed edges, and no zooming in past where Google's model blurs.
-        viewer.useBrowserRecommendedResolution = false;
-        viewer.resolutionScale = Math.min(1, 1.5 / (window.devicePixelRatio || 1));
-        scene.postProcessStages.fxaa.enabled = true;
-        const ctrl = scene.screenSpaceCameraController;
-        ctrl.minimumZoomDistance = 150;
-        ctrl.maximumZoomDistance = 16000;
-        // Like Google Maps: drag to move, right-drag (or Ctrl-drag) to tilt and turn, wheel or pinch to zoom.
-        const E = Cesium.CameraEventType, K = Cesium.KeyboardEventModifier;
-        // A trackpad pinch arrives as a wheel event with Ctrl held, so zoom on that too.
-        ctrl.zoomEventTypes = [E.WHEEL, E.PINCH, { eventType: E.WHEEL, modifier: K.CTRL }];
-        ctrl.tiltEventTypes = [E.RIGHT_DRAG, E.MIDDLE_DRAG, E.PINCH, { eventType: E.LEFT_DRAG, modifier: K.CTRL }];
-
-        let tileset: CesiumNS;
-        try {
-          tileset = await Cesium.createGooglePhotorealistic3DTileset(undefined, {
-            maximumScreenSpaceError: 8,
-            cacheBytes: 256 * 1024 * 1024, // enough for the neighborhood; more can exhaust a laptop's graphics memory
-          });
-        } catch {
-          if (!cancelled) setFailed(true);
-          return;
-        }
-        if (cancelled) return;
-        scene.primitives.add(tileset);
-
-        // Walking zones, painted onto the buildings and streets themselves.
-        for (const [radius, alpha] of [[800, 0.08], [400, 0.12]]) {
-          viewer.entities.add({
-            position: Cesium.Cartesian3.fromDegrees(...CAMPUS),
-            ellipse: {
-              semiMajorAxis: radius,
-              semiMinorAxis: radius,
-              material: Cesium.Color.fromCssColorString("#34C27A").withAlpha(alpha),
-              classificationType: Cesium.ClassificationType.CESIUM_3D_TILE,
-            },
-          });
-        }
-
-        // Pins and labels are drawn inside the map, so they move exactly with the
-        // city. Pins always show (just a bit smaller far away); stops, rings and
-        // names hide when you zoom far out, so the view doesn't get crowded.
-        await document.fonts?.ready;
-        if (cancelled) return;
-        const B = Cesium.VerticalOrigin.BOTTOM;
-        const C = Cesium.VerticalOrigin.CENTER;
-        const always = Number.POSITIVE_INFINITY; // never hidden behind buildings
-        const near = (m: number) => new Cesium.DistanceDisplayCondition(0, m);
-        const at = (ll: LngLat, lift: number) => Cesium.Cartesian3.fromDegrees(ll[0], ll[1], 40 + lift);
-        const placed: { entity: CesiumNS; ll: LngLat; lift: number }[] = [];
-        const add = (ll: LngLat, lift: number, options: CesiumNS, into: CesiumNS = viewer.entities) => {
-          const entity = into.add({ position: at(ll, lift), ...options });
-          placed.push({ entity, ll, lift });
-          return entity;
-        };
-        const art = (image: HTMLCanvasElement, origin: CesiumNS, extra: CesiumNS = {}) => ({
-          billboard: { image, scale: 1 / ART_SCALE, verticalOrigin: origin, disableDepthTestDistance: always, ...extra },
-        });
-
-        // Quiet text labels: white type with a soft dark edge, no boxes.
-        const text = (t: string, size: number, weight: number, show: number, color = "#ffffff") => ({
-          label: {
-            text: t,
-            font: labelFont(size, weight),
-            fillColor: Cesium.Color.fromCssColorString(color),
-            outlineColor: Cesium.Color.fromCssColorString("rgba(15,21,18,0.55)"),
-            outlineWidth: 2.5,
-            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-            disableDepthTestDistance: always,
-            distanceDisplayCondition: near(show),
-          },
-        });
-        add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, text("5 min walk", 11, 600, 3500, "#c9f5dc"));
-        add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, text("10 min walk", 11, 600, 3500, "#c9f5dc"));
-        HOODS.forEach((h) =>
-          add(h.at, 120, text(h.water ? h.name : h.name.toUpperCase(), h.water ? 12 : 11, h.water ? 500 : 600, 7000, h.water ? "#dbeefa" : "rgba(255,255,255,0.92)")),
-        );
-        // Subway: small line dots from a distance, the station name only up close.
-        stopsRef.current = STOPS.flatMap((s) => [
-          add(s.at, 8, art(stopArt(null, s.lines), C, { distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1400, 4500) })),
-          add(s.at, 8, art(stopArt(s.name, s.lines), C, { distanceDisplayCondition: near(1400) })),
-        ]);
-        // Price pins live in their own group, so pins that would overlap merge
-        // into one "N places" bubble (like Apple Maps) instead of piling up.
-        const pinGroup = new Cesium.CustomDataSource("places");
-        await viewer.dataSources.add(pinGroup);
-        if (cancelled) return;
-        const clustering = pinGroup.clustering;
-        clustering.enabled = true;
-        clustering.pixelRange = 30;
-        clustering.minimumClusterSize = 2;
-        const bubbles: Record<number, HTMLCanvasElement> = {};
-        clustering.clusterEvent.addEventListener((entities: CesiumNS[], cluster: CesiumNS) => {
-          cluster.label.show = false;
-          cluster.point.show = false;
-          cluster.billboard.show = true;
-          cluster.billboard.image = bubbles[entities.length] ??= clusterArt(entities.length);
-          cluster.billboard.scale = 1 / ART_SCALE;
-          cluster.billboard.verticalOrigin = B;
-          cluster.billboard.disableDepthTestDistance = always;
-        });
-
-        pinsRef.current = {};
-        places.forEach((p) => {
-          const walk = `${walkMinutes([p.lng, p.lat], CAMPUS)} min`;
-          const normal = priceArt(money(p.price), walk, false);
-          const active = priceArt(money(p.price), walk, true);
-          const entity = add([p.lng, p.lat], 10, art(normal, B, {
-            scaleByDistance: new Cesium.NearFarScalar(600, 1, 9000, 0.75),
-          }), pinGroup.entities);
-          entity.gablePlaceId = p.id;
-          pinsRef.current[p.id] = { entity, normal, active };
-        });
-
-        // Once the city has loaded, set each one on the real ground or rooftop below it.
-        tileset.initialTilesLoaded.addEventListener(async () => {
-          try {
-            const ground = await scene.clampToHeightMostDetailed(placed.map((x) => at(x.ll, 400)));
-            ground.forEach((g: CesiumNS, i: number) => {
-              if (!g) return;
-              const c = Cesium.Cartographic.fromCartesian(g);
-              placed[i].entity.position = Cesium.Cartesian3.fromRadians(c.longitude, c.latitude, c.height + placed[i].lift);
-            });
-          } catch {}
-        });
-
-        // Tap a pin to open it. Tap a bubble to zoom in until its pins separate.
-        // The pointer becomes a hand over either.
-        const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
-        const toWindow = Cesium.SceneTransforms.worldToWindowCoordinates ?? Cesium.SceneTransforms.wgs84ToWindowCoordinates;
-        const pinAt = (position: CesiumNS) => {
-          const id = scene.pick(position)?.id;
-          if (id?.gablePlaceId) return { place: id.gablePlaceId as string };
-          // A bubble: the pins drawn within a fingertip (the bubble's size) of the tap.
-          const now = viewer.clock.currentTime;
-          const group = Object.values(pinsRef.current)
-            .map((p) => p.entity)
-            .filter((e) => {
-              const w = toWindow(scene, e.position.getValue(now));
-              return w && Math.hypot(w.x - position.x, w.y - (position.y + 20)) < 60;
-            });
-          if (group.length === 1) return { place: group[0].gablePlaceId as string };
-          return group.length ? { group } : null;
-        };
-        const openGroup = (group: CesiumNS[]) => {
-          const now = viewer.clock.currentTime;
-          const points = group.map((e) => e.position.getValue(now)).filter(Boolean);
-          const sphere = Cesium.BoundingSphere.fromPoints(points);
-          viewer.camera.flyToBoundingSphere(sphere, {
-            offset: new Cesium.HeadingPitchRange(viewer.camera.heading, Cesium.Math.toRadians(-40), Math.max(420, sphere.radius * 2.2)),
-            duration: reduceMotion() ? 0 : 1.2,
-          });
-        };
-        handler.setInputAction((e: CesiumNS) => {
-          const hit = pinAt(e.position);
-          if (hit?.place) onSelectRef.current(hit.place);
-          else if (hit?.group) openGroup(hit.group);
-        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-        let hoverQueued = false;
-        handler.setInputAction((e: CesiumNS) => {
-          if (hoverQueued) return;
-          hoverQueued = true;
-          requestAnimationFrame(() => {
-            hoverQueued = false;
-            scene.canvas.style.cursor = pinAt(e.endPosition) ? "pointer" : "";
-          });
-        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-
-        // The compass turns with the map.
-        const needle = box.current?.querySelector<HTMLElement>(".city-compass-needle");
-        let lastHeading = NaN;
-        scene.postRender.addEventListener(() => {
-          const h = scene.camera.heading;
-          if (needle && h !== lastHeading) {
-            lastHeading = h;
-            needle.style.transform = `rotate(${-Cesium.Math.toDegrees(h)}deg)`;
-          }
-        });
-
-        // Camera: look at a spot from a distance, at a downward angle. `aimLeft`
-        // (meters) aims left of the spot, so it lands right of the card.
-        const look = (at: LngLat, range: number, pitch: number, duration: number, aimLeft = 0) => {
-          const target = Cesium.Cartesian3.fromDegrees(at[0], at[1], 40);
-          if (aimLeft) {
-            const left = Cesium.Cartesian3.multiplyByScalar(viewer.camera.rightWC, -aimLeft, new Cesium.Cartesian3());
-            Cesium.Cartesian3.add(target, left, target);
-          }
-          viewer.camera.flyToBoundingSphere(new Cesium.BoundingSphere(target, 1), {
-            offset: new Cesium.HeadingPitchRange(viewer.camera.heading, Cesium.Math.toRadians(pitch), range),
-            duration,
-          });
-        };
-        // The point in the middle of the view (on the city), used to turn and zoom around.
-        const middle = () => {
-          const c = scene.canvas;
-          const at = new Cesium.Cartesian2(c.clientWidth / 2, c.clientHeight / 2);
-          // Only trust a picked point that's really on the city (before the
-          // buildings load, picking can return a point far off in space).
-          const hit = scene.pickPositionSupported ? scene.pickPosition(at) : undefined;
-          if (hit) {
-            const c = Cesium.Cartographic.fromCartesian(hit);
-            const fromCampus = Cesium.Cartesian3.distance(hit, Cesium.Cartesian3.fromDegrees(...CAMPUS));
-            if (c && c.height > -150 && c.height < 800 && fromCampus < 40000) return hit;
-          }
-          const ray = viewer.camera.getPickRay(at);
-          const t = ray && Cesium.IntersectionTests.rayEllipsoid(ray, Cesium.Ellipsoid.WGS84);
-          const ground = t ? Cesium.Ray.getPoint(ray, t.start) : null;
-          return ground && Cesium.Cartesian3.distance(ground, Cesium.Cartesian3.fromDegrees(...CAMPUS)) < 40000
-            ? ground
-            : Cesium.Cartesian3.fromDegrees(CAMPUS[0], CAMPUS[1], 30);
-        };
-        const orbit = (change: { heading?: number; pitch?: number; zoom?: number }) => {
-          const target = middle();
-          const cam = viewer.camera;
-          const range = Cesium.Cartesian3.distance(cam.positionWC, target) * (change.zoom ?? 1);
-          cam.flyToBoundingSphere(new Cesium.BoundingSphere(target, 1), {
-            offset: new Cesium.HeadingPitchRange(
-              change.heading ?? cam.heading,
-              change.pitch ?? cam.pitch,
-              Math.min(16000, Math.max(160, range)),
-            ),
-            duration: reduceMotion() ? 0 : 0.6,
-          });
-        };
-        controlsRef.current = {
-          rotate: (deg) => orbit({ heading: viewer.camera.heading + Cesium.Math.toRadians(deg) }),
-          north: () => orbit({ heading: 0 }),
-          tilt: () => {
-            const flat = viewer.camera.pitch < Cesium.Math.toRadians(-70);
-            orbit({ pitch: Cesium.Math.toRadians(flat ? -32 : -89) });
-            return !flat;
-          },
-          zoom: (factor) => orbit({ zoom: factor }),
-        };
-
-        flyRef.current = (id) => {
-          const p = places.find((x) => x.id === id);
-          // Aim right of the place, so its pin lands left of the side panel.
-          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, showPanelRef.current ? -150 : 0);
-        };
-
-        // First time this visit: fly in from above Midtown, so the area makes sense.
-        const home: LngLat = [CAMPUS[0], CAMPUS[1] - 0.002];
-        const homeOffset = new Cesium.HeadingPitchRange(Cesium.Math.toRadians(205), Cesium.Math.toRadians(-28), 1250);
-        let seen = false;
-        try {
-          seen = sessionStorage.getItem(FLY_IN_DONE) === "1";
-          sessionStorage.setItem(FLY_IN_DONE, "1");
-        } catch {}
-        const homeSphere = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(home[0], home[1], 40), 1);
-        if (seen || reduceMotion()) {
-          viewer.camera.viewBoundingSphere(homeSphere, homeOffset);
-          viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
-        } else {
-          viewer.camera.setView({
-            destination: Cesium.Cartesian3.fromDegrees(-73.985, 40.735, 5200),
-            orientation: { heading: Cesium.Math.toRadians(20), pitch: Cesium.Math.toRadians(-38) },
-          });
-          viewer.camera.flyToBoundingSphere(homeSphere, { offset: homeOffset, duration: 6.5 });
-        }
-      })
-      .catch(() => !cancelled && setFailed(true));
-
-    return () => {
-      el.removeEventListener("wheel", noPageZoom);
-      cancelled = true;
-      flyRef.current = () => {};
-      controlsRef.current = null;
-      pinsRef.current = {};
-      stopsRef.current = [];
-      if (viewer && !viewer.isDestroyed()) viewer.destroy();
-    };
-    // Rebuild only when the set of places changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placesKey]);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
     showPanelRef.current = showPanel;
   });
 
-  // The list beside the map (or a pin) picked a place: fly there and darken its pin.
   useEffect(() => {
-    for (const [id, pin] of Object.entries(pinsRef.current)) {
-      pin.entity.billboard.image = id === activeId ? pin.active : pin.normal;
-    }
-    if (activeId) flyRef.current(activeId);
-  }, [activeId]);
+    const canvas = box.current?.querySelector<HTMLElement>(".city-canvas");
+    if (!canvas) return;
+    let map: MapLibreNS = null;
+    let cancelled = false;
+
+    loadMapLibre()
+      .then(async (maplibregl) => {
+        if (cancelled) return;
+        let seen = false;
+        try {
+          seen = sessionStorage.getItem(FLY_IN_DONE) === "1";
+          sessionStorage.setItem(FLY_IN_DONE, "1");
+        } catch {}
+        const flyIn = !seen && !reduceMotion();
+        map = new maplibregl.Map({
+          container: canvas,
+          style: cityStyle(CAMPUS),
+          ...(flyIn ? { center: [-73.975, 40.77], zoom: 12.2, pitch: 30, bearing: 0 } : HOME),
+          maxPitch: 75,
+          attributionControl: false,
+          cooperativeGestures: false,
+        });
+        mapRef.current = map;
+        map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
+        map.on("error", () => {});
+
+        await new Promise((r) => map.once("load", r));
+        await document.fonts?.ready;
+        if (cancelled) return;
+
+        // Pins and bubbles are images in the map, so they move exactly with it.
+        places.forEach((p) => {
+          const walk = `${walkMinutes([p.lng, p.lat], CAMPUS)} min`;
+          const add = (name: string, color: string) => {
+            const { image, pixelRatio } = pillImage(money(p.price), walk, color);
+            map.addImage(name, image, { pixelRatio });
+          };
+          add(`pin-${p.id}`, PIN);
+          add(`pin-on-${p.id}`, PIN_ON);
+        });
+        for (let n = 2; n <= 20; n++) {
+          const { image, pixelRatio } = pillImage(n === 20 ? "20+" : String(n), "places", PIN);
+          map.addImage(`group-${n}`, image, { pixelRatio });
+        }
+
+        map.addSource("places", {
+          type: "geojson",
+          cluster: true,
+          clusterRadius: 38,
+          clusterMaxZoom: 16,
+          data: {
+            type: "FeatureCollection",
+            features: places.map((p) => ({ type: "Feature", properties: { id: p.id }, geometry: { type: "Point", coordinates: [p.lng, p.lat] } })),
+          },
+        });
+        map.addSource("stops", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: STOPS.map((s) => ({
+              type: "Feature",
+              properties: { name: s.name, color: s.lines[0][1], lines: s.lines.map(([l]) => l).join(" ") },
+              geometry: { type: "Point", coordinates: s.at },
+            })),
+          },
+        });
+        // Subway: small dots in the line's color; the station name only up close.
+        map.addLayer({ id: "stops-dot", type: "circle", source: "stops", minzoom: 13.5,
+          paint: {
+            "circle-color": ["get", "color"],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 13.5, 3, 17, 7],
+            "circle-stroke-color": "#ffffff", "circle-stroke-width": 1.5, "circle-pitch-alignment": "viewport",
+          } });
+        map.addLayer({ id: "stops-name", type: "symbol", source: "stops", minzoom: 15.5,
+          layout: { "text-field": ["concat", ["get", "name"], "  ", ["get", "lines"]], "text-font": ["Noto Sans Bold"], "text-size": 11,
+            "text-offset": [0, 1.2], "text-anchor": "top" },
+          paint: { "text-color": "#1E2B24", "text-halo-color": "#FFFCF6", "text-halo-width": 1.6 } });
+        map.addLayer({ id: "groups", type: "symbol", source: "places", filter: ["has", "point_count"],
+          layout: { "icon-image": ["concat", "group-", ["to-string", ["min", ["get", "point_count"], 20]]], "icon-anchor": "bottom", "icon-allow-overlap": true } });
+        map.addLayer({ id: "pins", type: "symbol", source: "places", filter: ["!", ["has", "point_count"]],
+          layout: { "icon-image": ["concat", "pin-", ["get", "id"]], "icon-anchor": "bottom", "icon-allow-overlap": true } });
+
+        map.on("click", "pins", (e: MapLibreNS) => onSelectRef.current(e.features[0].properties.id));
+        map.on("click", "groups", async (e: MapLibreNS) => {
+          const f = e.features[0];
+          const zoom = await map.getSource("places").getClusterExpansionZoom(f.properties.cluster_id);
+          map.easeTo({ center: f.geometry.coordinates, zoom: zoom + 0.4, duration: reduceMotion() ? 0 : 900 });
+        });
+        for (const layer of ["pins", "groups"]) {
+          map.on("mouseenter", layer, () => (map.getCanvas().style.cursor = "pointer"));
+          map.on("mouseleave", layer, () => (map.getCanvas().style.cursor = ""));
+        }
+
+        // The compass turns with the map; the 2D/3D button follows the tilt.
+        const needle = box.current?.querySelector<HTMLElement>(".city-compass-needle");
+        const sync = () => {
+          if (needle) needle.style.transform = `rotate(${-map.getBearing()}deg)`;
+        };
+        map.on("rotate", sync);
+        map.on("pitchend", () => setFlat(map.getPitch() < 10));
+        sync();
+
+        if (flyIn) map.flyTo({ ...HOME, duration: 4500, curve: 1.4, essential: true });
+        setReady(true);
+      })
+      .catch(() => !cancelled && setFailed(true));
+
+    return () => {
+      cancelled = true;
+      mapRef.current = null;
+      setReady(false);
+      map?.remove();
+    };
+    // Rebuild only when the set of places changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placesKey]);
+
+  // A place was picked (pin or list): darken its pin and fly there.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || !map.getLayer("pins")) return;
+    map.setLayoutProperty(
+      "pins",
+      "icon-image",
+      activeId ? ["case", ["==", ["get", "id"], activeId], `pin-on-${activeId}`, ["concat", "pin-", ["get", "id"]]] : ["concat", "pin-", ["get", "id"]],
+    );
+    const p = places.find((x) => x.id === activeId);
+    const right = activeId && showPanelRef.current ? 360 : 0;
+    if (p) map.easeTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 16.2), pitch: Math.max(map.getPitch(), 50), padding: { right }, duration: reduceMotion() ? 0 : 1100 });
+    else map.easeTo({ padding: { right: 0 }, duration: reduceMotion() ? 0 : 500 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, ready]);
 
   useEffect(() => {
-    stopsRef.current.forEach((e) => (e.show = subway));
-  }, [subway]);
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    for (const l of ["stops-dot", "stops-name"]) if (map.getLayer(l)) map.setLayoutProperty(l, "visibility", subway ? "visible" : "none");
+  }, [subway, ready]);
 
-  if (failed) return <>{fallback ?? <div className="city-map-empty">The 3D map isn&apos;t available right now.</div>}</>;
+  const ease = reduceMotion() ? 0 : 500;
+  const controls = {
+    north: () => mapRef.current?.easeTo({ bearing: 0, duration: ease }),
+    rotate: (deg: number) => mapRef.current?.easeTo({ bearing: (mapRef.current?.getBearing() ?? 0) + deg, duration: ease }),
+    tilt: () => mapRef.current?.easeTo({ pitch: flat ? 58 : 0, duration: ease }),
+    zoom: (by: number) => mapRef.current?.easeTo({ zoom: (mapRef.current?.getZoom() ?? 15) + by, duration: ease }),
+  };
+
+  if (failed) return <>{fallback ?? <div className="city-map-empty">The map isn&apos;t available right now.</div>}</>;
 
   const active = showPanel ? places.find((p) => p.id === activeId) : undefined;
 
@@ -418,17 +251,17 @@ export function CityMap({
 
       {/* Like Google Maps: compass (tap to face north), turn, tilt, zoom. */}
       <div className="city-nav" aria-label="Map controls">
-        <button type="button" className="city-nav-btn city-compass" aria-label="Face north" title="Face north" onClick={() => controlsRef.current?.north()}>
+        <button type="button" className="city-nav-btn city-compass" aria-label="Face north" title="Face north" onClick={controls.north}>
           <svg className="city-compass-needle" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2 15 12H9z" fill="#C4622D" />
             <path d="M12 22 9 12h6z" fill="currentColor" opacity="0.45" />
           </svg>
         </button>
         <div className="city-nav-group">
-          <button type="button" className="city-nav-btn" aria-label="Turn left" title="Turn left" onClick={() => controlsRef.current?.rotate(-45)}>
+          <button type="button" className="city-nav-btn" aria-label="Turn left" title="Turn left" onClick={() => controls.rotate(-45)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
           </button>
-          <button type="button" className="city-nav-btn" aria-label="Turn right" title="Turn right" onClick={() => controlsRef.current?.rotate(45)}>
+          <button type="button" className="city-nav-btn" aria-label="Turn right" title="Turn right" onClick={() => controls.rotate(45)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>
           </button>
         </div>
@@ -437,18 +270,15 @@ export function CityMap({
           className="city-nav-btn city-nav-text"
           aria-pressed={!flat}
           title={flat ? "Tilt to 3D" : "Look straight down"}
-          onClick={() => {
-            const nowFlat = controlsRef.current?.tilt();
-            if (nowFlat !== undefined) setFlat(nowFlat);
-          }}
+          onClick={controls.tilt}
         >
           {flat ? "3D" : "2D"}
         </button>
         <div className="city-nav-group">
-          <button type="button" className="city-nav-btn" aria-label="Zoom in" title="Zoom in" onClick={() => controlsRef.current?.zoom(0.6)}>
+          <button type="button" className="city-nav-btn" aria-label="Zoom in" title="Zoom in" onClick={() => controls.zoom(1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
           </button>
-          <button type="button" className="city-nav-btn" aria-label="Zoom out" title="Zoom out" onClick={() => controlsRef.current?.zoom(1.6)}>
+          <button type="button" className="city-nav-btn" aria-label="Zoom out" title="Zoom out" onClick={() => controls.zoom(-1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14" /></svg>
           </button>
         </div>

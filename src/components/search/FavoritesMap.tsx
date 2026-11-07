@@ -6,6 +6,7 @@ import { LeafletContext, createLeafletContext, type LeafletContextInterface } fr
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { CircleCheck } from "@/components/landing/icons";
+import { Photo } from "@/components/landing/Photo";
 import { CityMap, type MapPlace } from "@/components/map/CityMap";
 import { toMapPlace } from "@/components/map/places";
 import type { SampleListing } from "@/content/listings";
@@ -161,13 +162,14 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
             className={l.id === active ? "is-active" : undefined}
           >
             <button type="button" className="fav-item" aria-current={l.id === active || undefined} onClick={() => focusListing(l)}>
+              <Photo id={l.photo.id} width={600} alt={l.photo.alt} className="fav-photo" />
               <span className="fav-price">{money(l.price)}</span>
               <span className="fav-title">{l.title}</span>
               <span className="fav-meta">
                 {l.neighborhood} · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
               </span>
             </button>
-            <HeartButton id={l.id} title={l.title} className="heart-btn heart-btn-sm" />
+            <HeartButton id={l.id} title={l.title} className="heart-btn heart-btn-sm fav-heart" />
           </li>
         ))}
       </ul>

@@ -50,16 +50,20 @@
 .fav-map .leaflet-popup-content-wrapper { border-radius: 12px; }
 .fav-map .leaflet-popup-content { margin: 12px 14px; }
 
-.fav-list { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; align-content: start; }
-.fav-list li { display: flex; align-items: center; gap: 4px; border-radius: 12px; background: var(--sage); border: 2px solid transparent; }
+.fav-list { position: relative; list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; align-content: start; }
+/* Each saved place is a card: photo on top, then price, title, where and when. */
+.fav-list li { position: relative; display: block; border-radius: 16px; overflow: hidden; background: var(--sage); border: 2px solid transparent; transition: border-color 0.15s ease; }
 .fav-list li.is-active { border-color: var(--accent); background: var(--warm); }
 .fav-item {
-  flex: 1; min-width: 0; min-height: 44px; display: grid; gap: 1px; padding: 10px 12px; text-align: left;
+  width: 100%; min-width: 0; min-height: 44px; display: grid; gap: 2px; padding: 0 0 12px; text-align: left;
   border: 0; background: none; color: var(--ink); font: inherit; cursor: pointer;
 }
-.fav-price { font-weight: 700; font-size: 15px; }
-.fav-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fav-meta { font-size: 12px; color: var(--ink-faint); }
+.fav-price { font-weight: 700; font-size: 16px; padding: 0 12px; margin-top: 10px; }
+.fav-photo { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.fav-item:active .fav-photo { opacity: 0.92; }
+.fav-heart { position: absolute; top: 8px; right: 8px; width: 38px; height: 38px; border-radius: 999px; background: rgba(255, 252, 246, 0.92) !important; box-shadow: 0 2px 8px rgba(30, 43, 36, 0.18); }
+.fav-title { font-size: 14px; line-height: 1.35; padding: 0 12px; }
+.fav-meta { font-size: 12px; color: var(--ink-faint); padding: 0 12px; }
 
 /* Map and list side by side once the page area (beside the sidebar) has room. */
 @container (min-width: 900px) {

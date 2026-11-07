@@ -66,12 +66,14 @@ const FOOTER_LINKS = isDemo
       { href: "/", label: "Home" },
       { href: "/search", label: "All sublets" },
       { href: "/favorites", label: "Favorites" },
+      { href: "/privacy", label: "Privacy" },
     ]
   : [
       { href: "/", label: "Home" },
       { href: "/verified", label: "How we verify" },
       { href: "/summer", label: "Summer sublets" },
       { href: "/together", label: "Sublets for two" },
+      { href: "/privacy", label: "Privacy" },
     ];
 
 export function SiteFooter({ current }: { current: string }) {

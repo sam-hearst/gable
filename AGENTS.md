@@ -46,6 +46,8 @@ and use only the colors and fonts in the style guide.
 - Gable is **sublets only** for now: no rooms or apartments as categories, and no page for
   listing your own room (`/sublet-your-room` redirects home). Listings still say what the
   space is, as "Sublet · private room".
+- `/privacy` is the privacy policy (public on both sites, linked in the footer; Google sign-in needs it).
+  When the app starts collecting something new, update it in the same pull request.
 - Landing pages are Next.js routes (`/`, `/verified`, `/summer`, `/together`, `/thanks`) built from `src/components/landing/`; see `docs/landing_pages.md`.
 - Search: on the homepage, sending the chat box goes to `/search?q=...`
   (`src/app/search/page.tsx`), which filters and ranks the listings in

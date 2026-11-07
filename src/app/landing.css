@@ -994,3 +994,8 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .share-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .share-fine { margin-top: 14px; font-size: 13px; color: var(--ink-faint); }
 @media (max-width: 520px) { .share-link { flex-direction: column; } }
+
+/* Privacy page: plain bullets and underlined links, per the style guide. */
+.privacy ul { margin: 0; padding-left: 20px; list-style: disc; }
+.privacy li { margin: 6px 0; }
+.privacy a { color: var(--accent-dark); text-decoration: underline; }

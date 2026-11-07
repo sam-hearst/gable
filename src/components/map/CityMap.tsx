@@ -64,6 +64,10 @@ export function CityMap({
     if (!KEY || !box.current) return;
     let viewer: CesiumNS = null;
     let cancelled = false;
+    // A pinch over the map zooms the map, not the whole page.
+    const el = box.current;
+    const noPageZoom = (e: WheelEvent) => e.ctrlKey && e.preventDefault();
+    el.addEventListener("wheel", noPageZoom, { passive: false });
 
     loadCesium()
       .then(async (Cesium) => {
@@ -83,17 +87,18 @@ export function CityMap({
         scene.postProcessStages.fxaa.enabled = true;
         const ctrl = scene.screenSpaceCameraController;
         ctrl.minimumZoomDistance = 150;
-        ctrl.maximumZoomDistance = 9000;
+        ctrl.maximumZoomDistance = 16000;
         // Like Google Maps: drag to move, right-drag (or Ctrl-drag) to tilt and turn, wheel or pinch to zoom.
         const E = Cesium.CameraEventType, K = Cesium.KeyboardEventModifier;
-        ctrl.zoomEventTypes = [E.WHEEL, E.PINCH];
+        // A trackpad pinch arrives as a wheel event with Ctrl held, so zoom on that too.
+        ctrl.zoomEventTypes = [E.WHEEL, E.PINCH, { eventType: E.WHEEL, modifier: K.CTRL }];
         ctrl.tiltEventTypes = [E.RIGHT_DRAG, E.MIDDLE_DRAG, E.PINCH, { eventType: E.LEFT_DRAG, modifier: K.CTRL }];
 
         let tileset: CesiumNS;
         try {
           tileset = await Cesium.createGooglePhotorealistic3DTileset(undefined, {
             maximumScreenSpaceError: 8,
-            cacheBytes: 1024 * 1024 * 1024,
+            cacheBytes: 256 * 1024 * 1024, // enough for the neighborhood; more can exhaust a laptop's graphics memory
           });
         } catch {
           if (!cancelled) setFailed(true);
@@ -238,7 +243,7 @@ export function CityMap({
             offset: new Cesium.HeadingPitchRange(
               change.heading ?? cam.heading,
               change.pitch ?? cam.pitch,
-              Math.min(9000, Math.max(160, range)),
+              Math.min(16000, Math.max(160, range)),
             ),
             duration: reduceMotion() ? 0 : 0.6,
           });
@@ -282,6 +287,7 @@ export function CityMap({
       .catch(() => !cancelled && setFailed(true));
 
     return () => {
+      el.removeEventListener("wheel", noPageZoom);
       cancelled = true;
       flyRef.current = () => {};
       controlsRef.current = null;

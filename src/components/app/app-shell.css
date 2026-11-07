@@ -42,7 +42,7 @@
 
 /* Folded: icons only. */
 .app-collapsed .app-label { display: none; }
-.app-collapsed .app-sidebar-top { flex-direction: column; padding-bottom: 8px; }
+.app-collapsed .app-sidebar-top { justify-content: center; padding: 0 0 8px; }
 .app-collapsed .app-nav-link { justify-content: center; padding: 0; }
 .app-collapsed .app-me { justify-content: center; padding: 0; }
 
@@ -60,12 +60,15 @@
   .app-mobilebar .brand img { width: 28px; height: 28px; }
   .app-sidebar {
     position: fixed; z-index: 50; left: 0; top: 0; width: min(280px, 85vw);
-    transform: translateX(-100%); transition: transform 0.22s ease;
+    transform: translateX(-100%); transition: transform 0.36s var(--ease-sheet);
   }
   .app-drawer-open .app-sidebar { transform: none; }
-  .app-scrim { position: fixed; inset: 0; z-index: 40; background: rgba(30, 43, 36, 0.35); }
-  .app-drawer-open .app-scrim { display: block; }
-  .app-collapse { display: none; }
+  .app-scrim {
+    position: fixed; inset: 0; z-index: 40; display: block; background: rgba(30, 43, 36, 0.35);
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  .app-drawer-open .app-scrim { opacity: 1; pointer-events: auto; }
+  .app-edge-toggle { display: none; }
   .app-close { display: grid; }
   /* The drawer always shows labels. */
   .app-collapsed .app-label { display: inline; }
@@ -73,7 +76,6 @@
   .app-collapsed .app-nav-link { justify-content: flex-start; padding: 0 12px; }
   .app-collapsed .app-me { justify-content: flex-start; padding: 0 6px; }
 }
-@media (prefers-reduced-motion: reduce) { .app-sidebar { transition: none; } }
 
 
 /* Your name at the bottom of the sidebar: click to add or change it. */
@@ -105,4 +107,50 @@ button.app-me:hover { background: var(--sage); }
 @container (max-width: 1279px) {
   .app-main .collage { display: none; }
   .app-main .photo-strip { display: flex; }
+}
+
+/* The fold arrow: a small round button on the sidebar's right edge, near the
+   top. Points left to hide the sidebar, right to show it again. */
+.app-edge-toggle {
+  position: fixed; z-index: 35; top: 26px; left: 234px;
+  display: grid; place-items: center; width: 28px; height: 28px; padding: 0;
+  border: 1px solid var(--sage-line); border-radius: 999px; background: var(--bg);
+  color: var(--ink-faint); cursor: pointer; box-shadow: 0 2px 8px rgba(30, 43, 36, 0.08);
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.app-edge-toggle:hover { color: var(--ink); border-color: var(--accent); }
+.app-edge-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.app-collapsed .app-edge-toggle { left: 58px; }
+.app-collapsed .app-edge-toggle svg { transform: rotate(180deg); }
+
+/* =====================================================================
+   Motion and feel (following the apple-design guide, in the style
+   guide's colors): instant press feedback, the sidebar folds and opens
+   along the same path with a smooth, no-bounce curve, and the sidebar
+   reads as its own calm layer.
+   ===================================================================== */
+
+:root { --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* The sidebar is a structural layer: a faint sage tint sets it apart from the page. */
+.app-sidebar { background: color-mix(in srgb, var(--sage) 45%, var(--bg)); overflow-x: hidden; }
+
+/* Fold / unfold: width, the arrow's position and its direction all move together. */
+.app { transition: grid-template-columns 0.32s var(--ease-sheet); }
+.app-edge-toggle { transition: left 0.32s var(--ease-sheet), color 0.15s ease, border-color 0.15s ease, transform 0.1s ease-out; }
+.app-edge-toggle svg { transition: transform 0.32s var(--ease-sheet); }
+
+/* Feedback on press, not on release. */
+.app-nav-link, .app-iconbtn, .app-edge-toggle, button.app-me { -webkit-tap-highlight-color: transparent; }
+.app-nav-link:active, button.app-me:active { transform: scale(0.98); transition: transform 0.1s ease-out; }
+.app-iconbtn:active, .app-edge-toggle:active { transform: scale(0.92); }
+.app-nav-link { transition: background-color 0.15s ease, transform 0.1s ease-out; }
+
+/* Keyboard users see where they are. */
+.app-nav-link:focus-visible, .app-iconbtn:focus-visible, button.app-me:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Motion turned down: no sliding or resizing, just a quick fade where it helps. */
+@media (prefers-reduced-motion: reduce) {
+  .app, .app-sidebar, .app-edge-toggle, .app-edge-toggle svg, .app-nav-link { transition: none; }
+  .app-nav-link:active, button.app-me:active, .app-iconbtn:active, .app-edge-toggle:active { transform: none; }
 }

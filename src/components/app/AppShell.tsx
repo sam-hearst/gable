@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Gift, Heart, LogOut, Menu, PanelLeft, Search, SquarePlus, X } from "@/components/landing/icons";
+import { ChevronLeft, Gift, Heart, LogOut, Menu, Search, SquarePlus, X } from "@/components/landing/icons";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import "@/components/landing/account.css";
@@ -117,6 +117,18 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
         {guest && guestButtons}
       </div>
 
+      {/* Fold / unfold: a round arrow sitting on the sidebar's edge. */}
+      <button
+        className="app-edge-toggle"
+        type="button"
+        aria-label={collapsed ? "Show sidebar" : "Hide sidebar"}
+        title={collapsed ? "Show sidebar" : "Hide sidebar"}
+        aria-expanded={!collapsed}
+        onClick={toggleCollapsed}
+      >
+        <ChevronLeft size={16} strokeWidth={2.4} />
+      </button>
+
       <div className="app-scrim" onClick={() => setDrawerOpen(false)} aria-hidden="true" />
 
       <aside className="app-sidebar" aria-label="Gable">
@@ -126,15 +138,6 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
             <img src="/logo/gable-mark.svg" alt="" />
             <span className="app-label">Gable</span>
           </Link>
-          <button
-            className="app-iconbtn app-collapse"
-            type="button"
-            aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
-            aria-expanded={!collapsed}
-            onClick={toggleCollapsed}
-          >
-            <PanelLeft />
-          </button>
           <button className="app-iconbtn app-close" type="button" aria-label="Close menu" onClick={() => setDrawerOpen(false)}>
             <X />
           </button>

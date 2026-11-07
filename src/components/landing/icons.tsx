@@ -202,3 +202,11 @@ export function Menu(props: IconProps) {
     </Svg>
   );
 }
+
+export function ChevronLeft(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Svg>
+  );
+}

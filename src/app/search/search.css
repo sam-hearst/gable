@@ -123,3 +123,14 @@
   .search-main { padding: 24px 0 48px; }
   .sample-pill { padding: 0 10px; font-size: 11px; }
 }
+
+/* List | Map switch above the results */
+.view-switch { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--sage); }
+.view-switch button {
+  min-height: 36px; padding: 0 16px; border: 0; border-radius: 999px; background: none; color: var(--ink-faint);
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: background-color 0.15s ease, transform 0.1s ease-out;
+}
+.view-switch button[aria-pressed="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 4px rgba(30, 43, 36, 0.12); }
+.view-switch button:active { transform: scale(0.96); }
+.view-switch button:disabled { opacity: 0.45; cursor: default; }
+.search-map { height: min(72vh, 680px); }

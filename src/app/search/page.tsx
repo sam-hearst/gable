@@ -11,7 +11,11 @@ import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
-import { SAMPLE_LISTINGS } from "@/content/listings";
+import { SAMPLE_LISTINGS, type SampleListing } from "@/content/listings";
+import { px } from "@/components/landing/Photo";
+import type { MapPlace } from "@/components/map/CityMap";
+import { ResultsWithMap } from "@/components/search/ResultsWithMap";
+import { isStudentListing } from "@/lib/student-listing-fields";
 import "./search.css";
 
 export const metadata: Metadata = {
@@ -67,6 +71,20 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // If they can't be read, search goes on with the samples alone.
   const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
   const { reply, results, matched } = await search(messages, [...real, ...SAMPLE_LISTINGS]);
+  // Only the sample listings have map coordinates (student posts give cross streets, not an address).
+  const mapPlaces: MapPlace[] = results
+    .map((r) => r.listing)
+    .filter((l): l is SampleListing => !isStudentListing(l))
+    .map((l) => ({
+      id: l.id,
+      title: l.title,
+      price: l.price,
+      lat: l.lat,
+      lng: l.lng,
+      photo: { src: px(l.photo.id, 720), alt: l.photo.alt },
+      checked: l.checked,
+      href: `/listing/${l.id}`,
+    }));
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
@@ -77,15 +95,21 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
         </div>
 
         <div className="search-results">
-          <div className="search-results-top">
-            {!matched && <h2 className="closest-head">Closest options</h2>}
-            <SavedCount />
-          </div>
-          <div className="results">
-            {results.map((r) => (
-              <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
-            ))}
-          </div>
+          <ResultsWithMap
+            places={mapPlaces}
+            top={
+              <>
+                {!matched && <h2 className="closest-head">Closest options</h2>}
+                <SavedCount />
+              </>
+            }
+          >
+            <div className="results">
+              {results.map((r) => (
+                <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
+              ))}
+            </div>
+          </ResultsWithMap>
         </div>
       </SearchSession>
     </FavoritesProvider>

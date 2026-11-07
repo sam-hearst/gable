@@ -61,10 +61,14 @@
 .fav-title { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fav-meta { font-size: 12px; color: var(--ink-faint); }
 
-@media (min-width: 860px) {
-  .fav-map-layout { grid-template-columns: minmax(0, 1fr) 320px; }
-  .fav-map, .fav-map-loading { height: 520px; }
-  .fav-list { max-height: 520px; overflow-y: auto; padding-right: 4px; }
+/* Map and list side by side once the page area (beside the sidebar) has room. */
+@container (min-width: 900px) {
+  .fav-map-layout { grid-template-columns: minmax(0, 1fr) 300px; }
+  .fav-map, .fav-map-loading { height: 580px; }
+  .fav-list { max-height: 580px; overflow-y: auto; padding-right: 4px; }
+}
+@container (max-width: 899px) {
+  .fav-map, .fav-map-loading { height: 460px; }
 }
 
 .saved-count { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--accent-dark); text-decoration: none; }

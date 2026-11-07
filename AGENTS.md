@@ -76,6 +76,11 @@ and use only the colors and fonts in the style guide.
   `supabase/favorites.sql`; row level security keeps each person's saves
   private), and `/favorites` shows them on a map (Leaflet + OpenStreetMap).
   `src/proxy.ts` refreshes the sign-in session on those routes only.
+- 3D map (Favorites, and Map on `/search`): Google Photorealistic 3D Tiles drawn with
+  CesiumJS, loaded from cdnjs at runtime (`src/components/map/`). Needs
+  `NEXT_PUBLIC_GOOGLE_MAPS_KEY` (Map Tiles API on, key limited to Gable's sites);
+  without it Favorites falls back to the flat Leaflet map. Campus, subway stops and
+  neighborhood names are in `src/content/morningside.ts`.
 - The blog post lives at `/blog/how-to-find-your-dream-sublet-in-nyc` (the old
   `dream-apartment` URL redirects there), with its copy in `src/content/blog.ts`.
 

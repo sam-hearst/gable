@@ -158,7 +158,7 @@ export default function VerifiedPage() {
           fine="No spam. One email when your matches are ready."
         />
       </main>
-      <SiteFooter current="/verified" />
+      <SiteFooter />
     </>
   );
 }

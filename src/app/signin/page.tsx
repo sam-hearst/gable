@@ -26,6 +26,7 @@ async function Form({ searchParams }: { searchParams: PageProps<"/signin">["sear
       save={save}
       configured={supabaseConfigured}
       linkFailed={params.error === "link"}
+      startWithSignup={params.mode === "signup"}
     />
   );
 }
@@ -43,7 +44,7 @@ export default function SignIn({ searchParams }: PageProps<"/signin">) {
           </div>
         </section>
       </main>
-      <SiteFooter current="/signin" />
+      <SiteFooter />
     </>
   );
 }

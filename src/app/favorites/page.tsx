@@ -38,7 +38,7 @@ export default function Favorites() {
           </div>
         </section>
       </main>
-      <SiteFooter current="/favorites" />
+      <SiteFooter />
     </>
   );
 }

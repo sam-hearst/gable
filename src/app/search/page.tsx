@@ -95,7 +95,7 @@ export default function Search({ searchParams }: PageProps<"/search">) {
         </section>
 
       </main>
-      <SiteFooter current="/search" />
+      <SiteFooter />
     </>
   );
 }

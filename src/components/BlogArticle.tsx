@@ -115,7 +115,7 @@ export function BlogArticle({ post }: { post: BlogPost }) {
         )}
       </main>
 
-      <SiteFooter current={`/blog/${post.slug}`} />
+      <SiteFooter />
 
       <script
         type="application/ld+json"

@@ -175,7 +175,7 @@ export default function SummerPage() {
           fine="Parents welcome too. No spam, just your matches."
         />
       </main>
-      <SiteFooter current="/summer" />
+      <SiteFooter />
     </>
   );
 }

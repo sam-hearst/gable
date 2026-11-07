@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
-import { ArrowUp, ShieldCheck } from "./icons";
+import { ArrowUp, Mic, ShieldCheck } from "./icons";
 import { px } from "./Photo";
 import { SignupForm } from "./SignupForm";
+import { useVoiceInput } from "./useVoiceInput";
 
 export type HeroMode = { id: string; label: string; prompts: string[] };
 export type CollageItem = { id: number; badge?: string; bold?: string; text: string };
@@ -54,6 +55,7 @@ export function ChatHero({
   const [request, setRequest] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const voice = useVoiceInput(setValue);
 
   const activePrompts = modes?.find((m) => m.id === mode)?.prompts ?? prompts;
 
@@ -174,11 +176,29 @@ export function ChatHero({
                 <ShieldCheck />
                 {meta}
               </span>
-              <button className="send" type="submit" aria-label="Send">
-                <ArrowUp />
-              </button>
+              <div className="chat-buttons">
+                {voice.supported && (
+                  <button
+                    className={`mic${voice.listening ? " listening" : ""}`}
+                    type="button"
+                    aria-label={voice.listening ? "Stop listening" : "Say what you need"}
+                    aria-pressed={voice.listening}
+                    onClick={() => (voice.listening ? voice.stop() : voice.start(value))}
+                  >
+                    <Mic />
+                  </button>
+                )}
+                <button className="send" type="submit" aria-label="Send">
+                  <ArrowUp />
+                </button>
+              </div>
             </div>
           </form>
+          {(voice.listening || voice.error) && (
+            <p className="voice-status" role="status">
+              {voice.listening ? "Listening… say what you need." : voice.error}
+            </p>
+          )}
         </div>
 
         <div className="chips" aria-label="Try one of these">

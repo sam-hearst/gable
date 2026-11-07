@@ -6,8 +6,8 @@ import { LeafletContext, createLeafletContext, type LeafletContextInterface } fr
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { CircleCheck } from "@/components/landing/icons";
-import { px } from "@/components/landing/Photo";
 import { CityMap, type MapPlace } from "@/components/map/CityMap";
+import { toMapPlace } from "@/components/map/places";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
 import { HeartButton } from "./HeartButton";
@@ -92,16 +92,7 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
     if (ul && li && ul.scrollHeight > ul.clientHeight) ul.scrollTo({ top: li.offsetTop - 8, behavior: "smooth" });
   }, [active]);
 
-  const places: MapPlace[] = listings.map((l) => ({
-    id: l.id,
-    title: l.title,
-    price: l.price,
-    lat: l.lat,
-    lng: l.lng,
-    photo: { src: px(l.photo.id, 720), alt: l.photo.alt },
-    checked: l.checked,
-    href: `/listing/${l.id}`,
-  }));
+  const places: MapPlace[] = listings.map(toMapPlace);
 
   function focusListing(l: SampleListing) {
     setActive(l.id);

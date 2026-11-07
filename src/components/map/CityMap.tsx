@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CAMPUS, HOODS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
-import { money } from "@/lib/format";
+import { money, shortDate } from "@/lib/format";
+import { HeartButton } from "@/components/search/HeartButton";
 import { type CesiumNS, loadCesium } from "./loadCesium";
-import { ART_SCALE, campusArt, campusDotArt, clusterArt, labelFont, priceArt, stopArt } from "./pinArt";
+import { ART_SCALE, clusterArt, labelFont, priceArt, stopArt } from "./pinArt";
 import "./city-map.css";
 
 export type MapPlace = {
@@ -17,6 +18,19 @@ export type MapPlace = {
   photo: { src: string; alt: string };
   checked: string[];
   href: string;
+  // Shown in the side panel when the pin is tapped.
+  details?: {
+    neighborhood: string;
+    crossStreets: string;
+    availableFrom: string;
+    availableTo: string;
+    roomType: string;
+    furnished: boolean;
+    sleeps: number;
+    lister: { firstName: string; school: string };
+    replySpeed: string;
+    goodFor: string;
+  };
 };
 
 // Google Maps key with Map Tiles API on, limited to Gable's sites. Public by
@@ -155,9 +169,6 @@ export function CityMap({
         });
         add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, text("5 min walk", 11, 600, 3500, "#c9f5dc"));
         add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, text("10 min walk", 11, 600, 3500, "#c9f5dc"));
-        // Columbia: the full label up close, a small star from far away.
-        add(CAMPUS, 30, art(campusArt(), B, { distanceDisplayCondition: near(4200) }));
-        add(CAMPUS, 30, art(campusDotArt(), C, { distanceDisplayCondition: new Cesium.DistanceDisplayCondition(4200, always) }));
         HOODS.forEach((h) =>
           add(h.at, 120, text(h.water ? h.name : h.name.toUpperCase(), h.water ? 12 : 11, h.water ? 500 : 600, 7000, h.water ? "#dbeefa" : "rgba(255,255,255,0.92)")),
         );
@@ -321,7 +332,8 @@ export function CityMap({
 
         flyRef.current = (id) => {
           const p = places.find((x) => x.id === id);
-          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, 130);
+          // Aim right of the place, so its pin lands left of the side panel.
+          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, -150);
         };
 
         // First time this visit: fly in from above Midtown, so the area makes sense.
@@ -380,7 +392,7 @@ export function CityMap({
   const active = places.find((p) => p.id === activeId);
 
   return (
-    <div className="city-map" ref={box}>
+    <div className={`city-map${active ? " has-panel" : ""}`} ref={box}>
       <div className="city-canvas" />
       {/* The pins are drawn in the map; these buttons give keyboard and screen reader users the same choices. */}
       <ul className="sr-only" aria-label="Places on the map">
@@ -437,39 +449,82 @@ export function CityMap({
         </div>
       </div>
 
-      {active && <PlaceCard place={active} onClose={() => onSelect(null)} />}
+      {active && <PlacePanel key={active.id} place={active} onClose={() => onSelect(null)} />}
     </div>
   );
 }
 
-function PlaceCard({ place, onClose }: { place: MapPlace; onClose: () => void }) {
+const ROOM: Record<string, string> = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
+
+// The whole listing, in a panel on the right of the map (a sheet from the
+// bottom on narrow screens). Opens when a pin is tapped.
+function PlacePanel({ place, onClose }: { place: MapPlace; onClose: () => void }) {
   const at: LngLat = [place.lng, place.lat];
   const near = nearestStop(at);
+  const d = place.details;
   return (
-    <div className="city-card" role="dialog" aria-label={place.title}>
+    <aside className="city-panel" role="dialog" aria-label={place.title}>
       <button type="button" className="city-card-close" aria-label="Close" onClick={onClose}>
         ×
       </button>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={place.photo.src} alt={place.photo.alt} />
-      <div className="city-card-body">
-        <div className="city-card-price">
-          {money(place.price)} <small>/ month</small>
+      <div className="city-panel-body">
+        <div className="city-panel-top">
+          <div className="city-card-price">
+            {money(place.price)} <small>/ month</small>
+          </div>
+          <HeartButton id={place.id} title={place.title} className="heart-btn heart-btn-sm" />
         </div>
         <h3>{place.title}</h3>
-        <ul>
-          <li>
-            <b>{walkMinutes(at, CAMPUS)} min walk</b> to campus
-          </li>
-          <li>
+        {d && (
+          <p className="city-panel-where">
+            {ROOM[d.roomType] ?? d.roomType} · {d.neighborhood}, {d.crossStreets}
+          </p>
+        )}
+
+        <dl className="city-facts">
+          {d && (
+            <>
+              <dt>Dates</dt>
+              <dd>
+                {shortDate(d.availableFrom)} – {shortDate(d.availableTo)}
+              </dd>
+              <dt>Space</dt>
+              <dd>
+                {d.furnished ? "Furnished" : "Unfurnished"} · sleeps {d.sleeps}
+              </dd>
+            </>
+          )}
+          <dt>Campus</dt>
+          <dd>{walkMinutes(at, CAMPUS)} min walk</dd>
+          <dt>Subway</dt>
+          <dd>
             {near.stop.name} ({near.stop.lines.map(([l]) => l).join(", ")}) · {near.minutes} min walk
-          </li>
-          {place.checked.length > 0 && <li>{place.checked.join(" · ")}</li>}
-        </ul>
-        <Link className="btn btn-sm" href={place.href}>
+          </dd>
+          {d && (
+            <>
+              <dt>Lister</dt>
+              <dd>
+                {d.lister.firstName}, {d.lister.school} · {d.replySpeed}
+              </dd>
+            </>
+          )}
+        </dl>
+
+        {place.checked.length > 0 && (
+          <ul className="city-checks" aria-label="What we checked">
+            {place.checked.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        )}
+        {d?.goodFor && <p className="city-panel-good">{d.goodFor}</p>}
+
+        <Link className="btn city-panel-cta" href={place.href}>
           See the place
         </Link>
       </div>
-    </div>
+    </aside>
   );
 }

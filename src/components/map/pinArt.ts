@@ -8,8 +8,6 @@ export const ART_SCALE = 2;
 const ACCENT = "#2B7A4B";
 const ACCENT_DARK = "#1D5C37";
 const CREAM = "#FFFCF6";
-const INK = "#1E2B24";
-const SUN = "#F2A65A";
 
 function family() {
   return typeof document === "undefined" ? "sans-serif" : getComputedStyle(document.body).fontFamily || "sans-serif";
@@ -110,25 +108,6 @@ export function priceArt(price: string, walk: string, active: boolean) {
   });
 }
 
-// Columbia: a slim dark label with a thin gold edge.
-export function campusArt() {
-  return pill({
-    parts: [
-      { text: "★", weight: 700, size: 12 },
-      { text: "Columbia", weight: 700, size: 13 },
-    ],
-    bg: INK,
-    fg: CREAM,
-    ring: "rgba(242,166,90,0.9)",
-    ringWidth: 1.5,
-    height: 26,
-    padX: 10,
-    stem: { color: SUN, length: 18 },
-  });
-}
-
-
-
 // A subway stop: small line bullets in MTA colors, plus the stop name when
 // `name` is given (only shown up close, to keep the map quiet).
 export function stopArt(name: string | null, lines: [string, string][]) {
@@ -186,30 +165,4 @@ export function clusterArt(count: number) {
     ring: "rgba(255,252,246,0.95)",
     stem: { color: "rgba(255,252,246,0.95)", length: 22 },
   });
-}
-
-// Columbia from far away: just a small star, so it doesn't cover the pins.
-export function campusDotArt() {
-  const size = 26;
-  const pad = 6;
-  const { c, ctx } = canvas(size + pad * 2, size + pad * 2);
-  ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,0.22)";
-  ctx.shadowBlur = 6;
-  ctx.shadowOffsetY = 2;
-  ctx.fillStyle = SUN;
-  ctx.beginPath();
-  ctx.arc(pad + size / 2, pad + size / 2, size / 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-  ctx.fillStyle = INK;
-  ctx.beginPath();
-  ctx.arc(pad + size / 2, pad + size / 2, size / 2 - 2.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = SUN;
-  ctx.font = `700 13px ${family()}`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("★", pad + size / 2, pad + size / 2 + 1);
-  return c;
 }

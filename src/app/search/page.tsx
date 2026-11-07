@@ -12,8 +12,8 @@ import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
 import { SAMPLE_LISTINGS, type SampleListing } from "@/content/listings";
-import { px } from "@/components/landing/Photo";
 import type { MapPlace } from "@/components/map/CityMap";
+import { toMapPlace } from "@/components/map/places";
 import { ResultsWithMap } from "@/components/search/ResultsWithMap";
 import { isStudentListing } from "@/lib/student-listing-fields";
 import "./search.css";
@@ -75,16 +75,7 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   const mapPlaces: MapPlace[] = results
     .map((r) => r.listing)
     .filter((l): l is SampleListing => !isStudentListing(l))
-    .map((l) => ({
-      id: l.id,
-      title: l.title,
-      price: l.price,
-      lat: l.lat,
-      lng: l.lng,
-      photo: { src: px(l.photo.id, 720), alt: l.photo.alt },
-      checked: l.checked,
-      href: `/listing/${l.id}`,
-    }));
+    .map(toMapPlace);
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>

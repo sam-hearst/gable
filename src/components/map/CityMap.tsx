@@ -5,6 +5,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { CAMPUS, HOODS, type LngLat, STOPS, nearestStop, walkMinutes } from "@/content/morningside";
 import { money } from "@/lib/format";
 import { type CesiumNS, loadCesium } from "./loadCesium";
+import { ART_SCALE, campusArt, labelFont, priceArt, ringArt, stopArt } from "./pinArt";
 import "./city-map.css";
 
 export type MapPlace = {
@@ -22,8 +23,6 @@ export type MapPlace = {
 // design: the browser asks Google for the 3D tiles directly.
 const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ?? "";
 const FLY_IN_DONE = "gable-map-flyin";
-
-type Anchor = { key: string; at: LngLat; lift: number; bottom: boolean };
 
 const reduceMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -52,6 +51,10 @@ export function CityMap({
     zoom: (factor: number) => void;
   } | null>(null);
   const [flat, setFlat] = useState(false);
+  // The map's own objects, so later changes (selected pin, Subway on/off) can update them.
+  const pinsRef = useRef<Record<string, { entity: CesiumNS; normal: HTMLCanvasElement; active: HTMLCanvasElement }>>({});
+  const stopsRef = useRef<CesiumNS[]>([]);
+  const onSelectRef = useRef(onSelect);
   const [failed, setFailed] = useState(!KEY);
   const [subway, setSubway] = useState(true);
 
@@ -112,56 +115,96 @@ export function CityMap({
           });
         }
 
-        // Labels and pins are HTML, placed over their spot in the city every frame.
-        const anchors: Anchor[] = [
-          { key: "ring5", at: [CAMPUS[0], CAMPUS[1] - 400 / 110540], lift: 6, bottom: false },
-          { key: "ring10", at: [CAMPUS[0], CAMPUS[1] - 800 / 110540], lift: 6, bottom: false },
-          { key: "campus", at: CAMPUS, lift: 70, bottom: true },
-          ...HOODS.map((h, i) => ({ key: `hood${i}`, at: h.at, lift: 120, bottom: false })),
-          ...STOPS.map((s, i) => ({ key: `stop${i}`, at: s.at, lift: 8, bottom: false })),
-          ...places.map((p) => ({ key: `pin:${p.id}`, at: [p.lng, p.lat] as LngLat, lift: 40, bottom: true })),
-        ];
-        const positions = anchors.map((a) => Cesium.Cartesian3.fromDegrees(a.at[0], a.at[1], 40 + a.lift));
+        // Pins and labels are drawn inside the map, so they move exactly with the
+        // city. Pins always show (just a bit smaller far away); stops, rings and
+        // names hide when you zoom far out, so the view doesn't get crowded.
+        await document.fonts?.ready;
+        if (cancelled) return;
+        const B = Cesium.VerticalOrigin.BOTTOM;
+        const C = Cesium.VerticalOrigin.CENTER;
+        const always = Number.POSITIVE_INFINITY; // never hidden behind buildings
+        const near = (m: number) => new Cesium.DistanceDisplayCondition(0, m);
+        const at = (ll: LngLat, lift: number) => Cesium.Cartesian3.fromDegrees(ll[0], ll[1], 40 + lift);
+        const placed: { entity: CesiumNS; ll: LngLat; lift: number }[] = [];
+        const add = (ll: LngLat, lift: number, options: CesiumNS) => {
+          const entity = viewer.entities.add({ position: at(ll, lift), ...options });
+          placed.push({ entity, ll, lift });
+          return entity;
+        };
+        const art = (image: HTMLCanvasElement, origin: CesiumNS, extra: CesiumNS = {}) => ({
+          billboard: { image, scale: 1 / ART_SCALE, verticalOrigin: origin, disableDepthTestDistance: always, ...extra },
+        });
 
-        // Once the city has loaded, set each label on the real ground or rooftop below it.
+        add([CAMPUS[0], CAMPUS[1] - 400 / 110540], 6, art(ringArt("5 min walk"), C, { distanceDisplayCondition: near(5000) }));
+        add([CAMPUS[0], CAMPUS[1] - 800 / 110540], 6, art(ringArt("10 min walk"), C, { distanceDisplayCondition: near(5000) }));
+        add(CAMPUS, 30, art(campusArt(), B));
+        HOODS.forEach((h) =>
+          add(h.at, 120, {
+            label: {
+              text: h.water ? h.name : h.name.toUpperCase(),
+              font: labelFont(h.water ? 14 : 13, h.water ? 500 : 700),
+              fillColor: Cesium.Color.fromCssColorString(h.water ? "#dbeefa" : "#ffffff"),
+              outlineColor: Cesium.Color.fromCssColorString("rgba(0,0,0,0.75)"),
+              outlineWidth: 3,
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+              disableDepthTestDistance: always,
+              distanceDisplayCondition: near(7000),
+            },
+          }),
+        );
+        stopsRef.current = STOPS.map((s) =>
+          add(s.at, 8, art(stopArt(s.name, s.lines), C, { distanceDisplayCondition: near(4500) })),
+        );
+        pinsRef.current = {};
+        places.forEach((p) => {
+          const walk = `${walkMinutes([p.lng, p.lat], CAMPUS)} min`;
+          const normal = priceArt(money(p.price), walk, false);
+          const active = priceArt(money(p.price), walk, true);
+          const entity = add([p.lng, p.lat], 10, art(normal, B, {
+            scaleByDistance: new Cesium.NearFarScalar(600, 1, 9000, 0.7),
+          }));
+          entity.gablePlaceId = p.id;
+          pinsRef.current[p.id] = { entity, normal, active };
+        });
+
+        // Once the city has loaded, set each one on the real ground or rooftop below it.
         tileset.initialTilesLoaded.addEventListener(async () => {
           try {
-            const ground = await scene.clampToHeightMostDetailed(anchors.map((a) => Cesium.Cartesian3.fromDegrees(a.at[0], a.at[1], 400)));
-            ground.forEach((p: CesiumNS, i: number) => {
-              if (!p) return;
-              const c = Cesium.Cartographic.fromCartesian(p);
-              positions[i] = Cesium.Cartesian3.fromRadians(c.longitude, c.latitude, c.height + anchors[i].lift);
+            const ground = await scene.clampToHeightMostDetailed(placed.map((x) => at(x.ll, 400)));
+            ground.forEach((g: CesiumNS, i: number) => {
+              if (!g) return;
+              const c = Cesium.Cartographic.fromCartesian(g);
+              placed[i].entity.position = Cesium.Cartesian3.fromRadians(c.longitude, c.latitude, c.height + placed[i].lift);
             });
           } catch {}
         });
 
-        // Look each label up by its data-anchor name, and measure it once
-        // (measuring every frame is what made the map stutter).
-        const els: Record<string, { el: HTMLElement; w: number; h: number } | null> = {};
-        const find = (key: string) => {
-          const hit = els[key];
-          if (hit?.el.isConnected) return hit;
-          const el = box.current?.querySelector<HTMLElement>(`[data-anchor="${CSS.escape(key)}"]`);
-          return (els[key] = el ? { el, w: el.offsetWidth, h: el.offsetHeight } : null);
-        };
-        const needle = box.current?.querySelector<HTMLElement>(".city-compass-needle");
-        const toWindow = Cesium.SceneTransforms.worldToWindowCoordinates ?? Cesium.SceneTransforms.wgs84ToWindowCoordinates;
-        const spot = new Cesium.Cartesian2();
-        scene.postRender.addEventListener(() => {
-          const cam = scene.camera.positionWC;
-          if (needle) needle.style.transform = `rotate(${-Cesium.Math.toDegrees(scene.camera.heading)}deg)`;
-          anchors.forEach((a, i) => {
-            const hit = find(a.key);
-            if (!hit) return;
-            const { el, w, h } = hit;
-            const p = toWindow(scene, positions[i], spot);
-            if (!p || Cesium.Cartesian3.distance(cam, positions[i]) > 8000) {
-              if (el.style.visibility !== "hidden") el.style.visibility = "hidden";
-              return;
-            }
-            if (el.style.visibility) el.style.visibility = "";
-            el.style.transform = `translate3d(${(p.x - w / 2).toFixed(1)}px, ${(p.y - (a.bottom ? h : h / 2)).toFixed(1)}px, 0)`;
+        // Tap a pin to open it; the pointer becomes a hand over pins.
+        const handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
+        const pinAt = (position: CesiumNS) => scene.pick(position)?.id?.gablePlaceId as string | undefined;
+        handler.setInputAction((e: CesiumNS) => {
+          const id = pinAt(e.position);
+          if (id) onSelectRef.current(id);
+        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        let hoverQueued = false;
+        handler.setInputAction((e: CesiumNS) => {
+          if (hoverQueued) return;
+          hoverQueued = true;
+          requestAnimationFrame(() => {
+            hoverQueued = false;
+            scene.canvas.style.cursor = pinAt(e.endPosition) ? "pointer" : "";
           });
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+        // The compass turns with the map.
+        const needle = box.current?.querySelector<HTMLElement>(".city-compass-needle");
+        let lastHeading = NaN;
+        scene.postRender.addEventListener(() => {
+          const h = scene.camera.heading;
+          if (needle && h !== lastHeading) {
+            lastHeading = h;
+            needle.style.transform = `rotate(${-Cesium.Math.toDegrees(h)}deg)`;
+          }
         });
 
         // Camera: look at a spot from a distance, at a downward angle. `aimLeft`
@@ -242,68 +285,47 @@ export function CityMap({
       cancelled = true;
       flyRef.current = () => {};
       controlsRef.current = null;
+      pinsRef.current = {};
+      stopsRef.current = [];
       if (viewer && !viewer.isDestroyed()) viewer.destroy();
     };
     // Rebuild only when the set of places changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placesKey]);
 
-  // The list beside the map (or a pin) picked a place: fly there.
   useEffect(() => {
+    onSelectRef.current = onSelect;
+  });
+
+  // The list beside the map (or a pin) picked a place: fly there and darken its pin.
+  useEffect(() => {
+    for (const [id, pin] of Object.entries(pinsRef.current)) {
+      pin.entity.billboard.image = id === activeId ? pin.active : pin.normal;
+    }
     if (activeId) flyRef.current(activeId);
   }, [activeId]);
+
+  useEffect(() => {
+    stopsRef.current.forEach((e) => (e.show = subway));
+  }, [subway]);
 
   if (failed) return <>{fallback ?? <div className="city-map-empty">The 3D map isn&apos;t available right now.</div>}</>;
 
   const active = places.find((p) => p.id === activeId);
 
   return (
-    <div className={`city-map${subway ? "" : " city-map-no-subway"}`} ref={box}>
+    <div className="city-map" ref={box}>
       <div className="city-canvas" />
-      <div className="city-overlay">
-        <div className="city-tag city-ring" data-anchor="ring5">5 min walk</div>
-        <div className="city-tag city-ring" data-anchor="ring10">10 min walk</div>
-        <div className="city-tag city-campus" data-anchor="campus">
-          <span className="city-campus-tag">
-            <span aria-hidden="true">★</span> Columbia University
-          </span>
-          <span className="city-stem" />
-        </div>
-        {HOODS.map((h, i) => (
-          <div key={h.name + i} className={`city-tag city-hood${h.water ? " is-water" : ""}`} data-anchor={`hood${i}`}>
-            {h.name}
-          </div>
-        ))}
-        {STOPS.map((s, i) => (
-          <div key={s.name + i} className="city-tag city-stop" data-anchor={`stop${i}`}>
-            {s.lines.map(([line, color]) => (
-              <span key={line} className="city-bullet" style={{ background: color }}>
-                {line}
-              </span>
-            ))}
-            {s.name}
-          </div>
-        ))}
-        {places.map((p) => {
-          const walk = walkMinutes([p.lng, p.lat], CAMPUS);
-          return (
-            <button
-              key={p.id}
-              type="button"
-              className={`city-tag city-pin${p.id === activeId ? " is-active" : ""}`}
-              data-anchor={`pin:${p.id}`}
-              aria-label={`${money(p.price)} a month, ${walk} minute walk to campus: ${p.title}`}
-              onClick={() => onSelect(p.id)}
-            >
-              <span className="city-pin-tag">
-                {money(p.price)}
-                <small>{walk} min</small>
-              </span>
-              <span className="city-stem" />
+      {/* The pins are drawn in the map; these buttons give keyboard and screen reader users the same choices. */}
+      <ul className="sr-only" aria-label="Places on the map">
+        {places.map((p) => (
+          <li key={p.id}>
+            <button type="button" onClick={() => onSelect(p.id)}>
+              {money(p.price)} a month, {walkMinutes([p.lng, p.lat], CAMPUS)} minute walk to campus: {p.title}
             </button>
-          );
-        })}
-      </div>
+          </li>
+        ))}
+      </ul>
 
       <div className="city-controls">
         <button type="button" className="city-chip" aria-pressed={subway} onClick={() => setSubway((s) => !s)}>

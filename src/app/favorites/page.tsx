@@ -20,7 +20,7 @@ async function Saved() {
   if (!user) redirect("/signin?next=/favorites");
   return (
     <FavoritesProvider initialIds={ids} signedIn>
-      <FavoritesView email={user.email} />
+      <FavoritesView />
     </FavoritesProvider>
   );
 }

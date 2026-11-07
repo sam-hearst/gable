@@ -108,6 +108,7 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
           places={places}
           activeId={active}
           onSelect={setActive}
+          showPanel={false}
           fallback={
             // The flat map, if the 3D one has no key or can't load.
               <LeafletMap onReady={setMap}>

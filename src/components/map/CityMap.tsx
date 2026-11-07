@@ -50,11 +50,14 @@ export function CityMap({
   activeId,
   onSelect,
   fallback,
+  showPanel = true,
 }: {
   places: MapPlace[];
   activeId: string | null;
   onSelect: (id: string | null) => void;
   fallback?: ReactNode;
+  // Off where a list beside the map already shows each place (Favorites).
+  showPanel?: boolean;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const flyRef = useRef<(id: string) => void>(() => {});
@@ -69,6 +72,7 @@ export function CityMap({
   const pinsRef = useRef<Record<string, { entity: CesiumNS; normal: HTMLCanvasElement; active: HTMLCanvasElement }>>({});
   const stopsRef = useRef<CesiumNS[]>([]);
   const onSelectRef = useRef(onSelect);
+  const showPanelRef = useRef(showPanel);
   const [failed, setFailed] = useState(!KEY);
   const [subway, setSubway] = useState(true);
 
@@ -333,7 +337,7 @@ export function CityMap({
         flyRef.current = (id) => {
           const p = places.find((x) => x.id === id);
           // Aim right of the place, so its pin lands left of the side panel.
-          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, -150);
+          if (p) look([p.lng, p.lat], 420, -32, reduceMotion() ? 0 : 1.6, showPanelRef.current ? -150 : 0);
         };
 
         // First time this visit: fly in from above Midtown, so the area makes sense.
@@ -373,6 +377,7 @@ export function CityMap({
 
   useEffect(() => {
     onSelectRef.current = onSelect;
+    showPanelRef.current = showPanel;
   });
 
   // The list beside the map (or a pin) picked a place: fly there and darken its pin.
@@ -389,7 +394,7 @@ export function CityMap({
 
   if (failed) return <>{fallback ?? <div className="city-map-empty">The 3D map isn&apos;t available right now.</div>}</>;
 
-  const active = places.find((p) => p.id === activeId);
+  const active = showPanel ? places.find((p) => p.id === activeId) : undefined;
 
   return (
     <div className={`city-map${active ? " has-panel" : ""}`} ref={box}>

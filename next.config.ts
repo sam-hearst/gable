@@ -1,7 +1,5 @@
 import type { NextConfig } from "next";
 
-const isDemo = process.env.NEXT_PUBLIC_GABLE_MODE === "demo";
-
 const nextConfig: NextConfig = {
   images: {
     // Pexels photos (see docs/style_guide.md, Imagery).
@@ -19,27 +17,16 @@ const nextConfig: NextConfig = {
       { source: "/real", destination: "/verified", permanent: false },
       { source: "/interns", destination: "/summer", permanent: false },
       { source: "/describe", destination: "/", permanent: false },
-      // Students list their own room on the demo site only (src/proxy.ts); the
-      // waitlist site keeps sending the old page home.
-      ...(isDemo ? [] : [{ source: "/sublet-your-room", destination: "/", permanent: false }]),
-      {
-        source: "/sublet-your-room.html",
-        destination: isDemo ? "/sublet-your-room" : "/",
-        permanent: false,
-      },
+      { source: "/sublet-your-room.html", destination: "/sublet-your-room", permanent: false },
       {
         source: "/blog/how-to-find-your-dream-apartment-in-nyc",
         destination: "/blog/how-to-find-your-dream-sublet-in-nyc",
         permanent: true,
       },
-      // The demo site is the product, so its waitlist landing pages go home.
-      ...(isDemo
-        ? [
-            { source: "/verified", destination: "/", permanent: false },
-            { source: "/summer", destination: "/", permanent: false },
-            { source: "/together", destination: "/", permanent: false },
-          ]
-        : []),
+      // Both sites are the product now, so the old waitlist landing pages go home.
+      { source: "/verified", destination: "/", permanent: false },
+      { source: "/summer", destination: "/", permanent: false },
+      { source: "/together", destination: "/", permanent: false },
     ];
   },
   cacheComponents: true,

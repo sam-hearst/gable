@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Block, BlogPost, Inline } from "@/content/blog";
-import { isDemo, searchHref } from "@/lib/mode";
+import { searchHref } from "@/lib/mode";
 import { CtaPhoto } from "./landing/blocks";
 import { Photo } from "./landing/Photo";
 import { SiteFooter, SiteHeader } from "./landing/SiteChrome";
@@ -94,25 +94,14 @@ export function BlogArticle({ post }: { post: BlogPost }) {
           </aside>
         </article>
 
-        {isDemo ? (
-          <CtaPhoto
-            photo={post.ctaPhoto}
-            source="blog"
-            title={post.demoClosingHeadline}
-            body={post.demoClosingBody}
-            button="Start a search"
-            href="/search"
-          />
-        ) : (
-          <CtaPhoto
-            photo={post.ctaPhoto}
-            source="blog"
-            title={post.closingHeadline}
-            body={post.closingBody}
-            button="Get early access"
-            fine="No spam. We’ll only email you about Gable."
-          />
-        )}
+        <CtaPhoto
+          photo={post.ctaPhoto}
+          source="blog"
+          title={post.demoClosingHeadline}
+          body={post.demoClosingBody}
+          button="Start a search"
+          href="/search"
+        />
       </main>
 
       <SiteFooter />
@@ -172,10 +161,10 @@ function BlockView({ block }: { block: Block }) {
         <aside className="mt-6 rounded-2xl bg-warm p-6">
           <p>{block.text}</p>
           <Link
-            href={isDemo ? searchHref(block.demo.q) : block.href}
+            href={searchHref(block.demo.q)}
             className="mt-4 inline-flex min-h-11 items-center rounded-xl border-2 border-accent bg-cream px-5 font-bold text-accent-dark transition-colors hover:bg-sage"
           >
-            {isDemo ? block.demo.label : block.label}
+            {block.demo.label}
           </Link>
         </aside>
       );

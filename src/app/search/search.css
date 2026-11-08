@@ -191,3 +191,11 @@
 .chat-panel .search-msg-you::after { right: -26px; width: 26px; background: var(--chat-bg); border-bottom-left-radius: 10px; }
 /* Keep the bubble's text above the tail shapes. */
 .chat-panel .search-msg > * { position: relative; z-index: 1; }
+
+/* No real listings match (or none exist yet): a calm card, same look as Favorites' empty state. */
+.results-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+  padding: 56px 24px; border-radius: var(--radius); background: var(--sage);
+}
+.results-empty h2 { font-size: 24px; }
+.results-empty p { max-width: 42ch; color: var(--ink); font-size: 16px; line-height: 1.5; }

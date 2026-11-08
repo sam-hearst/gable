@@ -193,3 +193,12 @@ button.app-me:hover { background: var(--sage); }
   min-height: 100vh; min-height: 100dvh;
   padding-top: 40px; padding-bottom: 40px;
 }
+
+/* Messages on production (no messaging yet): centered in the first screen. */
+.messages-empty {
+  min-height: min(calc(100dvh - 120px), 640px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  text-align: center; padding: 40px 24px;
+}
+.messages-empty h1 { font-size: clamp(32px, 4cqi, 44px); }
+.messages-empty p { max-width: 40ch; color: var(--ink-faint, var(--ink)); font-size: 17px; line-height: 1.5; }

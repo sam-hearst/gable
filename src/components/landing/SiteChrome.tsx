@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { isDemo } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
 // "current" is kept so pages can still say where they are, but the header no
@@ -19,8 +18,6 @@ function Brand({ small = false }: { small?: boolean }) {
 
 export function SiteHeader({
   current,
-  cta = "Get early access",
-  showVerify = false,
 }: {
   current: NavKey;
   cta?: string;
@@ -31,19 +28,9 @@ export function SiteHeader({
     <header className="topbar" data-current={current}>
       <div className="topbar-inner">
         <Brand />
-        {/* The demo site is the working product, so it has no waitlist buttons. */}
+        {/* Gable is the working product, so there are no waitlist buttons. */}
         <div className="top-actions">
-          {isDemo && <AccountLink />}
-          {!isDemo && showVerify && (
-            <Link className="btn btn-secondary btn-sm" href="/verified">
-              How we verify
-            </Link>
-          )}
-          {!isDemo && (
-            <a className="btn btn-sm" href="#join">
-              {cta}
-            </a>
-          )}
+          <AccountLink />
         </div>
       </div>
     </header>

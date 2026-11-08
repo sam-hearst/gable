@@ -47,6 +47,7 @@ export const config = {
     "/",
     "/explore",
     "/refer",
+    "/circles",
     "/search",
     "/favorites",
     "/signin",

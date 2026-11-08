@@ -1,0 +1,110 @@
+/* Circles mockup: three panes like Apple Messages. Style guide colors, one font. */
+
+.cm {
+  display: grid; grid-template-columns: 290px minmax(0, 1fr) 300px;
+  height: 100vh; height: 100dvh; background: var(--bg);
+}
+.cm button { font: inherit; cursor: pointer; }
+
+/* 1. Circle list */
+.cm-list { display: flex; flex-direction: column; gap: 4px; padding: 20px 12px; border-right: 1px solid var(--sage-line); overflow-y: auto; }
+.cm-list-head { padding: 4px 8px 12px; }
+.cm-list-head h1 { margin: 0; font-size: 26px; }
+.cm-list-head p { margin: 4px 0 0; font-size: 13px; line-height: 1.45; color: var(--ink-faint); }
+.cm-group { margin: 14px 8px 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+.cm-row {
+  display: grid; gap: 2px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; background: none; text-align: left; color: var(--ink);
+  transition: background-color 0.15s ease, transform 0.1s ease-out;
+}
+.cm-row:hover { background: var(--sage); }
+.cm-row:active { transform: scale(0.99); }
+.cm-row[aria-current="true"] { background: var(--sage); }
+.cm-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cm-row-name { font-size: 15px; font-weight: 700; }
+.cm-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--bg); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+.cm-row-last { font-size: 13px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cm-row-meta { font-size: 12px; color: var(--ink-faint); }
+.cm-new { margin: 12px 8px 0; padding: 10px; border: 1.5px dashed var(--sage-line); border-radius: 14px; background: none; color: var(--accent-dark); font-weight: 600; font-size: 14px; }
+
+/* 2. Conversation */
+.cm-chat { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.cm-chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 22px 24px 14px; border-bottom: 1px solid var(--sage-line); }
+.cm-chat-head h2 { margin: 0; font-size: 22px; }
+.cm-chat-head p { margin: 2px 0 0; font-size: 13px; color: var(--ink-faint); }
+.cm-closes { flex-shrink: 0; padding: 5px 10px; border-radius: 999px; background: var(--warm, #FBE9D5); font-size: 12px; font-weight: 600; color: var(--ink); }
+
+.cm-pinned { margin: 14px 24px 0; padding: 12px 14px; border-radius: 16px; background: var(--sage); }
+.cm-pinned-title { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; color: var(--accent-dark); }
+.cm-pinned ul { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; list-style: none; }
+.cm-pinned li { padding: 4px 10px; border-radius: 999px; background: var(--bg); font-size: 12px; }
+
+.cm-thread { flex: 1; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+.cm-system { margin: 0 auto; max-width: 46ch; text-align: center; font-size: 12px; color: var(--ink-faint); }
+.cm-msg { display: flex; gap: 10px; align-items: flex-start; max-width: 620px; }
+.cm-msg.is-mine { align-self: flex-end; }
+.cm-avatar-btn { padding: 0; border: 0; background: none; border-radius: 999px; }
+.cm-avatar { display: grid; place-items: center; flex-shrink: 0; border-radius: 999px; color: #fff; font-weight: 700; }
+.cm-msg-body { display: grid; gap: 4px; min-width: 0; }
+.cm-msg.is-mine .cm-msg-body { justify-items: end; }
+.cm-msg-who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cm-name { padding: 0; border: 0; background: none; font-size: 13px; font-weight: 700; color: var(--ink); }
+.cm-trust {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border: 1px solid var(--sage-line); border-radius: 999px;
+  background: var(--bg); font-size: 11.5px; color: var(--accent-dark);
+}
+.cm-trust:hover { border-color: var(--accent); }
+.cm-trust-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); }
+.cm-bubble { margin: 0; padding: 10px 14px; border-radius: 18px; background: #fff; border: 1px solid var(--sage-line); font-size: 15px; line-height: 1.45; }
+.cm-msg.is-mine .cm-bubble { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.cm-time { font-size: 11px; color: var(--ink-faint); }
+
+.cm-question { padding: 12px 14px; border-radius: 18px; background: var(--ink); color: var(--bg); }
+.cm-msg.is-mine .cm-question { max-width: 520px; }
+.cm-q-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #F2A65A; }
+.cm-question > p { margin: 4px 0 10px; font-size: 15px; line-height: 1.45; }
+.cm-answers { display: grid; gap: 8px; text-align: left; }
+.cm-answer { padding: 10px 12px; border-radius: 14px; background: var(--bg); color: var(--ink); }
+.cm-answer p { margin: 4px 0 8px; font-size: 14px; line-height: 1.45; }
+.cm-helpful { padding: 4px 10px; border: 1px solid var(--sage-line); border-radius: 999px; background: none; font-size: 12px; color: var(--ink-faint); }
+.cm-helpful[aria-pressed="true"] { background: var(--sage); color: var(--accent-dark); border-color: var(--accent); }
+
+.cm-composer { padding: 10px 24px 18px; border-top: 1px solid var(--sage-line); display: grid; gap: 8px; }
+.cm-chips { display: flex; gap: 6px; }
+.cm-chips button { padding: 5px 12px; border: 1px solid var(--sage-line); border-radius: 999px; background: var(--bg); font-size: 13px; color: var(--ink); }
+.cm-input { display: flex; gap: 8px; }
+.cm-input input { flex: 1; min-height: 46px; padding: 0 16px; border: 1.5px solid var(--sage-line); border-radius: 16px; background: #fff; font: inherit; font-size: 15px; outline: none; }
+.cm-input input:focus { border-color: var(--accent); }
+.cm-input button { width: 46px; border: 0; border-radius: 999px; background: var(--accent); color: var(--bg); font-size: 18px; font-weight: 700; }
+
+/* 3. Why you can trust them */
+.cm-person { padding: 24px 20px; border-left: 1px solid var(--sage-line); overflow-y: auto; background: color-mix(in srgb, var(--sage) 35%, var(--bg)); }
+.cm-person-head { display: flex; gap: 12px; align-items: center; }
+.cm-person-head h3 { margin: 0; font-size: 19px; }
+.cm-person-head p { margin: 2px 0 6px; font-size: 13px; color: var(--ink-faint); }
+.cm-role { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--warm, #FBE9D5); font-size: 12px; font-weight: 600; }
+.cm-person h4 { margin: 20px 0 8px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); }
+.cm-path { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cm-path li { display: flex; align-items: center; gap: 6px; }
+.cm-path li + li::before { content: ""; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+.cm-path-node { padding: 6px 10px; border-radius: 999px; background: var(--bg); border: 1.5px solid var(--sage-line); font-size: 13px; font-weight: 600; }
+.cm-path-node.is-you { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.cm-path-node.is-them { border-color: var(--accent); color: var(--accent-dark); }
+.cm-path-note { margin: 8px 0 0; font-size: 13px; line-height: 1.45; color: var(--ink); }
+.cm-vouches, .cm-facts { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.cm-vouches li { display: grid; gap: 2px; padding: 10px 12px; border-radius: 14px; background: var(--bg); font-size: 13px; line-height: 1.45; }
+.cm-facts li { position: relative; padding-left: 18px; font-size: 13px; }
+.cm-facts li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.cm-empty { font-size: 13px; color: var(--ink-faint); }
+.cm-person-actions { display: grid; gap: 8px; margin-top: 22px; }
+.cm-primary, .cm-secondary { min-height: 42px; border-radius: 999px; font-weight: 600; font-size: 14px; transition: transform 0.1s ease-out; }
+.cm-primary { border: 0; background: var(--accent); color: var(--bg); }
+.cm-secondary { border: 1.5px solid var(--sage-line); background: var(--bg); color: var(--ink); }
+.cm-primary:active, .cm-secondary:active { transform: scale(0.97); }
+
+/* Smaller screens: drop the trust panel, then stack. */
+@container (max-width: 1100px) { .cm { grid-template-columns: 260px minmax(0, 1fr); } .cm-person { display: none; } }
+@container (max-width: 700px) {
+  .cm { grid-template-columns: 1fr; height: auto; }
+  .cm-list { border-right: 0; border-bottom: 1px solid var(--sage-line); }
+  .cm-thread { overflow: visible; }
+}

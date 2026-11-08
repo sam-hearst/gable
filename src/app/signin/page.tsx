@@ -26,7 +26,6 @@ async function Form({ searchParams }: { searchParams: PageProps<"/signin">["sear
       save={save}
       configured={supabaseConfigured}
       linkFailed={params.error === "link"}
-      googleFailed={params.error === "google"}
       startWithSignup={params.mode === "signup"}
     />
   );

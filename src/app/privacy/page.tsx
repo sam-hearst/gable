@@ -10,7 +10,7 @@ const CONTACT = "gable.nyc.team@gmail.com";
 const UPDATED = "November 7, 2026";
 
 // Plain-language privacy policy. Public on both the waitlist and demo sites,
-// and linked from the footer and the sign-in page (Google sign-in needs it).
+// and linked from the footer and the sign-in page.
 // Keep it true: when the app starts collecting something new, add it here.
 const SECTIONS: { title: string; body: React.ReactNode }[] = [
   {
@@ -21,8 +21,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Waitlist:</b> your email, what you said you&apos;re looking for, and which page you signed up from.
         </li>
         <li>
-          <b>Account:</b> your first name, email and password. If you sign in with Google, we get your name and email
-          from Google. We never see your Google password.
+          <b>Account:</b> your first name, email and password.
         </li>
         <li>
           <b>Favorites:</b> the places you save.
@@ -59,7 +58,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Anthropic</b> (Claude) reads your search so we understand what you&apos;re asking for.
         </li>
         <li>
-          <b>Google</b> runs Google sign-in and Google Analytics.
+          <b>Google</b> runs Google Analytics.
         </li>
         <li>
           <b>Your browser</b> turns speech into text when you use the mic. Chrome and Safari may send that audio to Google

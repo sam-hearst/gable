@@ -123,3 +123,71 @@
   .search-main { padding: 24px 0 48px; }
   .sample-pill { padding: 0 10px; font-size: 11px; }
 }
+
+/* Signed out, Log in / Sign up sit top right: give the results room under them. */
+.app-main:has(.app-guestbar) .search-main { padding-top: 76px; }
+
+/* Listing cards: two across beside the chat, three only when there's room. */
+.search-results { container-type: inline-size; }
+@container (max-width: 899px) { .search-results .results { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container (max-width: 479px) { .search-results .results { grid-template-columns: 1fr; } }
+
+/* The chat panel: a soft card with a header, the conversation, and the refine
+   box at its bottom. Beside the listings it stays in view as you scroll. */
+.chat-panel {
+  display: flex; flex-direction: column; gap: 12px; padding: 14px;
+  border-radius: 22px; background: color-mix(in srgb, var(--sage) 55%, var(--bg));
+  border: 1px solid var(--sage-line);
+}
+.chat-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
+.chat-panel-head span { font-size: 14px; font-weight: 700; color: var(--ink); }
+.chat-panel-new {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--sage-line); color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.1s ease-out;
+}
+.chat-panel-new:hover { border-color: var(--accent); }
+.chat-panel-new:active { transform: scale(0.96); }
+.chat-panel .search-thread { display: flex; flex-direction: column; gap: 10px; }
+.chat-panel .search-followup { background: var(--bg); }
+.search-fine-under { margin-top: 24px; font-size: 12px; text-align: center; }
+@media (min-width: 1100px) {
+  .chat-panel { position: sticky; top: 16px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); }
+  .chat-panel .search-thread { min-height: 0; overflow-y: auto; max-height: none; flex: 1; }
+}
+
+/* In the app, use the full width beside the sidebar: the chat sits right next
+   to it and the listings fill the rest (no empty strip from centering). */
+.app-main .search-wrap { max-width: none; padding: 0 28px; }
+@media (min-width: 1100px) {
+  .app-main .search-layout { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 32px; }
+}
+
+/* The chat card runs the full height beside the listings, like a chat
+   window: header on top, refine box at the bottom, messages just above it. */
+@media (min-width: 1100px) {
+  .chat-panel { height: calc(100vh - 32px); height: calc(100dvh - 32px); }
+  .chat-panel .search-thread > div:first-of-type { margin-top: auto; }
+}
+@media (min-width: 1100px) {
+  /* Fit the card on screen: signed out there's extra room above for Log in / Sign up. */
+  .chat-panel { height: calc(100vh - 48px); height: calc(100dvh - 48px); }
+  .app-main:has(.app-guestbar) .chat-panel { height: calc(100vh - 108px); height: calc(100dvh - 108px); }
+}
+
+/* iMessage-style bubbles: a small tail at the bottom corner shows who's
+   talking. Gable on the left (light bubble), you on the right (dark). The
+   tail is two shapes: one in the bubble's color, one in the panel's color
+   that carves the curve. */
+.chat-panel { --chat-bg: color-mix(in srgb, var(--sage) 55%, var(--bg)); background: var(--chat-bg); }
+.chat-panel .search-msg { position: relative; border-radius: 20px; }
+.chat-panel .search-msg-gable { background: #ffffff; margin-left: 8px; }
+.chat-panel .search-msg-you { margin-right: 8px; }
+.chat-panel .search-msg::before,
+.chat-panel .search-msg::after { content: ""; position: absolute; bottom: 0; height: 20px; }
+.chat-panel .search-msg-gable::before { left: -7px; width: 20px; background: #ffffff; border-bottom-right-radius: 16px 14px; }
+.chat-panel .search-msg-gable::after { left: -26px; width: 26px; background: var(--chat-bg); border-bottom-right-radius: 10px; }
+.chat-panel .search-msg-you::before { right: -7px; width: 20px; background: var(--ink); border-bottom-left-radius: 16px 14px; }
+.chat-panel .search-msg-you::after { right: -26px; width: 26px; background: var(--chat-bg); border-bottom-left-radius: 10px; }
+/* Keep the bubble's text above the tail shapes. */
+.chat-panel .search-msg > * { position: relative; z-index: 1; }

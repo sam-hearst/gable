@@ -37,6 +37,7 @@ const nextConfig: NextConfig = {
         ? [
             { source: "/verified", destination: "/", permanent: false },
             { source: "/summer", destination: "/", permanent: false },
+            { source: "/together", destination: "/", permanent: false },
           ]
         : []),
     ];

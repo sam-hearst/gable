@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CircleCheck, Mail } from "@/components/landing/icons";
 import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
@@ -139,8 +139,7 @@ async function Listing({ id }: { id: string }) {
 
 export default function RealListingPage({ params }: PageProps<"/sublet/[id]">) {
   return (
-    <>
-      <SiteHeader current="none" />
+    <AppShell current="none">
       <main>
         <section className="section">
           <div className="wrap">
@@ -151,7 +150,6 @@ export default function RealListingPage({ params }: PageProps<"/sublet/[id]">) {
           </div>
         </section>
       </main>
-      <SiteFooter current="/sublet" />
-    </>
+    </AppShell>
   );
 }

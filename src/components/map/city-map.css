@@ -1,0 +1,113 @@
+/* The 3D city map. Style guide colors; glass panels over the city
+   (apple-design: translucent material, press feedback, no-bounce motion). */
+
+.city-map { position: relative; height: 100%; min-height: 420px; border-radius: 22px; overflow: hidden; background: #0f1512; isolation: isolate; }
+.city-canvas { position: absolute; inset: 0; }
+.city-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
+.city-chip, .city-card {
+  background: rgba(255, 252, 246, 0.74); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.55); box-shadow: 0 10px 30px -12px rgba(15, 21, 18, 0.45);
+}
+.city-chip {
+  min-height: 36px; padding: 0 14px; border-radius: 999px; color: var(--ink); font: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: transform 0.1s ease-out, opacity 0.15s ease;
+}
+.city-chip:active { transform: scale(0.96); }
+.city-chip[aria-pressed="false"] { opacity: 0.6; }
+
+.city-card {
+  position: absolute; left: 12px; bottom: 12px; width: min(340px, calc(100% - 24px)); border-radius: 20px; overflow: hidden;
+  animation: city-card-in 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes city-card-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.city-card img { display: block; width: 100%; height: 150px; object-fit: cover; }
+.city-card-body { padding: 12px 14px 14px; }
+.city-card-price { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+.city-card-price small { font-size: 13px; font-weight: 500; color: var(--ink-faint); }
+.city-card h3 { margin: 2px 0 8px; font-size: 15px; letter-spacing: -0.01em; }
+.city-card ul { display: grid; gap: 4px; margin: 0 0 12px; padding: 0; list-style: none; font-size: 13px; color: var(--ink); }
+.city-card-close {
+  position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border: 0; border-radius: 999px; cursor: pointer;
+  background: rgba(15, 21, 18, 0.6); color: #fff; font-size: 18px; line-height: 1;
+}
+.city-card-close:active { transform: scale(0.92); }
+
+.city-map-empty { display: grid; place-items: center; min-height: 300px; border-radius: 22px; background: var(--sage); color: var(--ink-faint); }
+
+@media (prefers-reduced-transparency: reduce) { .city-chip, .city-card { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@media (prefers-reduced-motion: reduce) { .city-card { animation: none; } }
+
+/* Map controls, bottom right (like Google Maps): compass, turn, 3D/2D, zoom. */
+.city-nav { position: absolute; right: 12px; bottom: 34px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.city-nav-group { display: flex; flex-direction: column; border-radius: 14px; overflow: hidden; }
+.city-nav-btn, .city-nav-group {
+  background: rgba(255, 252, 246, 0.8); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%);
+  box-shadow: 0 8px 24px -10px rgba(15, 21, 18, 0.5);
+}
+.city-nav-btn {
+  display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 14px; color: var(--ink); cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease-out;
+}
+.city-nav-group .city-nav-btn { border-radius: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.city-nav-group .city-nav-btn + .city-nav-btn { border-top: 1px solid rgba(30, 43, 36, 0.1); }
+.city-nav-btn:hover { background: rgba(255, 255, 255, 0.95); }
+.city-nav-btn:active { transform: scale(0.92); }
+.city-nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.city-compass { border-radius: 999px; }
+.city-compass-needle { transition: none; }
+.city-nav-text { font: inherit; font-size: 13px; font-weight: 700; }
+
+
+@media (prefers-reduced-transparency: reduce) { .city-nav-btn, .city-nav-group { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; } }
+
+/* Cleaner: smaller, lighter controls so the city stays the focus. */
+.city-nav { right: 10px; bottom: 30px; gap: 6px; }
+.city-nav-btn { width: 34px; height: 34px; border-radius: 12px; }
+.city-nav-btn svg { width: 16px; height: 16px; }
+.city-compass svg { width: 18px; height: 18px; }
+.city-nav-group { border-radius: 12px; }
+.city-nav-text { font-size: 12px; }
+.city-nav-btn, .city-nav-group, .city-chip { box-shadow: 0 4px 14px -8px rgba(15, 21, 18, 0.45); }
+.city-controls { top: 10px; right: 10px; }
+.city-chip { min-height: 30px; padding: 0 12px; font-size: 12px; }
+
+/* The whole listing, in a glass panel on the right of the map. */
+.city-panel {
+  position: absolute; top: 10px; right: 10px; bottom: 10px; width: min(340px, calc(100% - 20px));
+  display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; border-radius: 20px;
+  background: rgba(255, 252, 246, 0.86); -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 16px 40px -18px rgba(15, 21, 18, 0.55);
+  animation: city-panel-in 0.42s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes city-panel-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.city-panel img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; flex-shrink: 0; }
+.city-panel-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+.city-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.city-panel h3 { margin: 0; font-size: 17px; line-height: 1.3; letter-spacing: -0.01em; }
+.city-panel-where { margin: -4px 0 0; font-size: 13px; color: var(--ink-faint); }
+.city-facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 2px 0 0; font-size: 13px; }
+.city-facts dt { color: var(--ink-faint); }
+.city-facts dd { margin: 0; color: var(--ink); }
+.city-checks { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.city-checks li { padding: 4px 10px; border-radius: 999px; background: var(--warm, #FBE9D5); color: var(--ink); font-size: 12px; font-weight: 600; }
+.city-panel-good { margin: 0; font-size: 13px; color: var(--ink-faint); line-height: 1.5; }
+.city-panel-cta { align-self: stretch; justify-content: center; margin-top: 4px; }
+.city-panel .city-card-close { z-index: 1; }
+
+/* With the panel open, the map controls move to the left side. */
+.city-map.has-panel .city-nav { right: auto; left: 10px; }
+.city-map.has-panel .city-controls { right: auto; left: 10px; }
+
+/* Narrow maps: the panel is a sheet from the bottom. */
+@container (max-width: 640px) {
+  .city-panel { top: auto; left: 10px; width: auto; max-height: 70%; animation-name: city-sheet-in; }
+}
+@keyframes city-sheet-in { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .city-panel { animation: none; } }
+
+/* MapLibre's small credit (OpenStreetMap, OpenFreeMap): quiet, bottom left. */
+.city-canvas .maplibregl-ctrl-attrib { font-size: 10px; background: rgba(255, 252, 246, 0.7); }
+.city-map { background: #EFE8DA; }
+/* MapLibre's stylesheet loads after this one and sets its map box to
+   position: relative; keep ours filling the frame. */
+.city-map .city-canvas { position: absolute; inset: 0; }

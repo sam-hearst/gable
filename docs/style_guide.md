@@ -31,7 +31,7 @@
 
 One family: **Plus Jakarta Sans** (Google Fonts), weights 400, 500, 700.
 
-- **Headings:** 700, sentence case, tight tracking (-0.02em). Never all caps.
+- **Headings:** 700, sentence case, tight tracking (-0.035em). Never all caps. Every heading, the homepage headline included, uses the same 700 weight and tracking.
 - **Body:** 400, 17px, line height 1.6, lines under 65 characters.
 - **Wordmark:** "Gable" set in 700, sentence case (capital G), in ink or accent green.
 

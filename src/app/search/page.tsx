@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { SiteFooter } from "@/components/landing/SiteChrome";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
-import { ChatThread } from "@/components/search/ChatThread";
 import { ResultCard } from "@/components/search/ResultCard";
-import { SearchHeader } from "@/components/search/SearchHeader";
+import { ChatThread } from "@/components/search/ChatThread";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
@@ -20,30 +19,7 @@ export const metadata: Metadata = {
   description: "Places that fit what you asked for, and what we checked about each one.",
 };
 
-function GableSays({ children, busy = false }: { children: React.ReactNode; busy?: boolean }) {
-  return (
-    <div className="search-msg search-msg-gable" role="status" aria-busy={busy || undefined}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="search-msg-icon" src="/logo/gable-favicon.svg" alt="Gable" width={28} height={28} />
-      <p>{children}</p>
-    </div>
-  );
-}
 
-// Left column under the chat: what these listings are, and a way to start over.
-function SideNotes() {
-  return (
-    <>
-      <p className="search-fine">
-        Places marked Real listing were posted by students and checked by our team. The rest are samples for our
-        demo. <Link href="/sublet-your-room">List your room</Link>
-      </p>
-      <Link className="search-new" href="/">
-        Start a new search
-      </Link>
-    </>
-  );
-}
 
 // The conversation so far: every ?q= in order (the first request, then
 // follow-ups), trimmed, at most the last 10.
@@ -72,10 +48,17 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
       <SearchSession messages={messages}>
-        <div className="search-side">
+        {/* Chat on the left (what you asked, Gable's answer, refine box); places on the right. */}
+        {/* The chat lives in its own panel: header, messages, refine box at the bottom. */}
+        <aside className="search-side chat-panel" aria-label="Your search">
+          <div className="chat-panel-head">
+            <span>Your search</span>
+            <Link className="chat-panel-new" href="/explore">
+              New search
+            </Link>
+          </div>
           <ChatThread reply={reply} />
-          <SideNotes />
-        </div>
+        </aside>
 
         <div className="search-results">
           <div className="search-results-top">
@@ -87,6 +70,10 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
               <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
             ))}
           </div>
+          <p className="search-fine search-fine-under">
+            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
+            demo. <Link href="/sublet-your-room">List your room</Link>
+          </p>
         </div>
       </SearchSession>
     </FavoritesProvider>
@@ -98,9 +85,12 @@ function Loading() {
     <div className="search-layout">
       <div className="search-side">
         <div className="search-thread">
-          <GableSays busy>Reading your request…</GableSays>
+          <div className="search-msg search-msg-gable" role="status" aria-busy="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="search-msg-icon" src="/logo/gable-favicon.svg" alt="Gable" width={28} height={28} />
+            <p>Reading your request…</p>
+          </div>
         </div>
-        <SideNotes />
       </div>
     </div>
   );
@@ -108,8 +98,7 @@ function Loading() {
 
 export default function Search({ searchParams }: PageProps<"/search">) {
   return (
-    <>
-      <SearchHeader />
+    <AppShell current="explore">
       <main>
         <section className="search-main">
           <div className="search-wrap">
@@ -119,7 +108,6 @@ export default function Search({ searchParams }: PageProps<"/search">) {
           </div>
         </section>
       </main>
-      <SiteFooter current="/search" />
-    </>
+    </AppShell>
   );
 }

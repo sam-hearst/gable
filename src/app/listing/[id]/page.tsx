@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CircleCheck } from "@/components/landing/icons";
 import { Photo } from "@/components/landing/Photo";
 import { findListing, SAMPLE_LISTINGS } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
 import "@/components/booking/booking.css";
+import { ListingCommunity } from "@/components/listing/ListingCommunity";
+import "@/components/listing/listing-community.css";
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
 
@@ -26,8 +28,7 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
   if (!l) notFound();
 
   return (
-    <>
-      <SiteHeader current="none" />
+    <AppShell current="none">
       <main>
         <section className="section">
           <div className="wrap">
@@ -96,10 +97,12 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
                 <p className="under-cta">You won&apos;t pay anything until you confirm.</p>
               </div>
             </div>
+
+            {/* Mockup: who's interested, the group chat, and public questions. */}
+            <ListingCommunity lister={l.lister.firstName} />
           </div>
         </section>
       </main>
-      <SiteFooter current="/listing" />
-    </>
+    </AppShell>
   );
 }

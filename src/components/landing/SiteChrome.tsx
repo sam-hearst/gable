@@ -1,22 +1,11 @@
 import Link from "next/link";
-import { isDemo, searchHref } from "@/lib/mode";
+import { isDemo } from "@/lib/mode";
 import { AccountLink } from "./AccountLink";
 
+// "current" is kept so pages can still say where they are, but the header no
+// longer has tab links: the logo goes home, and Favorites shows once you're
+// signed in (see AccountLink). Demo pages with the app sidebar don't use it.
 type NavKey = "home" | "summer" | "favorites" | "list" | "none";
-
-// Favorites, sign-in and listing your room are part of the MVP, so only the
-// demo site shows them.
-// On the demo site, "Summer" runs a search instead of opening the waitlist page.
-const NAV: { key: NavKey; href: string; label: string }[] = [
-  { key: "home", href: "/", label: "Explore" },
-  { key: "summer", href: isDemo ? searchHref("Summer sublet near Columbia, June to August") : "/summer", label: "Summer" },
-  ...(isDemo
-    ? [
-        { key: "favorites" as const, href: "/favorites", label: "Favorites" },
-        { key: "list" as const, href: "/sublet-your-room", label: "List your room" },
-      ]
-    : []),
-];
 
 function Brand({ small = false }: { small?: boolean }) {
   return (
@@ -38,15 +27,9 @@ export function SiteHeader({
   showVerify?: boolean;
 }) {
   return (
-    <header className="topbar">
-      <div className="wrap topbar-inner">
-        <nav className="pill-nav" aria-label="Main">
-          {NAV.map((item) => (
-            <Link key={item.key} href={item.href} aria-current={item.key === current ? "page" : undefined}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+    // Logo at the far left, account at the far right, like most sites people know.
+    <header className="topbar" data-current={current}>
+      <div className="topbar-inner">
         <Brand />
         {/* The demo site is the working product, so it has no waitlist buttons. */}
         <div className="top-actions">
@@ -67,35 +50,13 @@ export function SiteHeader({
   );
 }
 
-const FOOTER_LINKS = isDemo
-  ? [
-      { href: "/", label: "Home" },
-      { href: "/search", label: "All sublets" },
-      { href: "/favorites", label: "Favorites" },
-      { href: "/sublet-your-room", label: "List your room" },
-    ]
-  : [
-      { href: "/", label: "Home" },
-      { href: "/verified", label: "How we verify" },
-      { href: "/summer", label: "Summer sublets" },
-    ];
-
-export function SiteFooter({ current }: { current: string }) {
+// One centered line, plus the privacy policy (Google sign-in needs it linked).
+export function SiteFooter() {
   return (
     <footer className="footer">
       <div className="wrap footer-inner">
-        <Brand small />
-        <nav aria-label="Footer">
-          {FOOTER_LINKS.filter((l) => l.href !== current).map((l) => (
-            <Link key={l.href} href={l.href}>
-              {l.label}
-            </Link>
-          ))}
-        </nav>
         <span>Made by Columbia students, for Columbia students. Photos from Pexels.</span>
-      </div>
-      <div className="footer-word" aria-hidden="true">
-        Gable
+        <Link href="/privacy">Privacy</Link>
       </div>
     </footer>
   );

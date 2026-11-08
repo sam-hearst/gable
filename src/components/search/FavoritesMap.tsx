@@ -6,6 +6,9 @@ import { LeafletContext, createLeafletContext, type LeafletContextInterface } fr
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { CircleCheck } from "@/components/landing/icons";
+import { Photo } from "@/components/landing/Photo";
+import { CityMap, type MapPlace } from "@/components/map/CityMap";
+import { toMapPlace } from "@/components/map/places";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
 import { HeartButton } from "./HeartButton";
@@ -90,6 +93,8 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
     if (ul && li && ul.scrollHeight > ul.clientHeight) ul.scrollTo({ top: li.offsetTop - 8, behavior: "smooth" });
   }, [active]);
 
+  const places: MapPlace[] = listings.map(toMapPlace);
+
   function focusListing(l: SampleListing) {
     setActive(l.id);
     map?.panTo([l.lat, l.lng]);
@@ -99,44 +104,53 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
   return (
     <div className="fav-map-layout">
       <div className="fav-map">
-        <LeafletMap onReady={setMap}>
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <FitToPins listings={listings} />
-          {listings.map((l) => (
-            <Marker
-              key={l.id}
-              position={[l.lat, l.lng]}
-              icon={pricePin(l.price, l.id === active)}
-              zIndexOffset={l.id === active ? 1000 : 0}
-              title={`${l.title}, ${money(l.price)} a month`}
-              ref={(m) => {
-                if (m) markers.current[l.id] = m;
-                else delete markers.current[l.id];
-              }}
-              eventHandlers={{ click: () => setActive(l.id) }}
-            >
-              <Popup>
-                <div className="pin-popup">
-                  <b>{l.title}</b>
-                  <div className="pin-popup-meta">
-                    {money(l.price)} / month · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
-                  </div>
-                  <ul>
-                    {l.checked.map((c) => (
-                      <li key={c}>
-                        <CircleCheck size={13} />
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </LeafletMap>
+        <CityMap
+          places={places}
+          activeId={active}
+          onSelect={setActive}
+          showPanel={false}
+          fallback={
+            // The flat map, if the 3D one has no key or can't load.
+              <LeafletMap onReady={setMap}>
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <FitToPins listings={listings} />
+                {listings.map((l) => (
+                  <Marker
+                    key={l.id}
+                    position={[l.lat, l.lng]}
+                    icon={pricePin(l.price, l.id === active)}
+                    zIndexOffset={l.id === active ? 1000 : 0}
+                    title={`${l.title}, ${money(l.price)} a month`}
+                    ref={(m) => {
+                      if (m) markers.current[l.id] = m;
+                      else delete markers.current[l.id];
+                    }}
+                    eventHandlers={{ click: () => setActive(l.id) }}
+                  >
+                    <Popup>
+                      <div className="pin-popup">
+                        <b>{l.title}</b>
+                        <div className="pin-popup-meta">
+                          {money(l.price)} / month · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
+                        </div>
+                        <ul>
+                          {l.checked.map((c) => (
+                            <li key={c}>
+                              <CircleCheck size={13} />
+                              {c}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </LeafletMap>
+          }
+        />
       </div>
 
       <ul className="fav-list" ref={list} aria-label="Your saved places">
@@ -149,13 +163,14 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
             className={l.id === active ? "is-active" : undefined}
           >
             <button type="button" className="fav-item" aria-current={l.id === active || undefined} onClick={() => focusListing(l)}>
+              <Photo id={l.photo.id} width={600} alt={l.photo.alt} className="fav-photo" />
               <span className="fav-price">{money(l.price)}</span>
               <span className="fav-title">{l.title}</span>
               <span className="fav-meta">
                 {l.neighborhood} · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
               </span>
             </button>
-            <HeartButton id={l.id} title={l.title} className="heart-btn heart-btn-sm" />
+            <HeartButton id={l.id} title={l.title} className="heart-btn heart-btn-sm fav-heart" />
           </li>
         ))}
       </ul>

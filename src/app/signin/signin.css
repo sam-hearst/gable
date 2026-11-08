@@ -23,3 +23,13 @@
   .signin-card { padding: 24px 18px; }
 }
 .signin-notice { margin-top: 12px; color: var(--accent-dark); font-size: 15px; }
+
+/* "Continue with Google" above the email form. */
+.signin-google { width: 100%; gap: 10px; margin-top: 20px; }
+.signin-or {
+  display: flex; align-items: center; gap: 12px; margin: 18px 0 4px;
+  color: var(--ink-faint); font-size: 13px;
+}
+.signin-or::before, .signin-or::after { content: ""; flex: 1; height: 1px; background: var(--sage-line); }
+.signin-privacy { margin-top: 14px; font-size: 13px; color: var(--ink-faint); }
+.signin-privacy a { color: var(--accent-dark); text-decoration: underline; }

@@ -1041,3 +1041,15 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 /* Footer: the Columbia line plus a Privacy link. */
 .footer-inner a { color: var(--ink-faint); text-decoration: underline; }
 .footer-inner a:hover { color: var(--ink); }
+
+/* Big headlines in Fraunces, a warm serif: friendlier and less generic than
+   heavy, tightly packed sans. Body text stays Plus Jakarta Sans. */
+.hero h1, .section-head h2 {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 50, "opsz" 144;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+}
+.hero h1 { max-width: 15ch; }
+.hero h1 .mark em { font-style: italic; font-weight: 500; }

@@ -175,3 +175,10 @@ button.app-me:hover { background: var(--sage); }
    screen, so "What are you looking for?" peeks in below it. */
 .app-main main > .hero:first-child { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); padding-top: 48px; padding-bottom: 24px; }
 .app-main main > .hero:first-child + .section { padding-top: 24px; }
+/* Floating photo cards line up with the centered search instead of hugging
+   the top edge, and the hero gets more room above it. */
+.app-main main > .hero:first-child { padding-top: 88px; }
+.app-main .hero .float.f1 { top: 16%; }
+.app-main .hero .float.f3 { top: 14%; }
+.app-main .hero .float.f2 { top: 52%; }
+.app-main .hero .float.f4 { top: 50%; }

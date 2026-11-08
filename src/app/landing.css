@@ -1049,5 +1049,6 @@ h1, h2, h3,
   font-weight: 700;
   letter-spacing: -0.035em;
 }
-.hero h1 { line-height: 1.04; max-width: 20ch; }
+/* Homepage headline: big and bold, like the live site. */
+.hero h1 { line-height: 1.0; max-width: 13.5ch; letter-spacing: -0.045em; }
 .hero h1 .mark em { font-style: normal; font-weight: 700; }

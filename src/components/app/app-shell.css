@@ -170,7 +170,7 @@ button.app-me:hover { background: var(--sage); }
 /* Keep the first screen to just the search: no extra photo row, a slightly
    calmer headline, so it fits and centers. */
 .app-main main > .hero:first-child .photo-strip { display: none; }
-.app-main .hero h1 { font-size: clamp(36px, 5.4cqi, 68px); }
+.app-main .hero h1 { font-size: clamp(44px, 7.4cqi, 96px); }
 /* Less empty space under the search: the hero is a bit shorter than the
    screen, so "What are you looking for?" peeks in below it. */
 .app-main main > .hero:first-child { min-height: calc(100vh - 200px); min-height: calc(100dvh - 200px); padding-top: 48px; padding-bottom: 24px; }

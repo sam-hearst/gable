@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
 import { ResultCard } from "@/components/search/ResultCard";
-import { RefineBar } from "@/components/search/RefineBar";
+import { ChatThread } from "@/components/search/ChatThread";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
@@ -48,35 +48,29 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
       <SearchSession messages={messages}>
-        {/* Results first: Gable's answer as one line, then the places. */}
-        <header className="search-head">
-          <div>
-            <p className="search-eyebrow">{matched ? `${results.length} ${results.length === 1 ? "place fits" : "places fit"}` : "Closest options"}</p>
-            <h1 className="search-summary" role="status">
-              {reply}
-            </h1>
-          </div>
-          <div className="search-head-actions">
-            <SavedCount />
-            <Link className="search-new-btn" href="/explore">
-              New search
-            </Link>
-          </div>
-        </header>
+        {/* Chat on the left (what you asked, Gable's answer, refine box); places on the right. */}
+        <div className="search-side">
+          <ChatThread reply={reply} />
+          <p className="search-fine">
+            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
+            demo. <Link href="/sublet-your-room">List your room</Link>
+          </p>
+          <Link className="search-new" href="/explore">
+            Start a new search
+          </Link>
+        </div>
 
         <div className="search-results">
+          <div className="search-results-top">
+            {!matched && <h2 className="closest-head">Closest options</h2>}
+            <SavedCount />
+          </div>
           <div className="results">
             {results.map((r) => (
               <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
             ))}
           </div>
-          <p className="search-fine">
-            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
-            demo. <Link href="/sublet-your-room">List your room</Link>
-          </p>
         </div>
-
-        <RefineBar />
       </SearchSession>
     </FavoritesProvider>
   );
@@ -84,14 +78,17 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
 
 function Loading() {
   return (
-    <header className="search-head">
-      <div>
-        <p className="search-eyebrow">Your search</p>
-        <p className="search-summary" role="status" aria-busy="true">
-          Reading your request…
-        </p>
+    <div className="search-layout">
+      <div className="search-side">
+        <div className="search-thread">
+          <div className="search-msg search-msg-gable" role="status" aria-busy="true">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="search-msg-icon" src="/logo/gable-favicon.svg" alt="Gable" width={28} height={28} />
+            <p>Reading your request…</p>
+          </div>
+        </div>
       </div>
-    </header>
+    </div>
   );
 }
 

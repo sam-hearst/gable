@@ -14,12 +14,14 @@ export function SignInForm({
   save,
   configured,
   linkFailed,
+  googleFailed = false,
   startWithSignup = false,
 }: {
   next: string;
   save: string | null;
   configured: boolean;
   linkFailed: boolean;
+  googleFailed?: boolean;
   startWithSignup?: boolean;
 }) {
   const router = useRouter();
@@ -28,7 +30,13 @@ export function SignInForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(linkFailed ? "That sign-in link didn't work. Sign in below instead." : "");
+  const [error, setError] = useState(
+    googleFailed
+      ? "Google sign-in didn't finish. Try again, or use your email below."
+      : linkFailed
+        ? "That sign-in link didn't work. Sign in below instead."
+        : "",
+  );
   const [notice, setNotice] = useState("");
 
   if (!configured) {

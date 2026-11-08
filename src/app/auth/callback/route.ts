@@ -12,6 +12,11 @@ export async function GET(request: NextRequest) {
   const next = nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/favorites";
   const save = url.searchParams.get("save");
 
+  // Google (or Supabase) said no before we got a code: say so plainly.
+  if (url.searchParams.get("error")) {
+    return NextResponse.redirect(new URL(`/signin?error=google&next=${encodeURIComponent(next)}`, url.origin));
+  }
+
   const supabase = await createClient();
   if (!supabase || !code) return NextResponse.redirect(new URL("/signin?error=link", url.origin));
 

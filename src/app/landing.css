@@ -1042,12 +1042,12 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .footer-inner a { color: var(--ink-faint); text-decoration: underline; }
 .footer-inner a:hover { color: var(--ink); }
 
-/* Headlines: same font, calmer. Medium weight, normal spacing, a bit
-   smaller, so the headline reads like a friend talking, not a billboard. */
-.hero h1 {
+/* Headings: one consistent style everywhere. Same font (Plus Jakarta Sans),
+   same weight and letter spacing; only the size changes by level. */
+h1, h2, h3,
+.hero h1, .section-head h2, .cat h3, .door h3, .tile h3, .result .kind {
   font-weight: 600;
   letter-spacing: -0.025em;
-  line-height: 1.08;
-  max-width: 20ch;
 }
-.hero h1 .mark em { font-style: normal; }
+.hero h1 { line-height: 1.08; max-width: 20ch; }
+.hero h1 .mark em { font-style: normal; font-weight: 600; }

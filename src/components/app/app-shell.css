@@ -182,3 +182,7 @@ button.app-me:hover { background: var(--sage); }
 .app-main .hero .float.f3 { top: 14%; }
 .app-main .hero .float.f2 { top: 52%; }
 .app-main .hero .float.f4 { top: 50%; }
+
+/* Cap the first screen's height so tall windows don't open a big gap under
+   the search. */
+.app-main main > .hero:first-child { min-height: min(calc(100dvh - 200px), 720px); }

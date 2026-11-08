@@ -108,3 +108,33 @@
   .cm-list { border-right: 0; border-bottom: 1px solid var(--sage-line); }
   .cm-thread { overflow: visible; }
 }
+
+/* Messages: listing photo or avatar on each row */
+.cm-row-media { grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 12px; }
+.cm-thumb { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; }
+.cm-row-text { display: grid; gap: 2px; min-width: 0; }
+
+/* LinkedIn / Instagram cards */
+.cm-social { display: flex; gap: 10px; align-items: center; max-width: 340px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1px solid var(--sage-line); text-align: left; }
+.cm-social-logo { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 9px; color: #fff; font-weight: 700; font-size: 14px; }
+.is-linkedin .cm-social-logo, .cm-social-logo.is-linkedin { background: #0A66C2; }
+.is-instagram .cm-social-logo, .cm-social-logo.is-instagram { background: #C13584; font-size: 12px; }
+.cm-social-text { display: grid; gap: 1px; min-width: 0; }
+.cm-social-text b { font-size: 14px; color: var(--ink); }
+.cm-social-text span { font-size: 12.5px; color: var(--ink); }
+.cm-social-text small { font-size: 11px; color: var(--ink-faint); }
+.cm-socials { display: grid; gap: 8px; }
+
+/* Attach menu */
+.cm-composer { position: relative; }
+.cm-attach { width: 46px; border: 1.5px solid var(--sage-line); border-radius: 999px; background: #fff; color: var(--accent-dark); font-size: 22px; line-height: 1; }
+.cm-attach[aria-expanded="true"] { background: var(--sage); }
+.cm-attach-menu {
+  position: absolute; left: 24px; bottom: 72px; display: grid; gap: 2px; min-width: 230px; padding: 6px; border-radius: 16px;
+  background: #fff; border: 1px solid var(--sage-line); box-shadow: 0 16px 36px -16px rgba(30, 43, 36, 0.4);
+}
+.cm-attach-menu button { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; border-radius: 10px; background: none; text-align: left; font-size: 14px; color: var(--ink); }
+.cm-attach-menu button:hover { background: var(--sage); }
+.cm-attach-menu .cm-social-logo { width: 26px; height: 26px; font-size: 11px; border-radius: 7px; }
+a.cm-closes { color: var(--ink); text-decoration: none; }
+a.cm-closes:hover { text-decoration: underline; }

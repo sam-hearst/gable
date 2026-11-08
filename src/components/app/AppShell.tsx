@@ -4,19 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { ChevronLeft, Gift, Heart, LogOut, Menu, Search, SquarePlus, Users, X } from "@/components/landing/icons";
+import { ChevronLeft, Gift, Heart, LogOut, Menu, MessageCircle, Search, SquarePlus, X } from "@/components/landing/icons";
 import { createClient } from "@/lib/supabase/client";
 import { supabaseConfigured } from "@/lib/supabase/config";
 import "@/components/landing/account.css";
 import "./app-shell.css";
 
-export type AppPage = "explore" | "favorites" | "circles" | "list" | "refer" | "none";
+export type AppPage = "explore" | "favorites" | "messages" | "list" | "refer" | "none";
 
 const NAV: { key: AppPage; href: string; label: string; Icon: typeof Search }[] = [
   { key: "explore", href: "/explore", label: "Explore", Icon: Search },
   { key: "favorites", href: "/favorites", label: "Favorites", Icon: Heart },
   { key: "list", href: "/sublet-your-room", label: "List your room", Icon: SquarePlus },
-  { key: "circles", href: "/circles", label: "Circles", Icon: Users },
+  { key: "messages", href: "/messages", label: "Messages", Icon: MessageCircle },
   { key: "refer", href: "/refer", label: "Refer a friend", Icon: Gift },
 ];
 
@@ -94,8 +94,8 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
   const guest = session === null;
   // Signed out, Explore is the homepage and everything else asks you to log in.
   const hrefFor = (key: AppPage, href: string) =>
-    // Circles is a design mockup for now, so anyone can open it.
-    !guest || key === "circles" ? href : key === "explore" ? "/" : `/signin?next=${encodeURIComponent(href)}`;
+    // Messages is a design mockup for now, so anyone can open it.
+    !guest || key === "messages" ? href : key === "explore" ? "/" : `/signin?next=${encodeURIComponent(href)}`;
   const homeHref = guest ? "/" : "/explore";
   const signin = `/signin?next=${encodeURIComponent(pathname)}`;
   const guestButtons = (

@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { SAMPLE_LISTINGS, type SampleListing } from "@/content/listings";
 import { useFavorites } from "./FavoritesProvider";
 import { Heart } from "./HeartButton";
@@ -33,17 +32,8 @@ export function FavoritesView() {
         </span>
       </div>
 
-      {saved.length ? (
-        <FavoritesMap listings={saved} />
-      ) : (
-        <div className="fav-empty">
-          <Heart size={28} />
-          <p>Heart a few places to see them on a map.</p>
-          <Link className="btn btn-sm" href="/explore">
-            Start a search
-          </Link>
-        </div>
-      )}
+      {/* The map always shows; with nothing saved it's just the neighborhood, no pins. */}
+      <FavoritesMap listings={saved} />
     </>
   );
 }

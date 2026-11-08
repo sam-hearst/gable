@@ -150,3 +150,10 @@
   .search-side .search-fine { margin: 0; font-size: 12px; }
   .search-main { padding-top: 16px; }
 }
+
+/* In the app, use the full width beside the sidebar: the chat sits right next
+   to it and the listings fill the rest (no empty strip from centering). */
+.app-main .search-wrap { max-width: none; padding: 0 28px; }
+@media (min-width: 1100px) {
+  .app-main .search-layout { grid-template-columns: minmax(300px, 360px) minmax(0, 1fr); gap: 32px; }
+}

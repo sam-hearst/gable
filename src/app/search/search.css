@@ -174,3 +174,20 @@
   .chat-panel { height: calc(100vh - 48px); height: calc(100dvh - 48px); }
   .app-main:has(.app-guestbar) .chat-panel { height: calc(100vh - 108px); height: calc(100dvh - 108px); }
 }
+
+/* iMessage-style bubbles: a small tail at the bottom corner shows who's
+   talking. Gable on the left (light bubble), you on the right (dark). The
+   tail is two shapes: one in the bubble's color, one in the panel's color
+   that carves the curve. */
+.chat-panel { --chat-bg: color-mix(in srgb, var(--sage) 55%, var(--bg)); background: var(--chat-bg); }
+.chat-panel .search-msg { position: relative; border-radius: 20px; }
+.chat-panel .search-msg-gable { background: #ffffff; margin-left: 8px; }
+.chat-panel .search-msg-you { margin-right: 8px; }
+.chat-panel .search-msg::before,
+.chat-panel .search-msg::after { content: ""; position: absolute; bottom: 0; height: 20px; }
+.chat-panel .search-msg-gable::before { left: -7px; width: 20px; background: #ffffff; border-bottom-right-radius: 16px 14px; }
+.chat-panel .search-msg-gable::after { left: -26px; width: 26px; background: var(--chat-bg); border-bottom-right-radius: 10px; }
+.chat-panel .search-msg-you::before { right: -7px; width: 20px; background: var(--ink); border-bottom-left-radius: 16px 14px; }
+.chat-panel .search-msg-you::after { right: -26px; width: 26px; background: var(--chat-bg); border-bottom-left-radius: 10px; }
+/* Keep the bubble's text above the tail shapes. */
+.chat-panel .search-msg > * { position: relative; z-index: 1; }

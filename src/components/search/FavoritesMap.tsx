@@ -2,6 +2,7 @@
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import Link from "next/link";
 import { LeafletContext, createLeafletContext, type LeafletContextInterface } from "@react-leaflet/core";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
@@ -11,7 +12,7 @@ import { CityMap, type MapPlace } from "@/components/map/CityMap";
 import { toMapPlace } from "@/components/map/places";
 import type { SampleListing } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
-import { HeartButton } from "./HeartButton";
+import { Heart, HeartButton } from "./HeartButton";
 
 // A price tag pin in the accent green; the highlighted one turns dark green.
 function pricePin(price: number, active: boolean) {
@@ -153,7 +154,16 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
         />
       </div>
 
-      <ul className="fav-list" ref={list} aria-label="Your saved places">
+      {!listings.length && (
+        <div className="fav-empty fav-empty-side">
+          <Heart size={28} />
+          <p>Heart a few places to see them here.</p>
+          <Link className="btn btn-sm" href="/explore">
+            Start a search
+          </Link>
+        </div>
+      )}
+      <ul className="fav-list" ref={list} aria-label="Your saved places" hidden={!listings.length}>
         {listings.map((l) => (
           <li
             key={l.id}

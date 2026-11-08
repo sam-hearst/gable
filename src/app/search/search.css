@@ -132,23 +132,28 @@
 @container (max-width: 899px) { .search-results .results { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @container (max-width: 479px) { .search-results .results { grid-template-columns: 1fr; } }
 
-/* Chat like ChatGPT: the left column fills the screen; messages stack up from
-   the bottom, the newest just above the refine box, which stays at the bottom. */
+/* The chat panel: a soft card with a header, the conversation, and the refine
+   box at its bottom. Beside the listings it stays in view as you scroll. */
+.chat-panel {
+  display: flex; flex-direction: column; gap: 12px; padding: 14px;
+  border-radius: 22px; background: color-mix(in srgb, var(--sage) 55%, var(--bg));
+  border: 1px solid var(--sage-line);
+}
+.chat-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 4px 0; }
+.chat-panel-head span { font-size: 14px; font-weight: 700; color: var(--ink); }
+.chat-panel-new {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--sage-line); color: var(--ink); font-size: 13px; font-weight: 600; text-decoration: none;
+  transition: border-color 0.15s ease, transform 0.1s ease-out;
+}
+.chat-panel-new:hover { border-color: var(--accent); }
+.chat-panel-new:active { transform: scale(0.96); }
+.chat-panel .search-thread { display: flex; flex-direction: column; gap: 10px; }
+.chat-panel .search-followup { background: var(--bg); }
+.search-fine-under { margin-top: 24px; font-size: 12px; text-align: center; }
 @media (min-width: 1100px) {
-  .search-side {
-    position: sticky; top: 16px;
-    height: calc(100vh - 32px); height: calc(100dvh - 32px);
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .search-side .search-new { align-self: flex-start; }
-  .search-side .search-thread {
-    flex: 1; min-height: 0; max-height: none;
-    display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
-  }
-  /* Push the messages to the bottom while there are few of them. */
-  .search-side .search-thread > div:first-of-type { margin-top: auto; }
-  .search-side .search-fine { margin: 0; font-size: 12px; }
-  .search-main { padding-top: 16px; }
+  .chat-panel { position: sticky; top: 16px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); }
+  .chat-panel .search-thread { min-height: 0; overflow-y: auto; max-height: none; flex: 1; }
 }
 
 /* In the app, use the full width beside the sidebar: the chat sits right next

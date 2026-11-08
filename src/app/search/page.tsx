@@ -49,17 +49,16 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
       <SearchSession messages={messages}>
         {/* Chat on the left (what you asked, Gable's answer, refine box); places on the right. */}
-        <div className="search-side">
-          <Link className="search-new" href="/explore">
-            Start a new search
-          </Link>
-          {/* Like ChatGPT: the conversation stacks up from the bottom, with the box pinned under it. */}
+        {/* The chat lives in its own panel: header, messages, refine box at the bottom. */}
+        <aside className="search-side chat-panel" aria-label="Your search">
+          <div className="chat-panel-head">
+            <span>Your search</span>
+            <Link className="chat-panel-new" href="/explore">
+              New search
+            </Link>
+          </div>
           <ChatThread reply={reply} />
-          <p className="search-fine">
-            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
-            demo. <Link href="/sublet-your-room">List your room</Link>
-          </p>
-        </div>
+        </aside>
 
         <div className="search-results">
           <div className="search-results-top">
@@ -71,6 +70,10 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
               <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
             ))}
           </div>
+          <p className="search-fine search-fine-under">
+            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
+            demo. <Link href="/sublet-your-room">List your room</Link>
+          </p>
         </div>
       </SearchSession>
     </FavoritesProvider>

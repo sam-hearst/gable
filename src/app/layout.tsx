@@ -8,8 +8,9 @@ import { isDemo } from "@/lib/mode";
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
 });
+
 
 // Gable's GA4 property (from Sam's #3). Production builds use it by default, so
 // the tag doesn't depend on a Vercel env var; local dev stays untracked unless

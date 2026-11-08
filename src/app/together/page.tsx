@@ -163,7 +163,7 @@ export default function TogetherPage() {
           fine="No spam. One email when your matches are ready."
         />
       </main>
-      <SiteFooter current="/together" />
+      <SiteFooter />
     </>
   );
 }

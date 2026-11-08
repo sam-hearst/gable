@@ -7,8 +7,13 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/li
 // and writes the refreshed cookies back. The landing pages don't run this.
 // On the waitlist site (production) these MVP routes don't exist: send
 // visitors to the homepage instead (see src/lib/mode.ts).
+//
+// The homepage runs this too, but only to send signed-in people on the demo
+// site to /explore (the app). Signed out, or on the waitlist site, it's the
+// normal homepage.
 export async function proxy(request: NextRequest) {
-  if (!isDemo) return NextResponse.redirect(new URL("/", request.url));
+  const isHome = request.nextUrl.pathname === "/";
+  if (!isDemo) return isHome ? NextResponse.next() : NextResponse.redirect(new URL("/", request.url));
   let response = NextResponse.next({ request });
   if (!supabaseConfigured) return response;
 
@@ -25,10 +30,32 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+  if (isHome && data?.claims) {
+    // Keep any refreshed sign-in cookies on the redirect.
+    const toApp = NextResponse.redirect(new URL("/explore", request.url));
+    response.cookies.getAll().forEach((c) => toApp.cookies.set(c));
+    return toApp;
+  }
   return response;
 }
 
 export const config = {
-  matcher: ["/search", "/favorites", "/signin", "/auth/:path*"],
+  // The MVP routes ("/" only for the signed-in redirect). Booking (/listing, /book, /booked) and real student
+  // listings (/sublet-your-room, /sublet) are demo only too.
+  matcher: [
+    "/",
+    "/explore",
+    "/refer",
+    "/messages",
+    "/search",
+    "/favorites",
+    "/signin",
+    "/auth/:path*",
+    "/listing/:path*",
+    "/book/:path*",
+    "/booked/:path*",
+    "/sublet-your-room",
+    "/sublet/:path*",
+  ],
 };

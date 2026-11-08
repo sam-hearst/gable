@@ -13,8 +13,8 @@ const FavoritesMap = dynamic(() => import("./FavoritesMap"), {
 });
 
 // The /favorites page body: every saved listing, on a map and in a list.
-// Unhearting one removes it right away.
-export function FavoritesView({ email }: { email: string | null }) {
+// Unhearting one removes it right away. Your account and Sign out are in the sidebar.
+export function FavoritesView() {
   const { ids } = useFavorites();
   const saved = ids
     .map((id) => SAMPLE_LISTINGS.find((l) => l.id === id))
@@ -32,10 +32,6 @@ export function FavoritesView({ email }: { email: string | null }) {
           {saved.length} saved
         </span>
       </div>
-      <form className="fav-account" action="/auth/signout" method="post">
-        {email ? `Signed in as ${email}` : "Signed in"}
-        <button type="submit">Sign out</button>
-      </form>
 
       {saved.length ? (
         <FavoritesMap listings={saved} />
@@ -43,7 +39,7 @@ export function FavoritesView({ email }: { email: string | null }) {
         <div className="fav-empty">
           <Heart size={28} />
           <p>Heart a few places to see them on a map.</p>
-          <Link className="btn btn-sm" href="/">
+          <Link className="btn btn-sm" href="/explore">
             Start a search
           </Link>
         </div>

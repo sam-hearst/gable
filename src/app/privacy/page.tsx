@@ -108,7 +108,7 @@ export default function PrivacyPage() {
           ))}
         </article>
       </main>
-      <SiteFooter current="/privacy" />
+      <SiteFooter />
     </>
   );
 }

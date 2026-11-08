@@ -1,5 +1,7 @@
-// Turns what someone typed into the homepage chat box into filters, then
-// filters and ranks the SAMPLE listings. Server only: it reads
+// Turns what someone typed into the chat (their first request plus any
+// follow-ups on /search) into filters, then filters and ranks the listings:
+// the SAMPLE listings plus any approved real ones students posted
+// (src/lib/student-listings.ts). Server only: it reads
 // ANTHROPIC_API_KEY, which must never reach the browser (no NEXT_PUBLIC_).
 //
 // Claude reads the request when it can. If the key is missing, the call fails,
@@ -7,7 +9,8 @@
 // shows results.
 
 import Anthropic from "@anthropic-ai/sdk";
-import { SAMPLE_LISTINGS, type RoomType, type SampleListing } from "@/content/listings";
+import { SAMPLE_LISTINGS, type RoomType } from "@/content/listings";
+import { isStudentListing, type AnyListing } from "./student-listing-fields";
 import { money, shortDate } from "./format";
 
 const MODEL = "claude-haiku-5-5";
@@ -37,7 +40,7 @@ export type SearchFilters = {
 };
 
 export type SearchResult = {
-  listing: SampleListing;
+  listing: AnyListing;
   misses: string[]; // what doesn't fit, only for the closest options
 };
 
@@ -70,7 +73,8 @@ Rules:
 - roomType is "studio", "private room" or "shared". Set it only when they name one. If they want to live with a friend or partner, leave roomType null unless they say studio or shared.
 - wantsRoommate is true when they're looking together with a friend, partner or roommate.
 - Use null (or an empty list) for anything they didn't mention. Don't guess.
-- reply: one or two short sentences that say back what they're looking for, in plain everyday words, like a friend who knows housing. No hype, no exclamation marks, no words like "perfect", "safe" or "guaranteed". Don't mention how many places match or promise anything about them; the app adds that after your reply. Example: "You're after a furnished sublet for your summer internship, June to August, under $1,600."`;
+- They may refine their search over several messages, like a conversation. Combine them into the one search they want now: a later message replaces an earlier one on the same point (a new budget, area or dates), adds anything new, and keeps everything else. "Cheaper" or "less expensive" with no number lowers the current budget by about 10%, rounded to the nearest $50 (leave it alone if there's no budget yet). "Anywhere" clears the neighborhoods; "furnished or not" clears furnished.
+- reply: one or two short sentences that say back what they're looking for now, in plain everyday words, like a friend who knows housing. No hype, no exclamation marks, no words like "perfect", "safe" or "guaranteed". Don't mention how many places match or promise anything about them; the app adds that after your reply. If their latest message changed something, lead with the change. Examples: "You're after a furnished sublet for your summer internship, June to August, under $1,600." / "Now under $1,450, still furnished for June to August."`;
 
 const nullable = (type: string) => ({ anyOf: [{ type }, { type: "null" }] });
 
@@ -101,7 +105,14 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
-async function readWithClaude(q: string): Promise<{ filters: SearchFilters; reply: string | null } | null> {
+// One message as is; a conversation as a numbered list, oldest first.
+function conversation(messages: string[]) {
+  if (messages.length === 1) return messages[0];
+  const lines = messages.map((m, i) => `${i + 1}. ${m}`).join("\n");
+  return `Everything they've said so far, oldest first. Later messages change or add to earlier ones.\n\n${lines}`;
+}
+
+async function readWithClaude(messages: string[]): Promise<{ filters: SearchFilters; reply: string | null } | null> {
   if (!process.env.ANTHROPIC_API_KEY) return null;
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: TIMEOUT_MS, maxRetries: 0 });
@@ -115,7 +126,7 @@ async function readWithClaude(q: string): Promise<{ filters: SearchFilters; repl
         thinking: { type: "disabled" },
         output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
         system: SYSTEM,
-        messages: [{ role: "user", content: q }],
+        messages: [{ role: "user", content: conversation(messages) }],
       },
       { signal: abort.signal },
     );
@@ -238,8 +249,11 @@ export function readWithKeywords(q: string): SearchFilters {
 const DAY = 86_400_000;
 const time = (isoDate: string) => Date.parse(`${isoDate}T00:00:00Z`);
 
+// The fields search filters on, which samples and real listings both have.
+type Searchable = Pick<AnyListing, "price" | "availableFrom" | "availableTo" | "furnished" | "roomType" | "neighborhood" | "sleeps">;
+
 // Share of the requested dates the listing is free for (0 to 1).
-function coverage(l: SampleListing, f: SearchFilters) {
+function coverage(l: Searchable, f: SearchFilters) {
   if (!f.moveIn || !f.moveOut) return 1;
   const start = Math.max(time(l.availableFrom), time(f.moveIn));
   const end = Math.min(time(l.availableTo), time(f.moveOut));
@@ -249,7 +263,7 @@ function coverage(l: SampleListing, f: SearchFilters) {
 type Check = { pass: boolean; miss: string };
 
 // One check per filter they gave. A listing matches when every check passes.
-function checks(l: SampleListing, f: SearchFilters): Check[] {
+function checks(l: Searchable, f: SearchFilters): Check[] {
   const out: Check[] = [];
   const free = `Free ${shortDate(l.availableFrom)} – ${shortDate(l.availableTo)}`;
 
@@ -288,8 +302,11 @@ function hasFilters(f: SearchFilters) {
   return checks(SAMPLE_LISTINGS[0], f).length > 0;
 }
 
-export function rank(f: SearchFilters): { results: SearchResult[]; matched: boolean } {
-  const scored = SAMPLE_LISTINGS.map((listing) => {
+export function rank(
+  f: SearchFilters,
+  listings: AnyListing[] = SAMPLE_LISTINGS,
+): { results: SearchResult[]; matched: boolean } {
+  const scored = listings.map((listing) => {
     const cs = checks(listing, f);
     const passed = cs.filter((c) => c.pass);
     return {
@@ -299,8 +316,13 @@ export function rank(f: SearchFilters): { results: SearchResult[]; matched: bool
       cover: coverage(listing, f),
     };
   });
-  // Best fit first: most checks passed, most of the dates covered, then cheapest.
-  scored.sort((a, b) => b.score - a.score || b.cover - a.cover || a.listing.price - b.listing.price);
+  // Best fit first: most checks passed, most of the dates covered, real
+  // listings before samples, then cheapest.
+  const real = (l: AnyListing) => (isStudentListing(l) ? 1 : 0);
+  scored.sort(
+    (a, b) =>
+      b.score - a.score || b.cover - a.cover || real(b.listing) - real(a.listing) || a.listing.price - b.listing.price,
+  );
 
   const matches = scored.filter((s) => s.misses.length === 0);
   if (matches.length) return { results: matches.map(({ listing }) => ({ listing, misses: [] })), matched: true };
@@ -328,23 +350,53 @@ function describe(f: SearchFilters) {
   return `You're looking for ${[head.join(" "), ...tail].join(", ")}.`;
 }
 
-export async function search(q: string): Promise<SearchResponse> {
-  const fromClaude = q ? await readWithClaude(q) : null;
-  const filters = fromClaude?.filters ?? (q ? readWithKeywords(q) : NO_FILTERS);
+// Keyword fallback for a conversation: read each message in order, and let a
+// later message replace what an earlier one said on the same point.
+export function readConversationWithKeywords(messages: string[]): SearchFilters {
+  let f: SearchFilters = { ...NO_FILTERS, neighborhoods: [] };
+  for (const message of messages) {
+    const next = readWithKeywords(message);
+    const cheaper = !next.maxPrice && /\b(cheaper|less expensive|lower (the )?(price|budget))\b/i.test(message);
+    f = {
+      maxPrice: next.maxPrice ?? (cheaper && f.maxPrice ? Math.max(50, Math.round((f.maxPrice * 0.9) / 50) * 50) : f.maxPrice),
+      minPrice: next.minPrice ?? f.minPrice,
+      // Dates change as a pair.
+      moveIn: next.moveIn ? next.moveIn : f.moveIn,
+      moveOut: next.moveIn ? next.moveOut : f.moveOut,
+      furnished: /furnished or not|don'?t care (if|about) (it'?s )?furnished/i.test(message) ? null : (next.furnished ?? f.furnished),
+      roomType: next.roomType ?? f.roomType,
+      neighborhoods: next.neighborhoods.length
+        ? next.neighborhoods
+        : /\b(anywhere|any (area|neighborhood))\b/i.test(message)
+          ? []
+          : f.neighborhoods,
+      wantsRoommate: next.wantsRoommate ?? f.wantsRoommate,
+    };
+  }
+  return normalize(f);
+}
+
+// `messages` is everything they've typed, oldest first: the first request
+// plus any follow-ups ("cheaper", "only Harlem"). `listings` is what to
+// search, real listings first.
+export async function search(messages: string[], listings: AnyListing[] = SAMPLE_LISTINGS): Promise<SearchResponse> {
+  const asked = messages.length > 0;
+  const fromClaude = asked ? await readWithClaude(messages) : null;
+  const filters = fromClaude?.filters ?? (asked ? readConversationWithKeywords(messages) : NO_FILTERS);
   const source = fromClaude ? "claude" : "keywords";
 
   if (!hasFilters(filters)) {
     return {
-      reply: q
+      reply: asked
         ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished sublet near Columbia, June to August, under $1,600.\""
         : "Tell me the place you want: your dates, your budget, the area. For now, here's everything.",
-      results: SAMPLE_LISTINGS.map((listing) => ({ listing, misses: [] })),
+      results: listings.map((listing) => ({ listing, misses: [] })),
       matched: true,
       source,
     };
   }
 
-  const { results, matched } = rank(filters);
+  const { results, matched } = rank(filters, listings);
   const said = fromClaude?.reply ?? describe(filters);
   const count = results.length === 1 ? "1 place fits" : `${results.length} places fit`;
   const reply = matched

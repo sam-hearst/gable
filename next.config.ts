@@ -19,9 +19,14 @@ const nextConfig: NextConfig = {
       { source: "/real", destination: "/verified", permanent: false },
       { source: "/interns", destination: "/summer", permanent: false },
       { source: "/describe", destination: "/", permanent: false },
-      // Sublets only for now: the page for students listing their own room is paused.
-      { source: "/sublet-your-room", destination: "/", permanent: false },
-      { source: "/sublet-your-room.html", destination: "/", permanent: false },
+      // Students list their own room on the demo site only (src/proxy.ts); the
+      // waitlist site keeps sending the old page home.
+      ...(isDemo ? [] : [{ source: "/sublet-your-room", destination: "/", permanent: false }]),
+      {
+        source: "/sublet-your-room.html",
+        destination: isDemo ? "/sublet-your-room" : "/",
+        permanent: false,
+      },
       {
         source: "/blog/how-to-find-your-dream-apartment-in-nyc",
         destination: "/blog/how-to-find-your-dream-sublet-in-nyc",

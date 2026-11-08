@@ -1,9 +1,12 @@
 import "server-only";
 import { SAMPLE_LISTINGS } from "@/content/listings";
+import { showSamples } from "./mode";
 import { createClient, getCurrentUser, type CurrentUser } from "./supabase/server";
 
+// Only sample listings can be hearted so far, and they exist on staging only,
+// so on production (real data only) Favorites stays empty and saves are refused.
 export const isListingId = (id: unknown): id is string =>
-  typeof id === "string" && SAMPLE_LISTINGS.some((l) => l.id === id);
+  showSamples && typeof id === "string" && SAMPLE_LISTINGS.some((l) => l.id === id);
 
 // The signed-in user and the ids of the listings they've hearted, oldest first.
 export async function getFavorites(): Promise<{ user: CurrentUser | null; ids: string[] }> {

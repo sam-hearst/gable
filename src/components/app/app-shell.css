@@ -186,3 +186,10 @@ button.app-me:hover { background: var(--sage); }
 /* Cap the first screen's height so tall windows don't open a big gap under
    the search. */
 .app-main main > .hero:first-child { min-height: min(calc(100dvh - 200px), 720px); }
+
+/* Signed-in Explore has only the search, so center it in the whole screen
+   (the homepage caps the hero so Browse can peek in below; Explore has no Browse). */
+.app-main main.explore-main > .hero:first-child {
+  min-height: 100vh; min-height: 100dvh;
+  padding-top: 40px; padding-bottom: 40px;
+}

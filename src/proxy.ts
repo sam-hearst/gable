@@ -1,19 +1,22 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isDemo } from "@/lib/mode";
+import { showSamples } from "@/lib/mode";
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 
 // Refreshes the Supabase sign-in session before the routes that use it render,
 // and writes the refreshed cookies back. The landing pages don't run this.
-// On the waitlist site (production) these MVP routes don't exist: send
-// visitors to the homepage instead (see src/lib/mode.ts).
+// The sample booking flow (/listing, /book, /booked) only exists for the
+// sample listings, so on production (real data only) it sends visitors to
+// search instead (see src/lib/mode.ts).
 //
-// The homepage runs this too, but only to send signed-in people on the demo
-// site to /explore (the app). Signed out, or on the waitlist site, it's the
-// normal homepage.
+// The homepage runs this too, but only to send signed-in people to /explore
+// (the app). Signed out, it's the normal homepage.
 export async function proxy(request: NextRequest) {
-  const isHome = request.nextUrl.pathname === "/";
-  if (!isDemo) return isHome ? NextResponse.next() : NextResponse.redirect(new URL("/", request.url));
+  const { pathname } = request.nextUrl;
+  const isHome = pathname === "/";
+  if (!showSamples && /^\/(listing|book|booked)\//.test(pathname)) {
+    return NextResponse.redirect(new URL("/search", request.url));
+  }
   let response = NextResponse.next({ request });
   if (!supabaseConfigured) return response;
 
@@ -41,8 +44,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // The MVP routes ("/" only for the signed-in redirect). Booking (/listing, /book, /booked) and real student
-  // listings (/sublet-your-room, /sublet) are demo only too.
+  // The app routes ("/" only for the signed-in redirect). The sample booking
+  // flow (/listing, /book, /booked) is staging only.
   matcher: [
     "/",
     "/explore",

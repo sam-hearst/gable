@@ -12,6 +12,7 @@ import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
 import { SAMPLE_LISTINGS } from "@/content/listings";
+import { showSamples } from "@/lib/mode";
 import "./search.css";
 
 export const metadata: Metadata = {
@@ -40,10 +41,9 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // during its prerender check, which errors on the SDK's Date.now() and
   // makes a second, aborted API call.
   await connection();
-  // Real student listings (approved only) are searched next to the samples.
-  // If they can't be read, search goes on with the samples alone.
+  // Real student listings (approved only), plus the samples on staging.
   const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
-  const { reply, results, matched } = await search(messages, [...real, ...SAMPLE_LISTINGS]);
+  const { reply, results, matched } = await search(messages, [...real, ...(showSamples ? SAMPLE_LISTINGS : [])]);
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
@@ -65,14 +65,26 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
             {!matched && <h2 className="closest-head">Closest options</h2>}
             <SavedCount />
           </div>
-          <div className="results">
-            {results.map((r) => (
-              <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
-            ))}
-          </div>
+          {results.length ? (
+            <div className="results">
+              {results.map((r) => (
+                <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
+              ))}
+            </div>
+          ) : (
+            <div className="results-empty">
+              <h2>No sublets here yet</h2>
+              <p>Every place on Gable is posted by a student and checked by our team, and the first ones are on their way. Your search is saved in the chat, so check back soon.</p>
+              <Link className="btn btn-sm" href="/sublet-your-room">
+                List your room
+              </Link>
+            </div>
+          )}
           <p className="search-fine search-fine-under">
-            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
-            demo. <Link href="/sublet-your-room">List your room</Link>
+            {showSamples
+              ? "Places marked Real listing were posted by students and checked by our team. The rest are samples for our demo. "
+              : "Every place here was posted by a student and checked by our team. "}
+            <Link href="/sublet-your-room">List your room</Link>
           </p>
         </div>
       </SearchSession>

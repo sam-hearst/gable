@@ -381,6 +381,16 @@ export function readConversationWithKeywords(messages: string[]): SearchFilters 
 // search, real listings first.
 export async function search(messages: string[], listings: AnyListing[] = SAMPLE_LISTINGS): Promise<SearchResponse> {
   const asked = messages.length > 0;
+  if (!listings.length) {
+    return {
+      reply: asked
+        ? "Got it. There are no checked sublets on Gable yet, so nothing to show. The first ones are on their way."
+        : "There are no checked sublets on Gable yet. The first ones are on their way.",
+      results: [],
+      matched: true,
+      source: "keywords",
+    };
+  }
   const fromClaude = asked ? await readWithClaude(messages) : null;
   const filters = fromClaude?.filters ?? (asked ? readConversationWithKeywords(messages) : NO_FILTERS);
   const source = fromClaude ? "claude" : "keywords";

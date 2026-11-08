@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app/AppShell";
 import { BrowseSection, HomeHero } from "@/components/landing/HomeSections";
-import { SiteFooter, SiteHeader } from "@/components/landing/SiteChrome";
 import { CtaPhoto } from "@/components/landing/blocks";
-import { isDemo } from "@/lib/mode";
 
 export const metadata: Metadata = {
   title: "Gable: real sublets near Columbia, through one chat",
@@ -16,7 +14,7 @@ function HomeBody() {
     <main>
       <HomeHero />
       <BrowseSection />
-      {/* Email sign-up at the bottom, on both the demo and the waitlist site. */}
+      {/* Email sign-up at the bottom. */}
       <CtaPhoto
         photo={30775151}
         source="home"
@@ -29,23 +27,13 @@ function HomeBody() {
   );
 }
 
-// On the demo site the homepage has the same sidebar as the app (its items ask
-// you to log in first), so signing in doesn't feel like a different site.
-// Signed-in visitors are sent to /explore by src/proxy.ts. The waitlist site
-// keeps the plain header and footer.
+// The homepage has the same sidebar as the app (its items ask you to log in
+// first), so signing in doesn't feel like a different site. Signed-in visitors
+// are sent to /explore by src/proxy.ts.
 export default function Home() {
-  if (isDemo) {
-    return (
-      <AppShell current="explore">
-        <HomeBody />
-      </AppShell>
-    );
-  }
   return (
-    <>
-      <SiteHeader current="home" showVerify />
+    <AppShell current="explore">
       <HomeBody />
-      <SiteFooter />
-    </>
+    </AppShell>
   );
 }

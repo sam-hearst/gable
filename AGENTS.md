@@ -30,29 +30,34 @@ and use only the colors and fonts in the style guide.
   `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` turn on
   sign-in and favorites (public values, safe in the browser; set in Vercel
   for all environments). Without them, `/signin` says sign-in isn't set up.
-- Two sites from one codebase (`src/lib/mode.ts`):
-  - **Production** (`main`, gable-one.vercel.app) is the waitlist. The MVP
-    routes (`/search`, `/favorites`, `/signin`, `/auth/*`) redirect to `/`,
-    the homepage chat box opens the email popup, and Google Analytics is on.
+- Two sites from one codebase (`src/lib/mode.ts`). Both run the full app: the
+  sidebar, search, favorites, List your room, Messages and Refer a friend.
+  - **Production** (`main`, gable.fit) shows **real data only**: search shows
+    approved student listings (or a "No sublets here yet" card), Messages shows
+    an empty state, the homepage hero has no sample photo cards, and the sample
+    booking flow (`/listing`, `/book`, `/booked`) redirects to `/search`.
+    Google Analytics is on.
   - **Staging** (the `staging` branch) sets `NEXT_PUBLIC_GABLE_MODE=demo` in
-    Vercel (Preview, branch `staging` only). It shows the MVP: the chat box goes
-    to `/search`, the header shows Favorites and Sign in, GA is off and search
-    engines are told not to index it. It also has the demo booking flow:
-    `/listing/[id]` → `/book/[id]` → `/booked/[id]` (no real payment, nothing sent).
-  - Locally, add `NEXT_PUBLIC_GABLE_MODE=demo` to `.env.local` to see the demo.
+    Vercel (Preview, branch `staging` only). It adds the made-up SAMPLE data
+    (`showSamples`): sample listings in search and favorites, the demo booking
+    flow (no real payment, nothing sent), the Messages mockup and listing Q&A.
+    GA is off and search engines are told not to index it.
+  - Locally, `NEXT_PUBLIC_GABLE_MODE=demo` in `.env.local` shows staging; run
+    `NEXT_PUBLIC_GABLE_MODE=live npm run dev` to see production.
+  - The old waitlist pages (`/verified`, `/summer`, `/together`) redirect home on both.
   - To update staging: `git push origin main:staging` (or merge into `staging`
     first and test there before merging to `main`).
 - `/thanks` has a share card with each signup's personal referral link; `npm run referrals`
   lists who brought whom (see `docs/landing_pages.md`).
 - Gable is **sublets only** for now: no rooms or apartments as categories. Listings still
   say what the space is, as "Sublet · private room".
-- List your room (demo site only; the team agreed Nov 5, 2026): signed-in students post a
-  sublet at `/sublet-your-room` (on the waitlist site it still redirects home). It saves
+- List your room (both sites; the team agreed Nov 5, 2026): signed-in students post a
+  sublet at `/sublet-your-room`. It saves
   to the Supabase `student_listings` table as `pending`, with photos in the public
   `listing-photos` Storage bucket (create both with `supabase/student_listings.sql`).
   Row level security keeps pending listings visible only to their lister, and the lister's
-  email visible only to signed-in users. Approved listings show in `/search` next to
-  the samples with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
+  email visible only to signed-in users. Approved listings show in `/search` (next to
+  the samples on staging) with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
   renters can email the lister. No booking or payment for real listings yet, and they
   can't be hearted. Feature record: `docs/features/list-your-room/`.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →

@@ -1046,8 +1046,8 @@ h1, h2, h3 { letter-spacing: -0.035em; }
    same weight and letter spacing; only the size changes by level. */
 h1, h2, h3,
 .hero h1, .section-head h2, .cat h3, .door h3, .tile h3, .result .kind {
-  font-weight: 600;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
-.hero h1 { line-height: 1.08; max-width: 20ch; }
-.hero h1 .mark em { font-style: normal; font-weight: 600; }
+.hero h1 { line-height: 1.04; max-width: 20ch; }
+.hero h1 .mark em { font-style: normal; font-weight: 700; }

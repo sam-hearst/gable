@@ -5,17 +5,13 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
-import { ChatThread } from "@/components/search/ChatThread";
 import { ResultCard } from "@/components/search/ResultCard";
+import { RefineBar } from "@/components/search/RefineBar";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
-import { SAMPLE_LISTINGS, type SampleListing } from "@/content/listings";
-import type { MapPlace } from "@/components/map/CityMap";
-import { toMapPlace } from "@/components/map/places";
-import { ResultsWithMap } from "@/components/search/ResultsWithMap";
-import { isStudentListing } from "@/lib/student-listing-fields";
+import { SAMPLE_LISTINGS } from "@/content/listings";
 import "./search.css";
 
 export const metadata: Metadata = {
@@ -23,30 +19,7 @@ export const metadata: Metadata = {
   description: "Places that fit what you asked for, and what we checked about each one.",
 };
 
-function GableSays({ children, busy = false }: { children: React.ReactNode; busy?: boolean }) {
-  return (
-    <div className="search-msg search-msg-gable" role="status" aria-busy={busy || undefined}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="search-msg-icon" src="/logo/gable-favicon.svg" alt="Gable" width={28} height={28} />
-      <p>{children}</p>
-    </div>
-  );
-}
 
-// Left column under the chat: what these listings are, and a way to start over.
-function SideNotes() {
-  return (
-    <>
-      <p className="search-fine">
-        Places marked Real listing were posted by students and checked by our team. The rest are samples for our
-        demo. <Link href="/sublet-your-room">List your room</Link>
-      </p>
-      <Link className="search-new" href="/explore">
-        Start a new search
-      </Link>
-    </>
-  );
-}
 
 // The conversation so far: every ?q= in order (the first request, then
 // follow-ups), trimmed, at most the last 10.
@@ -71,37 +44,39 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // If they can't be read, search goes on with the samples alone.
   const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
   const { reply, results, matched } = await search(messages, [...real, ...SAMPLE_LISTINGS]);
-  // Only the sample listings have map coordinates (student posts give cross streets, not an address).
-  const mapPlaces: MapPlace[] = results
-    .map((r) => r.listing)
-    .filter((l): l is SampleListing => !isStudentListing(l))
-    .map(toMapPlace);
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
       <SearchSession messages={messages}>
-        <div className="search-side">
-          <ChatThread reply={reply} />
-          <SideNotes />
-        </div>
+        {/* Results first: Gable's answer as one line, then the places. */}
+        <header className="search-head">
+          <div>
+            <p className="search-eyebrow">{matched ? `${results.length} ${results.length === 1 ? "place fits" : "places fit"}` : "Closest options"}</p>
+            <h1 className="search-summary" role="status">
+              {reply}
+            </h1>
+          </div>
+          <div className="search-head-actions">
+            <SavedCount />
+            <Link className="search-new-btn" href="/explore">
+              New search
+            </Link>
+          </div>
+        </header>
 
         <div className="search-results">
-          <ResultsWithMap
-            places={mapPlaces}
-            top={
-              <>
-                {!matched && <h2 className="closest-head">Closest options</h2>}
-                <SavedCount />
-              </>
-            }
-          >
+          <div className="results">
             {results.map((r) => (
-              <div key={r.listing.id} data-place-id={r.listing.id}>
-                <ResultCard l={r.listing} misses={r.misses} />
-              </div>
+              <ResultCard key={r.listing.id} l={r.listing} misses={r.misses} />
             ))}
-          </ResultsWithMap>
+          </div>
+          <p className="search-fine">
+            Places marked Real listing were posted by students and checked by our team. The rest are samples for our
+            demo. <Link href="/sublet-your-room">List your room</Link>
+          </p>
         </div>
+
+        <RefineBar />
       </SearchSession>
     </FavoritesProvider>
   );
@@ -109,14 +84,14 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
 
 function Loading() {
   return (
-    <div className="search-layout">
-      <div className="search-side">
-        <div className="search-thread">
-          <GableSays busy>Reading your request…</GableSays>
-        </div>
-        <SideNotes />
+    <header className="search-head">
+      <div>
+        <p className="search-eyebrow">Your search</p>
+        <p className="search-summary" role="status" aria-busy="true">
+          Reading your request…
+        </p>
       </div>
-    </div>
+    </header>
   );
 }
 

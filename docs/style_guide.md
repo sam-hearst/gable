@@ -29,11 +29,9 @@
 
 ## Type
 
-Two families (proposed Nov 7, 2026 in the `michelle-preview` redesign; team to confirm):
+One family: **Plus Jakarta Sans** (Google Fonts), weights 400, 500, 700.
 
-- **Big headlines:** **Fraunces** (Google Fonts), weight 500, soft and large optical size, tracking -0.02em. Only the homepage headline and section titles; the key phrase can be italic. Warmer and less generic than a heavy sans.
-- **Everything else:** **Plus Jakarta Sans** (Google Fonts), weights 400, 500, 700.
-- **Headings:** sentence case. Never all caps.
+- **Headings:** 700, sentence case, tight tracking (-0.02em). Never all caps. The homepage headline is calmer: 600, -0.025em.
 - **Body:** 400, 17px, line height 1.6, lines under 65 characters.
 - **Wordmark:** "Gable" set in 700, sentence case (capital G), in ink or accent green.
 

@@ -25,10 +25,13 @@ export function HomeHero({ source = "home" }: { source?: string }) {
       searchOnSend={isDemo}
       title={
         <>
-          Tell us the place you want. We&apos;ll find it, and tell you <Mark>what&apos;s real</Mark>.
+          Tell us the place you{" "}
+          <span style={{ whiteSpace: "nowrap" }}>
+            <Mark>want</Mark>.
+          </span>
         </>
       }
-      sub="Say it like you'd tell a friend: your dates, your budget, the cat. We'll show the few places that fit, and what we checked."
+      sub="We'll find the few places that fit, and tell you which ones are real."
       prompts={[
         "Summer sublet near campus, June 1 to Aug 15, under $1,800",
         "Furnished sublet for the spring semester, Jan to May",

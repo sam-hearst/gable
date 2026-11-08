@@ -32,6 +32,7 @@ type Person = {
 type Message =
   | { kind: "text"; from: string; text: string; time: string }
   | { kind: "profile"; from: string; social: Social; time: string }
+  | { kind: "listing"; from: string; time: string; photo: number; price: string; title: string; when: string; facts: string[]; href: string }
   | { kind: "system"; text: string };
 
 type Chat = {
@@ -79,6 +80,13 @@ const PEOPLE: Record<string, Person> = {
     path: ["You", "Jordan T."], pathNote: "You both listed Columbia Startup Studio.",
     vouches: [], facts: ["Past subletter, verified by Gable"], socials: [], color: "#5A6A60",
   },
+  lena: {
+    id: "lena", name: "Lena W.", initial: "L", school: "Barnard '26", role: "Lister · on the lease",
+    path: ["You", "Amara O.", "Lena W."], pathNote: "Amara (SHPE) is Lena's roommate.",
+    vouches: [{ by: "Amara O.", note: "My roommate. Super organized about the lease." }],
+    facts: ["Replies in ~5h (based on 3 chats)", "Lease on file"],
+    socials: [{ kind: "linkedin", handle: "Lena Wu", line: "Barnard · Economics" }], color: "#2B7A4B",
+  },
   maya: {
     id: "maya", name: "Maya L.", initial: "M", school: "Columbia CC '27", role: "Searching with you",
     path: ["You", "Maya L."], pathNote: "Friends on Gable · same floor in Carman, Fall '24.",
@@ -96,12 +104,13 @@ const CHATS: Chat[] = [
     photo: 8089268,
     last: "Daniel: Yes, utilities are included.",
     unread: 3,
-    pinned: {
-      title: "From Daniel, the lister",
-      facts: ["Still available", "Utilities included", "Lease on file", "Video tours Tue/Thu evenings"],
-    },
     messages: [
-      { kind: "system", text: "12 people are interested in this place. Daniel, the lister, is here and answers questions for everyone." },
+      {
+        kind: "listing", from: "daniel", time: "Mon 9:00 AM", photo: 8089268, price: "$1,250 / month",
+        title: "Furnished room in a quiet three-bedroom", when: "Jun 1 – Aug 31 · W 118th & Frederick Douglass",
+        facts: ["Still available", "Utilities included", "Lease on file", "Video tours Tue/Thu evenings"], href: "/listing/w118-fdb",
+      },
+      { kind: "system", text: "12 people are interested. Daniel answers questions here once, for everyone. Tap anyone's name to see how you're connected." },
       { kind: "text", from: "amara", time: "10:12 AM", text: "Are utilities included in the $1,250?" },
       { kind: "text", from: "daniel", time: "10:20 AM", text: "Yes, utilities are included. Wifi too." },
       { kind: "text", from: "jordan", time: "10:34 AM", text: "I sublet this room last summer. The photos are accurate and Daniel was easy to work with." },
@@ -116,7 +125,12 @@ const CHATS: Chat[] = [
     photo: 33693815,
     last: "Lena: Is the room still free for June?",
     messages: [
-      { kind: "system", text: "5 people are interested in this place." },
+      {
+        kind: "listing", from: "lena", time: "Sun 4:12 PM", photo: 33693815, price: "$1,450 / month",
+        title: "Sunny room near Barnard", when: "Jun 1 – Aug 15 · Claremont Ave & W 120th",
+        facts: ["Still available", "Furnished", "Lease on file"], href: "/listing/w118-fdb",
+      },
+      { kind: "system", text: "5 people are interested." },
       { kind: "text", from: "amara", time: "Yesterday", text: "Is the room still free for June?" },
     ],
   },
@@ -185,19 +199,20 @@ export function MessagesMock() {
   const asked = useSearchParams().get("chat");
   const [chatId, setChatId] = useState(CHATS.some((c) => c.id === asked) ? (asked as string) : CHATS[0].id);
   const chat = CHATS.find((c) => c.id === chatId)!;
-  const [personId, setPersonId] = useState<string | null>(chat.person ?? "daniel");
+  // The trust panel opens only when you tap someone.
+  const [personId, setPersonId] = useState<string | null>(null);
   const [attachOpen, setAttachOpen] = useState(false);
   const person = personId ? PEOPLE[personId] : null;
   const groups = ["Listing groups", "Direct messages"] as const;
 
   function open(c: Chat) {
     setChatId(c.id);
-    setPersonId(c.person ?? "daniel");
+    setPersonId(null);
     setAttachOpen(false);
   }
 
   return (
-    <div className="cm">
+    <div className={`cm${person ? " has-person" : ""}`}>
       {/* 1. Chats */}
       <aside className="cm-list" aria-label="Your chats">
         <div className="cm-list-head">
@@ -279,7 +294,30 @@ export function MessagesMock() {
                       <TrustChip p={from} onOpen={() => setPersonId(from.id)} />
                     </div>
                   )}
-                  {m.kind === "profile" ? <SocialCard s={m.social} /> : <p className="cm-bubble">{m.text}</p>}
+                  {m.kind === "profile" ? (
+                    <SocialCard s={m.social} />
+                  ) : m.kind === "listing" ? (
+                    <div className="cm-post">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={px(m.photo, 720)} alt="" />
+                      <div className="cm-post-body">
+                        <span className="cm-post-label">Listing</span>
+                        <b className="cm-post-price">{m.price}</b>
+                        <span className="cm-post-title">{m.title}</span>
+                        <span className="cm-post-when">{m.when}</span>
+                        <ul>
+                          {m.facts.map((f) => (
+                            <li key={f}>{f}</li>
+                          ))}
+                        </ul>
+                        <Link className="cm-post-link" href={m.href}>
+                          View listing
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="cm-bubble">{m.text}</p>
+                  )}
                   <span className="cm-time">{m.time}</span>
                 </div>
               </div>
@@ -312,9 +350,15 @@ export function MessagesMock() {
       </section>
 
       {/* 3. Why you can trust them */}
-      <aside className="cm-person" aria-label="About this person">
-        {person ? (
+      {person && (
+      <aside className="cm-person" aria-label={`Why you can trust ${person.name}`}>
           <>
+            <div className="cm-person-top">
+              <span>Why you can trust {person.name.split(" ")[0]}</span>
+              <button type="button" className="cm-person-close" aria-label="Close" onClick={() => setPersonId(null)}>
+                ×
+              </button>
+            </div>
             <div className="cm-person-head">
               <Avatar p={person} size={56} />
               <div>
@@ -373,8 +417,8 @@ export function MessagesMock() {
               </div>
             )}
           </>
-        ) : null}
       </aside>
+      )}
     </div>
   );
 }

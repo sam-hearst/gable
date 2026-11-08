@@ -50,14 +50,15 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
       <SearchSession messages={messages}>
         {/* Chat on the left (what you asked, Gable's answer, refine box); places on the right. */}
         <div className="search-side">
+          <Link className="search-new" href="/explore">
+            Start a new search
+          </Link>
+          {/* Like ChatGPT: the conversation stacks up from the bottom, with the box pinned under it. */}
           <ChatThread reply={reply} />
           <p className="search-fine">
             Places marked Real listing were posted by students and checked by our team. The rest are samples for our
             demo. <Link href="/sublet-your-room">List your room</Link>
           </p>
-          <Link className="search-new" href="/explore">
-            Start a new search
-          </Link>
         </div>
 
         <div className="search-results">

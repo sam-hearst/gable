@@ -55,9 +55,12 @@ function firstName(session: Session): string {
 export function AppShell({ current, children }: { current: AppPage; children: React.ReactNode }) {
   // undefined while checking; null when signed out.
   const [session, setSession] = useState<Session | null | undefined>(supabaseConfigured ? undefined : null);
-  // On the home/Explore page the sidebar is always open, so people notice it.
   const storedCollapsed = useSyncExternalStore(subscribeCollapsed, readCollapsed, () => false);
-  const collapsed = current === "explore" ? false : storedCollapsed;
+  // On the home/Explore page it starts open each time (so people notice it),
+  // but the arrow still folds it for this visit.
+  const [homeCollapsed, setHomeCollapsed] = useState(false);
+  const onHome = current === "explore";
+  const collapsed = onHome ? homeCollapsed : storedCollapsed;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState("");
@@ -83,7 +86,8 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
   }
 
   function toggleCollapsed() {
-    writeCollapsed(!collapsed);
+    if (onHome) setHomeCollapsed((c) => !c);
+    else writeCollapsed(!collapsed);
   }
 
   const guest = session === null;

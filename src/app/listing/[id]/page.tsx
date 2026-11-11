@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/listing/[id]">): 
   return { title: l ? `${l.title} | Gable` : "Sublet | Gable" };
 }
 
-// One sublet, with everything we checked about it and the way in to booking.
+// One sublet, with everything we checked about it and its group chat.
 // Demo site only (src/proxy.ts sends the waitlist site home).
 export default async function ListingPage({ params }: PageProps<"/listing/[id]">) {
   const l = findListing((await params).id);
@@ -90,11 +90,6 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
                     <small>Tenant on the lease · {l.replySpeed}</small>
                   </div>
                 </div>
-
-                <Link className="btn cta-full" href={`/book/${l.id}`}>
-                  Request to book
-                </Link>
-                <p className="under-cta">You won&apos;t pay anything until you confirm.</p>
               </div>
             </div>
 

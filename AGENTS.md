@@ -34,13 +34,13 @@ and use only the colors and fonts in the style guide.
   sidebar, search, favorites, List your room, Messages and Refer a friend.
   - **Production** (`main`, gable.fit) shows **real data only**: search shows
     approved student listings (or a "No sublets here yet" card), Messages shows
-    an empty state, the homepage hero has no sample photo cards, and the sample
-    booking flow (`/listing`, `/book`, `/booked`) redirects to `/search`.
+    an empty state, the homepage hero has no sample photo cards, and the
+    sample listing page (`/listing`) redirects to `/search`.
     Google Analytics is on.
   - **Staging** (the `staging` branch) sets `NEXT_PUBLIC_GABLE_MODE=demo` in
     Vercel (Preview, branch `staging` only). It adds the made-up SAMPLE data
-    (`showSamples`): sample listings in search and favorites, the demo booking
-    flow (no real payment, nothing sent), the Messages mockup and listing Q&A.
+    (`showSamples`): sample listings in search and favorites, the sample
+    listing page with its group chat card, and the Messages mockup.
     GA is off and search engines are told not to index it.
   - Locally, `NEXT_PUBLIC_GABLE_MODE=demo` in `.env.local` shows staging; run
     `NEXT_PUBLIC_GABLE_MODE=live npm run dev` to see production.
@@ -58,7 +58,7 @@ and use only the colors and fonts in the style guide.
   Row level security keeps pending listings visible only to their lister, and the lister's
   email visible only to signed-in users. Approved listings show in `/search` (next to
   the samples on staging) with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
-  renters can email the lister. No booking or payment for real listings yet, and they
+  renters can email the lister. No booking or payment in Gable (it was removed on purpose: renters and listers deal directly), and they
   can't be hearted. Feature record: `docs/features/list-your-room/`.
 - Group chat on real listings: each approved listing has a "Join the group chat" button
   (`/sublet/[id]/chat`) for the host plus the students interested. The host removes people,

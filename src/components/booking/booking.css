@@ -1,4 +1,4 @@
-/* Listing, booking and booked pages (demo site only). Colors are the style
+/* Listing pages (demo site only). Named for the removed booking flow; the styles are shared. Colors are the style
    guide tokens defined in landing.css. */
 
 .demo-note { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 22px; }

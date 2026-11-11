@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { CircleCheck, Mail } from "@/components/landing/icons";
+import { Mail } from "@/components/landing/icons";
 import { ChatPreview } from "@/components/listing/ChatPreview";
 import { getChatPeek } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
@@ -92,22 +92,6 @@ async function Listing({ id }: { id: string }) {
           </div>
           <p className="real-words">{l.description}</p>
 
-          <div className="check-box">
-            <div className="k">What we checked</div>
-            {l.checked.length > 0 ? (
-              <ul>
-                {l.checked.map((c) => (
-                  <li key={c}>
-                    <CircleCheck size={16} />
-                    {c}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p style={{ marginTop: 8, fontSize: 15 }}>Nothing yet.</p>
-            )}
-            <p style={{ marginTop: 10, fontSize: 14 }}>We don&apos;t inspect apartments, and we haven&apos;t seen this one.</p>
-          </div>
 
           <div className="lister">
             <span className="av">{l.lister.firstName[0]}</span>

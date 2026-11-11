@@ -27,6 +27,10 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Favorites:</b> the places you save.
         </li>
         <li>
+          <b>Your room&apos;s exact address:</b> if you list a room, we save the address you pick so we can check it
+          against your lease. Only you and our team can see it. Students see the street, not the building number.
+        </li>
+        <li>
           <b>Group chats:</b> the first name you choose, and the messages you send in a listing&apos;s group chat. Only
           the students in that chat and the lister can read them, though signed-in students can see the last three
           messages and first names on the listing before they join. The lister can remove people, delete messages and end

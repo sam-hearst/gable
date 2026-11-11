@@ -159,6 +159,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
       firstName: f.firstName,
       school: f.school,
       agreeToContact: f.agreeToContact,
+      address: verified || undefined,
     };
     const result = await submitListing(input).catch(() => null);
     if (!result?.ok) {
@@ -168,6 +169,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
 
     photos.forEach((p) => URL.revokeObjectURL(p.preview));
     setPhotos([]);
+    setVerified("");
     setF(EMPTY);
     setBusy(false);
     setDone(true);
@@ -230,7 +232,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
               <CircleCheck size={16} />
               <span>
                 <b>{verified}</b>
-                <small>Found. Students only see the street, not your building number.</small>
+                <small>Saved privately so we can check it against your lease. Students only see the street.</small>
               </span>
             </p>
           )}

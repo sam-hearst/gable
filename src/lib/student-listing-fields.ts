@@ -67,6 +67,7 @@ export type ListingInput = {
   firstName: string;
   school: string;
   agreeToContact: boolean;
+  address?: string; // the exact address they picked; private (supabase/listing_address.sql)
 };
 
 export const photoUrl = (path: string) =>

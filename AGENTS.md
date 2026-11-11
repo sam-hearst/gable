@@ -69,8 +69,8 @@ and use only the colors and fonts in the style guide.
   can read or write; new messages arrive by checking every 4 seconds.
 - Address autofill on List your room (`src/lib/nyc-geosearch.ts`) uses Google Places autocomplete
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
-  back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the street (never the building
-  number) and the neighborhood dropdown when it's one of ours.
+  back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the full address (shown on the listing) and the
+  neighborhood dropdown when it's one of ours.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` to
   check they're a student and on the lease, and look at the photos (`photos` holds paths

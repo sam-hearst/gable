@@ -4,8 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { resolveSuggestion, searchAddresses, type AddressSuggestion } from "@/lib/nyc-geosearch";
 
 // The street field on "List your room". Type an address and NYC's address
-// search suggests matches; picking one fills in the street (never the building
-// number, which stays private) and, when we list it, the neighborhood. Typing
+// search suggests matches; picking one fills in the full address and, when we list it, the neighborhood. Typing
 // cross streets by hand still works, so a failed lookup never blocks posting.
 export function AddressAutofill({
   id,
@@ -96,7 +95,7 @@ export function AddressAutofill({
         minLength={3}
         maxLength={80}
         autoComplete="off"
-        placeholder="Start typing your street, like W 110th St"
+        placeholder="Start typing your address, like 535 W 113th St"
         role="combobox"
         aria-expanded={open}
         aria-controls={listId}

@@ -147,7 +147,7 @@ export function validateListing(input: unknown, userId: string): { error: string
   if (typeof o.neighborhood !== "string" || !NEIGHBORHOODS.includes(o.neighborhood))
     return { error: "Pick a neighborhood from the list." };
   const crossStreets = text(o.crossStreets, 3, 80);
-  if (!crossStreets) return { error: "Add the nearest cross streets, like W 110th & Broadway." };
+  if (!crossStreets) return { error: "Add the address, like 535 W 113th St." };
   if (!ROOM_TYPES.includes(o.roomType as RoomType)) return { error: "Pick what kind of space it is." };
   const sleeps = Number(o.sleeps);
   if (!Number.isInteger(sleeps) || sleeps < 1 || sleeps > 4) return { error: "Say how many people it fits (1 to 4)." };

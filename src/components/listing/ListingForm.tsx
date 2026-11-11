@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
-import { CircleCheck, ImagePlus, X } from "@/components/landing/icons";
+import { ImagePlus, X } from "@/components/landing/icons";
 import { AddressAutofill } from "@/components/listing/AddressAutofill";
-import { prettyStreet, stripHouseNumber } from "@/lib/nyc-geosearch";
+import type { AddressSuggestion } from "@/lib/nyc-geosearch";
 import {
   MAX_PHOTOS,
   MAX_PHOTO_BYTES,
@@ -48,11 +48,9 @@ const EMPTY: Fields = {
   agreeToContact: false,
 };
 
-// "70 morningside drive" starts with a building number; "5 Avenue" or "W 110th" don't.
-const hasHouseNumber = (v: string) => {
-  const t = v.trim();
-  return stripHouseNumber(t) !== t;
-};
+// "70 Morningside Drive, New York, NY" from a picked suggestion.
+const fullAddress = (s: AddressSuggestion) =>
+  [s.main, s.secondary.replace(/,?\s*USA$/, "")].filter(Boolean).join(", ").slice(0, 80);
 
 type Picked = { file: File; preview: string };
 
@@ -68,8 +66,6 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
-  // The exact address they picked, shown back to them as a check. Never saved: only the street is.
-  const [verified, setVerified] = useState("");
   const errorRef = useRef<HTMLParagraphElement>(null);
   const today = nycToday();
 
@@ -118,10 +114,6 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    if (hasHouseNumber(f.crossStreets)) {
-      setF((prev) => ({ ...prev, crossStreets: prettyStreet(stripHouseNumber(prev.crossStreets.trim())) }));
-      return fail("We only show the street, so we took the building number out. Check it, then send again.");
-    }
     if (!photos.length) return fail("Add at least one photo of the room.");
     if (!f.furnished) return fail("Say whether it comes furnished.");
     if (f.availableFrom && f.availableTo && f.availableTo <= f.availableFrom)
@@ -204,40 +196,21 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
 
       <div className="list-row">
         <div className="list-field">
-          <label htmlFor="cross">Street or cross streets</label>
+          <label htmlFor="cross">Address</label>
           <AddressAutofill
             id="cross"
             value={f.crossStreets}
-            onChange={(v) => {
-              set("crossStreets")(v);
-              setVerified("");
-            }}
-            onPick={(s) => {
-              setVerified([s.main, s.secondary].filter(Boolean).join(", "));
-              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }));
-            }}
-            onGuess={(s) =>
+            onChange={set("crossStreets")}
+            onPick={(s) =>
               setF((prev) => ({
                 ...prev,
-                // Typed a full address without picking it: keep the street, drop the building number.
-                crossStreets: hasHouseNumber(prev.crossStreets) ? s.street : prev.crossStreets,
-                neighborhood: prev.neighborhood || (s.neighborhood ?? ""),
+                crossStreets: fullAddress(s),
+                neighborhood: s.neighborhood ?? prev.neighborhood,
               }))
             }
+            onGuess={(s) => setF((prev) => ({ ...prev, neighborhood: prev.neighborhood || (s.neighborhood ?? "") }))}
           />
-          {verified && (
-            <p className="list-verified" role="status">
-              <CircleCheck size={16} />
-              <span>
-                <b>{verified}</b>
-                <small>Found. Students only see the street, not your building number.</small>
-              </span>
-            </p>
-          )}
-          <small id="cross-hint">
-            Search your address and pick it. We fill in the neighborhood and only show the street, never your building
-            number. You share that with the student you pick.
-          </small>
+          <small id="cross-hint">Search your address and pick it. We fill in the neighborhood.</small>
         </div>
         <div className="list-field">
           <label htmlFor="neighborhood">Neighborhood</label>

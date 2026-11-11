@@ -168,12 +168,8 @@ export function validateListing(input: unknown, userId: string): { error: string
   if (!school) return { error: "Add your school." };
   if (o.agreeToContact !== true) return { error: "Agree to let signed-in students email you, so renters can reach you." };
 
-  // The exact address is optional and private. Anything odd is simply not saved.
-  const address = text(o.address, 5, 200);
-
   return {
     row: {
-      ...(address ? { address } : {}),
       title,
       description,
       neighborhood: o.neighborhood,
@@ -202,19 +198,11 @@ export async function createListing(input: unknown): Promise<SaveResult> {
   const checked = validateListing(input, user.id);
   if ("error" in checked) return { ok: false, error: checked.error };
 
-  const insert = (row: Record<string, unknown>) =>
-    supabase
-      .from("student_listings")
-      .insert({ ...row, user_id: user.id, contact_email: user.email })
-      .select("id")
-      .single();
-  let { data, error } = await insert(checked.row);
-  if (error && "address" in checked.row && /address/i.test(error.message)) {
-    // supabase/listing_address.sql hasn't been run yet: post without the address.
-    const { address: _skip, ...withoutAddress } = checked.row;
-    void _skip;
-    ({ data, error } = await insert(withoutAddress));
-  }
+  const { data, error } = await supabase
+    .from("student_listings")
+    .insert({ ...checked.row, user_id: user.id, contact_email: user.email })
+    .select("id")
+    .single();
   if (error || !data) {
     console.warn("[listings] couldn't save:", error?.message);
     return { ok: false, error: "We couldn't save your listing. Try again in a minute." };

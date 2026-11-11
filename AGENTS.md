@@ -71,10 +71,6 @@ and use only the colors and fonts in the style guide.
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
   back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the street (never the building
   number) and the neighborhood dropdown when it's one of ours.
-- The exact address a lister picks is saved privately in `student_listings.address`
-  (`supabase/listing_address.sql`, run once after `student_listings.sql`). Students never see it;
-  the lister reads it through `my_listing_address()` and the team sees it in the Table Editor, to
-  match against the lease when approving. Until the SQL is run, posting still works without it.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` to
   check they're a student and on the lease, and look at the photos (`photos` holds paths

@@ -124,7 +124,7 @@ export async function getMyListings(): Promise<StudentListing[]> {
 
 // ---------- Saving ----------
 
-export type SaveResult = { ok: true; id: string } | { ok: false; error: string; signedOut?: boolean };
+export type SaveResult = { ok: true; id: string; live: boolean } | { ok: false; error: string; signedOut?: boolean };
 
 const isDate = (v: unknown): v is string =>
   typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
@@ -207,7 +207,7 @@ export async function createListing(input: unknown): Promise<SaveResult> {
     console.warn("[listings] couldn't save:", error?.message);
     return { ok: false, error: "We couldn't save your listing. Try again in a minute." };
   }
-  return { ok: true, id: data.id as string };
+  return { ok: true, id: data.id as string, live: (data as { status?: string }).status === "approved" };
 }
 
 // Removes one of the signed-in user's listings and its photos.

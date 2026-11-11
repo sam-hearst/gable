@@ -65,7 +65,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   const [photos, setPhotos] = useState<Picked[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<false | "live" | "pending">(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
   const today = nycToday();
 
@@ -162,15 +162,21 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
     setPhotos([]);
     setF(EMPTY);
     setBusy(false);
-    setDone(true);
+    setDone(result.live ? "live" : "pending");
   }
 
   if (done) {
     return (
       <div className="list-form">
         <p className="list-notice" role="status">
-          Thanks, it&apos;s in. Your listing stays hidden until we&apos;ve checked it. We&apos;ll email
-          {email ? ` ${email}` : " you"} to ask for proof you&apos;re on the lease, usually within a day.
+          {done === "live" ? (
+            "Your listing is live. Students can find it in search and join its group chat. We may still email you to confirm you're on the lease."
+          ) : (
+            <>
+              Thanks, it&apos;s in. Your listing stays hidden until we&apos;ve checked it. We&apos;ll email
+              {email ? ` ${email}` : " you"} to ask for proof you&apos;re on the lease, usually within a day.
+            </>
+          )}
         </p>
         <button type="button" className="btn btn-secondary" onClick={() => setDone(false)}>
           List another room

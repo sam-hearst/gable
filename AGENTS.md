@@ -75,6 +75,12 @@ and use only the colors and fonts in the style guide.
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
   back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the full address (shown on the listing) and the
   neighborhood dropdown when it's one of ours.
+- Auto-approve (`supabase/auto_approve.sql`, run once): when switched on, a listing from an account
+  with a confirmed school email (columbia.edu, barnard.edu, or a subdomain) goes live at once with
+  `checked = ["School email verified"]`; everything else stays pending. It ships OFF
+  (`listing_settings.auto_approve = false`) and must only be turned on after "Confirm email" is
+  enabled in Supabase Auth, or the school-email check proves nothing. The database enforces it
+  (trigger + insert policy), not the browser.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` to
   check they're a student and on the lease, and look at the photos (`photos` holds paths

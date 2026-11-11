@@ -79,6 +79,14 @@ export function ListingChat({
   const me = data?.members.find((m) => m.user_id === userId);
   const isMember = me?.status === "active";
 
+  // Reading the chat marks it read, and the sidebar's unread count updates.
+  const messageCount = data?.messages.length ?? 0;
+  useEffect(() => {
+    if (!isMember) return;
+    const supabase = createClient();
+    supabase?.rpc("mark_chat_read", { l: listingId }).then(() => window.dispatchEvent(new Event("gable:chat-read")));
+  }, [isMember, listingId, messageCount]);
+
   useEffect(() => {
     if (!isMember || data?.ended) return;
     const t = setInterval(() => document.visibilityState === "visible" && load(), POLL_MS);

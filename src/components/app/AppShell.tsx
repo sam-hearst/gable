@@ -91,6 +91,30 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
     else writeCollapsed(!collapsed);
   }
 
+  // Unread group-chat messages, for the badge on Messages. Checked on load, when
+  // you come back to the tab, every half minute, and when a chat is opened.
+  const [unread, setUnread] = useState(0);
+  const signedIn = Boolean(session);
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase || !signedIn) return;
+    let live = true;
+    const check = async () => {
+      const { data, error } = await supabase.rpc("my_unread_count");
+      if (live && !error && typeof data === "number") setUnread(data);
+    };
+    check();
+    const timer = setInterval(() => document.visibilityState === "visible" && check(), 30000);
+    window.addEventListener("focus", check);
+    window.addEventListener("gable:chat-read", check);
+    return () => {
+      live = false;
+      clearInterval(timer);
+      window.removeEventListener("focus", check);
+      window.removeEventListener("gable:chat-read", check);
+    };
+  }, [signedIn, pathname]);
+
   const guest = session === null;
   // Signed out, Explore is the homepage and everything else asks you to log in.
   const hrefFor = (key: AppPage, href: string) =>
@@ -158,11 +182,17 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
               href={hrefFor(key, href)}
               className="app-nav-link"
               aria-current={key === current ? "page" : undefined}
+              aria-label={key === "messages" && unread > 0 ? `${label}, ${unread} unread` : undefined}
               title={collapsed ? label : undefined}
               onClick={() => setDrawerOpen(false)}
             >
               <Icon />
               <span className="app-label">{label}</span>
+              {key === "messages" && unread > 0 && (
+                <span className="app-badge" aria-hidden="true">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
             </Link>
           ))}
         </nav>

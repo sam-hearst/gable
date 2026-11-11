@@ -42,3 +42,18 @@
   padding: 0 4px; border: 0; background: none; color: var(--accent-dark); font: inherit; font-size: 14px; font-weight: 700; text-decoration: underline; cursor: pointer;
 }
 .gc-leave { margin-top: 10px; }
+
+/* Your group chats (Messages page). */
+.mc { max-width: 720px; margin: 0 auto; padding: 32px 20px 8px; }
+.mc h1 { font-size: 28px; }
+.mc ul { display: grid; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
+.mc a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-radius: 16px; background: var(--sage); color: var(--ink); text-decoration: none; }
+.mc a:hover { background: color-mix(in srgb, var(--sage) 70%, var(--bg)); }
+.mc-main { display: grid; gap: 2px; min-width: 0; }
+.mc-main b { font-size: 16px; }
+.mc a.is-unread .mc-main b { font-weight: 800; }
+.mc-main small { overflow: hidden; color: var(--ink-faint); font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.mc a.is-unread .mc-main small { color: var(--ink); }
+.mc-side { display: grid; justify-items: end; gap: 4px; flex-shrink: 0; }
+.mc-side small { color: var(--ink-faint); font-size: 13px; }
+.mc-side .app-badge { margin-left: 0; }

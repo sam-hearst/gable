@@ -67,6 +67,10 @@ and use only the colors and fonts in the style guide.
   SQL editor after `student_listings.sql`. Until then the page says chat isn't set up and
   nothing breaks. The browser talks to Supabase directly and row level security enforces who
   can read or write; new messages arrive by checking every 4 seconds.
+- Unread messages: the Messages item in the sidebar shows a count of unread group-chat
+  messages (checked on load, on focus and every 30 seconds), and `/messages` lists your chats
+  with their unread counts. Opening a chat marks it read. Needs `supabase/chat_unread.sql`, run
+  once after `listing_chats.sql`; until then there's simply no badge.
 - Address autofill on List your room (`src/lib/nyc-geosearch.ts`) uses Google Places autocomplete
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
   back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the full address (shown on the listing) and the

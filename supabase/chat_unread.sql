@@ -46,3 +46,4 @@ $$;
 
 revoke all on function public.mark_chat_read(uuid), public.my_unread_count(), public.my_chats() from public;
 grant execute on function public.mark_chat_read(uuid), public.my_unread_count(), public.my_chats() to authenticated;
+revoke execute on function public.mark_chat_read(uuid), public.my_unread_count(), public.my_chats() from anon;

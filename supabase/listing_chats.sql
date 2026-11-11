@@ -146,7 +146,7 @@ language sql stable security definer set search_path = '' as $$
   select m.display_name, m.role, x.body, x.created_at
   from (
     select user_id, body, created_at from public.listing_chat_messages
-    where listing_id = l and public.listing_is_approved(l)
+    where listing_id = l and public.listing_is_approved(l) and auth.uid() is not null
     order by created_at desc limit 3
   ) x
   join public.listing_chat_members m on m.listing_id = l and m.user_id = x.user_id
@@ -154,3 +154,7 @@ language sql stable security definer set search_path = '' as $$
 $$;
 revoke all on function public.chat_preview(uuid) from public;
 grant execute on function public.chat_preview(uuid) to authenticated;
+-- Supabase also gives signed-out visitors new functions by default. Take it away
+-- from everything except chat_member_count (see chat_lockdown.sql).
+revoke execute on function public.is_listing_host(uuid), public.is_chat_member(uuid), public.chat_is_open(uuid),
+  public.listing_is_approved(uuid), public.chat_preview(uuid) from anon;

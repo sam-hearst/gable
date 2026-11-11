@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
 import { ImagePlus, X } from "@/components/landing/icons";
 import { AddressAutofill } from "@/components/listing/AddressAutofill";
+import { prettyStreet, stripHouseNumber } from "@/lib/nyc-geosearch";
 import {
   MAX_PHOTOS,
   MAX_PHOTO_BYTES,
@@ -45,6 +46,12 @@ const EMPTY: Fields = {
   firstName: "",
   school: "Columbia",
   agreeToContact: false,
+};
+
+// "70 morningside drive" starts with a building number; "5 Avenue" or "W 110th" don't.
+const hasHouseNumber = (v: string) => {
+  const t = v.trim();
+  return stripHouseNumber(t) !== t;
 };
 
 type Picked = { file: File; preview: string };
@@ -109,6 +116,10 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    if (hasHouseNumber(f.crossStreets)) {
+      setF((prev) => ({ ...prev, crossStreets: prettyStreet(stripHouseNumber(prev.crossStreets.trim())) }));
+      return fail("We only show the street, so we took the building number out. Check it, then send again.");
+    }
     if (!photos.length) return fail("Add at least one photo of the room.");
     if (!f.furnished) return fail("Say whether it comes furnished.");
     if (f.availableFrom && f.availableTo && f.availableTo <= f.availableFrom)
@@ -191,6 +202,29 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
 
       <div className="list-row">
         <div className="list-field">
+          <label htmlFor="cross">Street or cross streets</label>
+          <AddressAutofill
+            id="cross"
+            value={f.crossStreets}
+            onChange={set("crossStreets")}
+            onPick={(s) =>
+              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }))
+            }
+            onGuess={(s) =>
+              setF((prev) => ({
+                ...prev,
+                // Typed a full address without picking it: keep the street, drop the building number.
+                crossStreets: hasHouseNumber(prev.crossStreets) ? s.street : prev.crossStreets,
+                neighborhood: prev.neighborhood || (s.neighborhood ?? ""),
+              }))
+            }
+          />
+          <small id="cross-hint">
+            Search your address and pick it. We fill in the neighborhood and only show the street, never your building
+            number. You share that with the student you pick.
+          </small>
+        </div>
+        <div className="list-field">
           <label htmlFor="neighborhood">Neighborhood</label>
           <select id="neighborhood" required value={f.neighborhood} onChange={(e) => set("neighborhood")(e.target.value)}>
             <option value="" disabled>
@@ -200,21 +234,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
               <option key={n}>{n}</option>
             ))}
           </select>
-        </div>
-        <div className="list-field">
-          <label htmlFor="cross">Street or cross streets</label>
-          <AddressAutofill
-            id="cross"
-            value={f.crossStreets}
-            onChange={set("crossStreets")}
-            onPick={(s) =>
-              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }))
-            }
-          />
-          <small id="cross-hint">
-            Search your address and pick it. We only show the street, never your building number. You share that with
-            the student you pick.
-          </small>
+          <small>Fills in from the address. You can change it.</small>
         </div>
       </div>
 

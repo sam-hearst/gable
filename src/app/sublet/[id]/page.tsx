@@ -5,11 +5,13 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { CircleCheck, Mail } from "@/components/landing/icons";
-import { getChatCount } from "@/lib/listing-chat";
+import { ChatPreview } from "@/components/listing/ChatPreview";
+import { getChatPeek } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
 import "@/components/booking/booking.css";
 import "../../sublet-your-room/sublet.css";
+import "@/components/listing/listing-community.css";
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
 
@@ -37,7 +39,7 @@ async function Listing({ id }: { id: string }) {
   if (!found) notFound();
   const { listing: l, isOwner, signedIn } = found;
   const [cover, ...more] = l.photos;
-  const chatCount = l.status === "approved" ? await getChatCount(l.id) : null;
+  const peek = l.status === "approved" ? await getChatPeek(l.id) : { count: null, messages: [] };
   const chatHref = `/sublet/${l.id}/chat`;
 
   return (
@@ -118,21 +120,18 @@ async function Listing({ id }: { id: string }) {
           </div>
 
           {l.status === "approved" && (
-            <>
-              <Link
-                className="btn cta-full"
-                href={signedIn ? chatHref : `/signin?next=${encodeURIComponent(chatHref)}`}
-              >
-                {isOwner ? "Open your group chat" : "Join the group chat"}
-              </Link>
-              <p className="under-cta">
-                {isOwner
-                  ? "Talk with the students interested in your room. You can remove anyone and end the chat once it's taken."
-                  : `A group with ${l.lister.firstName} and other students interested in this room${
-                      chatCount ? ` (${chatCount} in it now)` : ""
-                    }. Ask questions together.`}
-              </p>
-            </>
+            <ChatPreview
+              count={peek.count}
+              messages={peek.messages}
+              href={signedIn ? chatHref : `/signin?next=${encodeURIComponent(chatHref)}`}
+              joinLabel={isOwner ? "Open your group chat" : signedIn ? "Join the group chat" : "Sign in to join the group chat"}
+              hostName={l.lister.firstName}
+              hint={
+                isOwner
+                  ? "You can remove anyone and end the chat once the room is taken."
+                  : "Ask questions together. Share your address or payment details only in a private message."
+              }
+            />
           )}
 
           {isOwner ? null : signedIn && l.contactEmail ? (

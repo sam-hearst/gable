@@ -136,3 +136,21 @@ create policy "Delete chat messages" on public.listing_chat_messages
   for delete to authenticated using (user_id = (select auth.uid()) or public.is_listing_host(listing_id));
 
 revoke all on public.listing_chats, public.listing_chat_members, public.listing_chat_messages from anon;
+
+-- A peek at a chat for people who haven't joined yet: the last few messages
+-- (first names only), so they can see what students are saying about the room
+-- before they join. Signed-in students only, and only for approved listings.
+create or replace function public.chat_preview(l uuid)
+returns table (display_name text, role text, body text, created_at timestamptz)
+language sql stable security definer set search_path = '' as $$
+  select m.display_name, m.role, x.body, x.created_at
+  from (
+    select user_id, body, created_at from public.listing_chat_messages
+    where listing_id = l and public.listing_is_approved(l)
+    order by created_at desc limit 3
+  ) x
+  join public.listing_chat_members m on m.listing_id = l and m.user_id = x.user_id
+  order by x.created_at asc;
+$$;
+revoke all on function public.chat_preview(uuid) from public;
+grant execute on function public.chat_preview(uuid) to authenticated;

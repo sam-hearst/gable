@@ -44,6 +44,13 @@ export function toGableArea(neighbourhood: string | undefined, borough: string |
   return null;
 }
 
+const STREET_WORDS = /^(street|st|avenue|ave|place|pl|road|rd|drive|dr|boulevard|blvd|lane|ln|court|ct|terrace|way)$/i;
+
+export function stripHouseNumber(name: string) {
+  const m = name.match(/^\d+[-\d]*[a-z]?\s+(.+)$/i);
+  return m && !STREET_WORDS.test(m[1]) ? m[1] : name;
+}
+
 export async function searchAddresses(text: string, signal?: AbortSignal): Promise<AddressSuggestion[]> {
   const res = await fetch(
     `https://geosearch.planninglabs.nyc/v2/autocomplete?size=6&text=${encodeURIComponent(text)}`,
@@ -54,10 +61,14 @@ export async function searchAddresses(text: string, signal?: AbortSignal): Promi
   const seen = new Set<string>();
   const out: AddressSuggestion[] = [];
   for (const { properties: p } of data.features ?? []) {
-    const rawStreet = p.street ?? p.name;
-    if (!rawStreet) continue;
-    const street = prettyStreet(rawStreet);
-    const full = [p.housenumber ? `${p.housenumber} ${street}` : street, p.borough].filter(Boolean).join(", ");
+    const name = p.name ?? p.street;
+    if (!name) continue;
+    // Some results carry the street and house number separately, others only
+    // "70 MORNINGSIDE DRIVE" in the name. Either way the street is what's left
+    // without the number ("5 AVENUE" and "113 STREET" are street names, so they stay).
+    const street = prettyStreet(p.street ?? stripHouseNumber(name));
+    const addressLine = p.housenumber ? `${p.housenumber} ${street}` : prettyStreet(name);
+    const full = [addressLine, p.borough].filter(Boolean).join(", ");
     const id = p.gid ?? full;
     if (seen.has(full)) continue;
     seen.add(full);

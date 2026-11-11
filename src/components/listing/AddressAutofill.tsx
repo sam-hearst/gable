@@ -12,11 +12,15 @@ export function AddressAutofill({
   value,
   onChange,
   onPick,
+  onGuess,
 }: {
   id: string;
   value: string;
   onChange: (value: string) => void;
   onPick: (s: AddressSuggestion) => void;
+  // Called when they leave the field without picking: the best match, so the
+  // neighborhood can still fill in.
+  onGuess?: (s: AddressSuggestion) => void;
 }) {
   const listId = useId();
   const [items, setItems] = useState<AddressSuggestion[]>([]);
@@ -25,6 +29,7 @@ export function AddressAutofill({
   const [searching, setSearching] = useState(false);
   const picked = useRef(false); // skip the lookup right after picking a suggestion
   const box = useRef<HTMLDivElement>(null);
+  const focused = useRef(false); // a late lookup must not reopen the list after they left the field
 
   useEffect(() => {
     if (picked.current) {
@@ -39,7 +44,7 @@ export function AddressAutofill({
         const found = await searchAddresses(value.trim(), ctrl.signal);
         setItems(found);
         setActive(-1);
-        setOpen(found.length > 0);
+        setOpen(found.length > 0 && focused.current);
       } catch {
         // Offline or the service is down: leave the field as a plain text box.
       } finally {
@@ -100,7 +105,15 @@ export function AddressAutofill({
         aria-describedby={`${id}-hint`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        onFocus={() => items.length > 0 && setOpen(true)}
+        onFocus={() => {
+          focused.current = true;
+          if (items.length > 0) setOpen(true);
+        }}
+        onBlur={() => {
+          focused.current = false;
+          setOpen(false);
+          if (items[0] && value.trim().length >= 3) onGuess?.(items[0]);
+        }}
         onKeyDown={onKeyDown}
       />
       {searching && <span className="addr-spin" aria-hidden="true" />}
@@ -119,8 +132,8 @@ export function AddressAutofill({
               }}
               onMouseEnter={() => setActive(i)}
             >
-              <b>{s.street}</b>
-              <small>{s.neighborhood ?? s.full}</small>
+              <b>{s.full}</b>
+              <small>{s.neighborhood ?? "Neighborhood not on our list yet"}</small>
             </li>
           ))}
         </ul>

@@ -110,8 +110,8 @@ async function searchGoogle(text: string, signal?: AbortSignal): Promise<Address
       input: text,
       includedRegionCodes: ["us"],
       includedPrimaryTypes: ["street_address", "premise", "subpremise", "route"],
-      // Lean toward New York City, where every listing is.
-      locationBias: { circle: { center: { latitude: 40.7831, longitude: -73.9712 }, radius: 40000 } },
+      // Only New York City's five boroughs, where every listing is.
+      locationRestriction: { rectangle: { low: { latitude: 40.477, longitude: -74.26 }, high: { latitude: 40.918, longitude: -73.7 } } },
     }),
     signal,
   });
@@ -122,6 +122,8 @@ async function searchGoogle(text: string, signal?: AbortSignal): Promise<Address
   const data = (await res.json()) as { suggestions?: GooglePrediction[] };
   return (data.suggestions ?? []).flatMap(({ placePrediction: p }) => {
     if (!p) return [];
+    // The rectangle around the five boroughs also catches a bit of New Jersey.
+    if (!/, NY\b/.test(p.structuredFormat?.secondaryText?.text ?? "")) return [];
     const main = p.structuredFormat?.mainText?.text ?? p.text?.text ?? "";
     if (!main) return [];
     return [
@@ -140,17 +142,27 @@ async function searchGoogle(text: string, signal?: AbortSignal): Promise<Address
 
 type AddressComponent = { longText?: string; types?: string[] };
 
+// Google often has no neighborhood for an address (just "Manhattan" and a ZIP),
+// so look the coordinates up in NYC's own neighborhood data.
+async function neighborhoodAt(lat: number, lon: number, signal?: AbortSignal): Promise<string | null> {
+  const res = await fetch(`https://geosearch.planninglabs.nyc/v2/reverse?size=1&point.lat=${lat}&point.lon=${lon}`, { signal });
+  if (!res.ok) return null;
+  const f = ((await res.json()) as { features?: Feature[] }).features?.[0];
+  return f ? toGableArea(f.properties.neighbourhood, f.properties.borough) : null;
+}
+
 // Google's suggestion only has text. Picking one asks for the details, which
 // carry the street and the neighborhood. Other suggestions are already complete.
 export async function resolveSuggestion(s: AddressSuggestion, signal?: AbortSignal): Promise<AddressSuggestion> {
   if (!s.placeId || !GOOGLE_KEY) return s;
   try {
     const res = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(s.placeId)}`, {
-      headers: { "X-Goog-Api-Key": GOOGLE_KEY, "X-Goog-FieldMask": "addressComponents" },
+      headers: { "X-Goog-Api-Key": GOOGLE_KEY, "X-Goog-FieldMask": "addressComponents,location" },
       signal,
     });
     if (!res.ok) return s;
-    const parts = ((await res.json()) as { addressComponents?: AddressComponent[] }).addressComponents ?? [];
+    const place = (await res.json()) as { addressComponents?: AddressComponent[]; location?: { latitude: number; longitude: number } };
+    const parts = place.addressComponents ?? [];
     const named = (type: string) => parts.find((c) => c.types?.includes(type))?.longText;
     const route = named("route");
     const borough = named("sublocality_level_1") ?? named("sublocality");
@@ -158,7 +170,9 @@ export async function resolveSuggestion(s: AddressSuggestion, signal?: AbortSign
     return {
       ...s,
       street: route ? prettyStreet(route) : s.street,
-      neighborhood: toGableArea(hood, borough === "Brooklyn" ? "Brooklyn" : borough) ?? toGableArea(borough, undefined),
+      neighborhood:
+        toGableArea(hood, borough) ??
+        (place.location ? await neighborhoodAt(place.location.latitude, place.location.longitude, signal).catch(() => null) : null),
     };
   } catch {
     return s;

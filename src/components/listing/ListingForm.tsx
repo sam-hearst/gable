@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
-import { ImagePlus, X } from "@/components/landing/icons";
+import { CircleCheck, ImagePlus, X } from "@/components/landing/icons";
 import { AddressAutofill } from "@/components/listing/AddressAutofill";
 import { prettyStreet, stripHouseNumber } from "@/lib/nyc-geosearch";
 import {
@@ -68,6 +68,8 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  // The exact address they picked, shown back to them as a check. Never saved: only the street is.
+  const [verified, setVerified] = useState("");
   const errorRef = useRef<HTMLParagraphElement>(null);
   const today = nycToday();
 
@@ -206,10 +208,14 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
           <AddressAutofill
             id="cross"
             value={f.crossStreets}
-            onChange={set("crossStreets")}
-            onPick={(s) =>
-              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }))
-            }
+            onChange={(v) => {
+              set("crossStreets")(v);
+              setVerified("");
+            }}
+            onPick={(s) => {
+              setVerified([s.main, s.secondary].filter(Boolean).join(", "));
+              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }));
+            }}
             onGuess={(s) =>
               setF((prev) => ({
                 ...prev,
@@ -219,6 +225,15 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
               }))
             }
           />
+          {verified && (
+            <p className="list-verified" role="status">
+              <CircleCheck size={16} />
+              <span>
+                <b>{verified}</b>
+                <small>Found. Students only see the street, not your building number.</small>
+              </span>
+            </p>
+          )}
           <small id="cross-hint">
             Search your address and pick it. We fill in the neighborhood and only show the street, never your building
             number. You share that with the student you pick.

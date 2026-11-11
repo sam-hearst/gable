@@ -104,3 +104,9 @@
 .addr-list li { display: grid; gap: 2px; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
 .addr-list li.is-active { background: var(--sage); }
 .addr-list li small { color: var(--ink-faint); font-size: 14px; }
+
+.list-verified { display: flex; gap: 8px; align-items: flex-start; margin: 2px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--bg); color: var(--accent-dark); }
+.list-verified svg { flex-shrink: 0; margin-top: 3px; }
+.list-verified span { display: grid; gap: 2px; }
+.list-verified b { color: var(--ink); font-size: 15px; }
+.list-verified small { color: var(--ink-faint); font-size: 14px; }

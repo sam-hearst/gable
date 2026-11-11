@@ -58,8 +58,8 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Supabase</b> stores accounts, favorites and waitlist emails.
         </li>
         <li>
-          <b>NYC Planning Labs (NYC GeoSearch)</b> suggests addresses as you type a street on List your room. Your
-          browser sends it what you type, and nothing else about you.
+          <b>Google Places and NYC Planning Labs (NYC GeoSearch)</b> suggest addresses as you type a street on List your
+          room. Your browser sends them what you type, and nothing else about you.
         </li>
         <li>
           <b>Vercel</b> hosts the site.

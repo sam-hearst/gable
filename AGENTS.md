@@ -67,8 +67,9 @@ and use only the colors and fonts in the style guide.
   SQL editor after `student_listings.sql`. Until then the page says chat isn't set up and
   nothing breaks. The browser talks to Supabase directly and row level security enforces who
   can read or write; new messages arrive by checking every 4 seconds.
-- Address autofill on List your room uses NYC GeoSearch (free, no key, NYC only;
-  `src/lib/nyc-geosearch.ts`). Picking a suggestion fills the street (never the building
+- Address autofill on List your room (`src/lib/nyc-geosearch.ts`) uses Google Places autocomplete
+  (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
+  back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the street (never the building
   number) and the neighborhood dropdown when it's one of ours.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` to

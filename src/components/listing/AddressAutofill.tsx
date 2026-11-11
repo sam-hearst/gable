@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { searchAddresses, type AddressSuggestion } from "@/lib/nyc-geosearch";
+import { resolveSuggestion, searchAddresses, type AddressSuggestion } from "@/lib/nyc-geosearch";
 
 // The street field on "List your room". Type an address and NYC's address
 // search suggests matches; picking one fills in the street (never the building
@@ -65,11 +65,11 @@ export function AddressAutofill({
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  function pick(s: AddressSuggestion) {
+  async function pick(s: AddressSuggestion) {
     picked.current = true;
     setOpen(false);
     setItems([]);
-    onPick(s);
+    onPick(await resolveSuggestion(s));
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -112,7 +112,7 @@ export function AddressAutofill({
         onBlur={() => {
           focused.current = false;
           setOpen(false);
-          if (items[0] && value.trim().length >= 3) onGuess?.(items[0]);
+          if (items[0] && value.trim().length >= 3) resolveSuggestion(items[0]).then((r) => onGuess?.(r));
         }}
         onKeyDown={onKeyDown}
       />
@@ -132,8 +132,8 @@ export function AddressAutofill({
               }}
               onMouseEnter={() => setActive(i)}
             >
-              <b>{s.full}</b>
-              <small>{s.neighborhood ?? "Neighborhood not on our list yet"}</small>
+              <b>{s.main}</b>
+              <small>{s.secondary}</small>
             </li>
           ))}
         </ul>

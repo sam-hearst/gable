@@ -58,7 +58,7 @@ async function ForLister() {
     <>
       <div className="list-card">
         <h2>Tell us about the place</h2>
-        <p>It takes about five minutes. Nobody sees it until we&apos;ve checked it.</p>
+        <p>It takes about five minutes. You&apos;ll see below whether it&apos;s live or still being checked.</p>
         <ListingForm userId={user.id} email={user.email} />
       </div>
 

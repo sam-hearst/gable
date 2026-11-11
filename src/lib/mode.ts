@@ -1,6 +1,6 @@
 // Which site this deployment is. Both sites run the full app (sidebar, search,
 // favorites, messages). Staging sets NEXT_PUBLIC_GABLE_MODE=demo in Vercel and
-// adds the made-up SAMPLE data: sample listings, the sample booking flow and the
+// adds the made-up SAMPLE data: sample listings, the sample listing page and the
 // Messages mockup. Production (gable.fit) shows real data only. Unset means
 // production, so a deployment without the variable never shows sample data.
 export const isDemo = process.env.NEXT_PUBLIC_GABLE_MODE === "demo";

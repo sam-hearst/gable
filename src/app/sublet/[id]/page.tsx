@@ -4,11 +4,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { CircleCheck, Mail } from "@/components/landing/icons";
+import { Mail } from "@/components/landing/icons";
+import { ChatPreview } from "@/components/listing/ChatPreview";
+import { getChatPeek } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
 import "@/components/booking/booking.css";
 import "../../sublet-your-room/sublet.css";
+import "@/components/listing/listing-community.css";
 
 const ROOM_LABEL = { "private room": "Private room", studio: "Studio", shared: "Shared room" };
 
@@ -36,6 +39,8 @@ async function Listing({ id }: { id: string }) {
   if (!found) notFound();
   const { listing: l, isOwner, signedIn } = found;
   const [cover, ...more] = l.photos;
+  const peek = l.status === "approved" ? await getChatPeek(l.id) : { count: null, messages: [] };
+  const chatHref = `/sublet/${l.id}/chat`;
 
   return (
     <>
@@ -87,22 +92,6 @@ async function Listing({ id }: { id: string }) {
           </div>
           <p className="real-words">{l.description}</p>
 
-          <div className="check-box">
-            <div className="k">What we checked</div>
-            {l.checked.length > 0 ? (
-              <ul>
-                {l.checked.map((c) => (
-                  <li key={c}>
-                    <CircleCheck size={16} />
-                    {c}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p style={{ marginTop: 8, fontSize: 15 }}>Nothing yet.</p>
-            )}
-            <p style={{ marginTop: 10, fontSize: 14 }}>We don&apos;t inspect apartments, and we haven&apos;t seen this one.</p>
-          </div>
 
           <div className="lister">
             <span className="av">{l.lister.firstName[0]}</span>
@@ -114,16 +103,31 @@ async function Listing({ id }: { id: string }) {
             </div>
           </div>
 
+          {l.status === "approved" && (
+            <ChatPreview
+              count={peek.count}
+              messages={peek.messages}
+              href={signedIn ? chatHref : `/signin?next=${encodeURIComponent(chatHref)}`}
+              joinLabel={isOwner ? "Open your group chat" : signedIn ? "Join the group chat" : "Sign in to join the group chat"}
+              hostName={l.lister.firstName}
+              hint={
+                isOwner
+                  ? "You can remove anyone and end the chat once the room is taken."
+                  : "Ask questions together. Share your address or payment details only in a private message."
+              }
+            />
+          )}
+
           {isOwner ? null : signedIn && l.contactEmail ? (
             <a
-              className="btn cta-full"
+              className="btn btn-secondary cta-full"
               href={`mailto:${l.contactEmail}?subject=${encodeURIComponent(`Your sublet on Gable: ${l.title}`)}`}
             >
               <Mail size={18} />
-              Email {l.lister.firstName}
+              Email {l.lister.firstName} privately
             </a>
           ) : (
-            <Link className="btn cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
+            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
               Sign in to contact {l.lister.firstName}
             </Link>
           )}

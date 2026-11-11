@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
 import { ImagePlus, X } from "@/components/landing/icons";
+import { AddressAutofill } from "@/components/listing/AddressAutofill";
+import type { AddressSuggestion } from "@/lib/nyc-geosearch";
 import {
   MAX_PHOTOS,
   MAX_PHOTO_BYTES,
@@ -46,6 +48,10 @@ const EMPTY: Fields = {
   agreeToContact: false,
 };
 
+// "70 Morningside Drive, New York, NY" from a picked suggestion.
+const fullAddress = (s: AddressSuggestion) =>
+  [s.main, s.secondary.replace(/,?\s*USA$/, "")].filter(Boolean).join(", ").slice(0, 80);
+
 type Picked = { file: File; preview: string };
 
 const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
@@ -59,7 +65,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   const [photos, setPhotos] = useState<Picked[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState<false | "live" | "pending">(false);
   const errorRef = useRef<HTMLParagraphElement>(null);
   const today = nycToday();
 
@@ -156,15 +162,21 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
     setPhotos([]);
     setF(EMPTY);
     setBusy(false);
-    setDone(true);
+    setDone(result.live ? "live" : "pending");
   }
 
   if (done) {
     return (
       <div className="list-form">
         <p className="list-notice" role="status">
-          Thanks, it&apos;s in. Your listing stays hidden until we&apos;ve checked it. We&apos;ll email
-          {email ? ` ${email}` : " you"} to ask for proof you&apos;re on the lease, usually within a day.
+          {done === "live" ? (
+            "Your listing is live. Students can find it in search and join its group chat. We may still email you to confirm you're on the lease."
+          ) : (
+            <>
+              Thanks, it&apos;s in. Your listing stays hidden until we&apos;ve checked it. We&apos;ll email
+              {email ? ` ${email}` : " you"} to ask for proof you&apos;re on the lease, usually within a day.
+            </>
+          )}
         </p>
         <button type="button" className="btn btn-secondary" onClick={() => setDone(false)}>
           List another room
@@ -190,6 +202,23 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
 
       <div className="list-row">
         <div className="list-field">
+          <label htmlFor="cross">Address</label>
+          <AddressAutofill
+            id="cross"
+            value={f.crossStreets}
+            onChange={set("crossStreets")}
+            onPick={(s) =>
+              setF((prev) => ({
+                ...prev,
+                crossStreets: fullAddress(s),
+                neighborhood: s.neighborhood ?? prev.neighborhood,
+              }))
+            }
+            onGuess={(s) => setF((prev) => ({ ...prev, neighborhood: prev.neighborhood || (s.neighborhood ?? "") }))}
+          />
+          <small id="cross-hint">Search your address and pick it. We fill in the neighborhood.</small>
+        </div>
+        <div className="list-field">
           <label htmlFor="neighborhood">Neighborhood</label>
           <select id="neighborhood" required value={f.neighborhood} onChange={(e) => set("neighborhood")(e.target.value)}>
             <option value="" disabled>
@@ -199,20 +228,7 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
               <option key={n}>{n}</option>
             ))}
           </select>
-        </div>
-        <div className="list-field">
-          <label htmlFor="cross">Nearest cross streets</label>
-          <input
-            id="cross"
-            required
-            minLength={3}
-            maxLength={80}
-            placeholder="W 110th & Broadway"
-            aria-describedby="cross-hint"
-            value={f.crossStreets}
-            onChange={(e) => set("crossStreets")(e.target.value)}
-          />
-          <small id="cross-hint">Not your address. You share that with the student you pick.</small>
+          <small>Fills in from the address. You can change it.</small>
         </div>
       </div>
 

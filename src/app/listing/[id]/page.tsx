@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/app/AppShell";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CircleCheck } from "@/components/landing/icons";
+
 import { Photo } from "@/components/landing/Photo";
 import { findListing, SAMPLE_LISTINGS } from "@/content/listings";
 import { money, shortDate } from "@/lib/format";
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/listing/[id]">): 
   return { title: l ? `${l.title} | Gable` : "Sublet | Gable" };
 }
 
-// One sublet, with everything we checked about it and the way in to booking.
+// One sublet, with everything we checked about it and its group chat.
 // Demo site only (src/proxy.ts sends the waitlist site home).
 export default async function ListingPage({ params }: PageProps<"/listing/[id]">) {
   const l = findListing((await params).id);
@@ -69,17 +69,6 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
                 </div>
                 <p className="good-fit">Good for: {l.goodFor}</p>
 
-                <div className="check-box">
-                  <div className="k">What we checked</div>
-                  <ul>
-                    {l.checked.map((c) => (
-                      <li key={c}>
-                        <CircleCheck size={16} />
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
 
                 <div className="lister">
                   <span className="av">{l.lister.firstName[0]}</span>
@@ -90,11 +79,6 @@ export default async function ListingPage({ params }: PageProps<"/listing/[id]">
                     <small>Tenant on the lease · {l.replySpeed}</small>
                   </div>
                 </div>
-
-                <Link className="btn cta-full" href={`/book/${l.id}`}>
-                  Request to book
-                </Link>
-                <p className="under-cta">You won&apos;t pay anything until you confirm.</p>
               </div>
             </div>
 

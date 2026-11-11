@@ -124,7 +124,7 @@ export async function getMyListings(): Promise<StudentListing[]> {
 
 // ---------- Saving ----------
 
-export type SaveResult = { ok: true; id: string } | { ok: false; error: string; signedOut?: boolean };
+export type SaveResult = { ok: true; id: string; live: boolean } | { ok: false; error: string; signedOut?: boolean };
 
 const isDate = (v: unknown): v is string =>
   typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T00:00:00Z`));
@@ -147,7 +147,7 @@ export function validateListing(input: unknown, userId: string): { error: string
   if (typeof o.neighborhood !== "string" || !NEIGHBORHOODS.includes(o.neighborhood))
     return { error: "Pick a neighborhood from the list." };
   const crossStreets = text(o.crossStreets, 3, 80);
-  if (!crossStreets) return { error: "Add the nearest cross streets, like W 110th & Broadway." };
+  if (!crossStreets) return { error: "Add the address, like 535 W 113th St." };
   if (!ROOM_TYPES.includes(o.roomType as RoomType)) return { error: "Pick what kind of space it is." };
   const sleeps = Number(o.sleeps);
   if (!Number.isInteger(sleeps) || sleeps < 1 || sleeps > 4) return { error: "Say how many people it fits (1 to 4)." };
@@ -207,7 +207,7 @@ export async function createListing(input: unknown): Promise<SaveResult> {
     console.warn("[listings] couldn't save:", error?.message);
     return { ok: false, error: "We couldn't save your listing. Try again in a minute." };
   }
-  return { ok: true, id: data.id as string };
+  return { ok: true, id: data.id as string, live: (data as { status?: string }).status === "approved" };
 }
 
 // Removes one of the signed-in user's listings and its photos.

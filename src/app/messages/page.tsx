@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app/AppShell";
 import { MessagesMock } from "@/components/circles/MessagesMock";
+import { MyChats } from "@/components/listing/MyChats";
 import { showSamples } from "@/lib/mode";
 
 export const metadata: Metadata = {
@@ -17,18 +17,12 @@ export default function MessagesPage() {
   return (
     <AppShell current="messages">
       <main>
-        {showSamples ? (
+        {/* Your real group chats, with unread counts. Production shows only these. */}
+        <MyChats showEmpty={!showSamples} />
+        {showSamples && (
           <Suspense>
             <MessagesMock />
           </Suspense>
-        ) : (
-          <div className="messages-empty">
-            <h1>No messages yet</h1>
-            <p>When you ask about a place or a student messages you, the conversation shows up here.</p>
-            <Link className="btn btn-sm" href="/explore">
-              Find a sublet
-            </Link>
-          </div>
         )}
       </main>
     </AppShell>

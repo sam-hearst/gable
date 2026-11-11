@@ -61,7 +61,7 @@ export function ResultCard({ l, misses = [] }: { l: AnyListing; misses?: string[
           href={real ? `/sublet/${l.id}` : `/listing/${l.id}`}
           style={{ marginTop: 12, alignSelf: "flex-start" }}
         >
-          {real ? "View and contact" : "View and book"}
+          {real ? "View and contact" : "View"}
         </Link>
       </div>
     </article>

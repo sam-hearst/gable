@@ -27,6 +27,12 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Favorites:</b> the places you save.
         </li>
         <li>
+          <b>Group chats:</b> the first name you choose, and the messages you send in a listing&apos;s group chat. Only
+          the students in that chat and the lister can read them, though signed-in students can see the last three
+          messages and first names on the listing before they join. The lister can remove people, delete messages and end
+          the chat.
+        </li>
+        <li>
           <b>Searches:</b> what you type or say in the chat box, so we can show sublets that fit.
         </li>
         <li>
@@ -50,6 +56,10 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
       <ul>
         <li>
           <b>Supabase</b> stores accounts, favorites and waitlist emails.
+        </li>
+        <li>
+          <b>Google Places and NYC Planning Labs (NYC GeoSearch)</b> suggest addresses as you type a street on List your
+          room. Your browser sends them what you type, and nothing else about you.
         </li>
         <li>
           <b>Vercel</b> hosts the site.

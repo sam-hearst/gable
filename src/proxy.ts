@@ -5,7 +5,7 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/li
 
 // Refreshes the Supabase sign-in session before the routes that use it render,
 // and writes the refreshed cookies back. The landing pages don't run this.
-// The sample booking flow (/listing, /book, /booked) only exists for the
+// The sample listing page (/listing) only exists for the
 // sample listings, so on production (real data only) it sends visitors to
 // search instead (see src/lib/mode.ts).
 //
@@ -14,7 +14,7 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabaseConfigured } from "@/li
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isHome = pathname === "/";
-  if (!showSamples && /^\/(listing|book|booked)\//.test(pathname)) {
+  if (!showSamples && /^\/listing\//.test(pathname)) {
     return NextResponse.redirect(new URL("/search", request.url));
   }
   let response = NextResponse.next({ request });
@@ -44,8 +44,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // The app routes ("/" only for the signed-in redirect). The sample booking
-  // flow (/listing, /book, /booked) is staging only.
+  // The app routes ("/" only for the signed-in redirect). The sample listing
+  // page (/listing) is staging only.
   matcher: [
     "/",
     "/explore",
@@ -56,8 +56,6 @@ export const config = {
     "/signin",
     "/auth/:path*",
     "/listing/:path*",
-    "/book/:path*",
-    "/booked/:path*",
     "/sublet-your-room",
     "/sublet/:path*",
   ],

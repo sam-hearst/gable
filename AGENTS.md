@@ -60,6 +60,16 @@ and use only the colors and fonts in the style guide.
   the samples on staging) with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
   renters can email the lister. No booking or payment for real listings yet, and they
   can't be hearted. Feature record: `docs/features/list-your-room/`.
+- Group chat on real listings: each approved listing has a "Join the group chat" button
+  (`/sublet/[id]/chat`) for the host plus the students interested. The host removes people,
+  deletes messages and ends the chat once the room is taken (then it's read-only). Tables,
+  policies and helper functions are in `supabase/listing_chats.sql`; run it once in the Supabase
+  SQL editor after `student_listings.sql`. Until then the page says chat isn't set up and
+  nothing breaks. The browser talks to Supabase directly and row level security enforces who
+  can read or write; new messages arrive by checking every 4 seconds.
+- Address autofill on List your room uses NYC GeoSearch (free, no key, NYC only;
+  `src/lib/nyc-geosearch.ts`). Picking a suggestion fills the street (never the building
+  number) and the neighborhood dropdown when it's one of ours.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` to
   check they're a student and on the lease, and look at the photos (`photos` holds paths

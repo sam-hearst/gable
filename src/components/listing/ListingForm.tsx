@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
 import { ImagePlus, X } from "@/components/landing/icons";
+import { AddressAutofill } from "@/components/listing/AddressAutofill";
 import {
   MAX_PHOTOS,
   MAX_PHOTO_BYTES,
@@ -201,18 +202,19 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
           </select>
         </div>
         <div className="list-field">
-          <label htmlFor="cross">Nearest cross streets</label>
-          <input
+          <label htmlFor="cross">Street or cross streets</label>
+          <AddressAutofill
             id="cross"
-            required
-            minLength={3}
-            maxLength={80}
-            placeholder="W 110th & Broadway"
-            aria-describedby="cross-hint"
             value={f.crossStreets}
-            onChange={(e) => set("crossStreets")(e.target.value)}
+            onChange={set("crossStreets")}
+            onPick={(s) =>
+              setF((prev) => ({ ...prev, crossStreets: s.street, neighborhood: s.neighborhood ?? prev.neighborhood }))
+            }
           />
-          <small id="cross-hint">Not your address. You share that with the student you pick.</small>
+          <small id="cross-hint">
+            Search your address and pick it. We only show the street, never your building number. You share that with
+            the student you pick.
+          </small>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { CircleCheck, Mail } from "@/components/landing/icons";
+import { getChatCount } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
 import "@/components/booking/booking.css";
@@ -36,6 +37,8 @@ async function Listing({ id }: { id: string }) {
   if (!found) notFound();
   const { listing: l, isOwner, signedIn } = found;
   const [cover, ...more] = l.photos;
+  const chatCount = l.status === "approved" ? await getChatCount(l.id) : null;
+  const chatHref = `/sublet/${l.id}/chat`;
 
   return (
     <>
@@ -114,16 +117,34 @@ async function Listing({ id }: { id: string }) {
             </div>
           </div>
 
+          {l.status === "approved" && (
+            <>
+              <Link
+                className="btn cta-full"
+                href={signedIn ? chatHref : `/signin?next=${encodeURIComponent(chatHref)}`}
+              >
+                {isOwner ? "Open your group chat" : "Join the group chat"}
+              </Link>
+              <p className="under-cta">
+                {isOwner
+                  ? "Talk with the students interested in your room. You can remove anyone and end the chat once it's taken."
+                  : `A group with ${l.lister.firstName} and other students interested in this room${
+                      chatCount ? ` (${chatCount} in it now)` : ""
+                    }. Ask questions together.`}
+              </p>
+            </>
+          )}
+
           {isOwner ? null : signedIn && l.contactEmail ? (
             <a
-              className="btn cta-full"
+              className="btn btn-secondary cta-full"
               href={`mailto:${l.contactEmail}?subject=${encodeURIComponent(`Your sublet on Gable: ${l.title}`)}`}
             >
               <Mail size={18} />
-              Email {l.lister.firstName}
+              Email {l.lister.firstName} privately
             </a>
           ) : (
-            <Link className="btn cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
+            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
               Sign in to contact {l.lister.firstName}
             </Link>
           )}

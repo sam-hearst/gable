@@ -1,0 +1,44 @@
+/* Group chat for a real listing (/sublet/[id]/chat). */
+.gc { display: grid; gap: 20px; max-width: 880px; }
+.gc-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.gc-head h1 { font-size: clamp(26px, 4vw, 36px); margin-top: 4px; }
+.gc-head p { margin-top: 6px; color: var(--ink-faint); }
+.gc-card, .gc-join { padding: 28px; border-radius: 16px; background: var(--sage); display: grid; gap: 10px; max-width: 560px; }
+.gc-join h2 { font-size: 22px; }
+.gc-join label { font-size: 14px; font-weight: 700; margin-top: 6px; }
+.gc-join input {
+  min-height: 48px; padding: 0 14px; border: 2px solid var(--sage-line); border-radius: 12px; background: var(--bg); color: var(--ink); font: inherit;
+}
+.gc-join input:focus-visible { border-color: var(--accent); }
+.gc-join .btn { justify-self: start; margin-top: 8px; }
+.gc-ended { padding: 14px 16px; border-radius: 12px; background: var(--warm); font-size: 15px; }
+.gc-error { color: var(--error); font-size: 15px; }
+.gc-body { display: grid; gap: 16px; }
+.gc-thread {
+  display: flex; flex-direction: column; gap: 10px; height: min(60vh, 520px); overflow-y: auto; padding: 16px;
+  border: 2px solid var(--sage-line); border-radius: 16px; background: var(--bg);
+}
+.gc-empty { margin: auto; color: var(--ink-faint); text-align: center; }
+.gc-msg { display: flex; }
+.gc-msg.is-mine { justify-content: flex-end; }
+.gc-bubble { max-width: min(82%, 520px); padding: 10px 14px; border-radius: 16px; background: var(--sage); }
+.gc-msg.is-mine .gc-bubble { background: var(--accent); color: var(--bg); }
+.gc-bubble b { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.gc-bubble p { margin: 2px 0 0; font-size: 16px; line-height: 1.45; overflow-wrap: anywhere; white-space: pre-wrap; }
+.gc-bubble small { display: flex; gap: 10px; margin-top: 4px; font-size: 12px; opacity: 0.8; }
+.gc-bubble small button { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.gc-badge { padding: 1px 8px; border-radius: 999px; background: var(--warm); color: var(--ink); font-size: 12px; font-weight: 700; margin-left: 6px; }
+.gc-compose { display: flex; gap: 10px; }
+.gc-compose input {
+  flex: 1; min-height: 48px; padding: 0 14px; border: 2px solid var(--sage-line); border-radius: 12px; background: var(--bg); color: var(--ink); font: inherit;
+}
+.gc-compose input:focus-visible { border-color: var(--accent); }
+.gc-compose .btn:disabled { opacity: 0.6; }
+.gc-people { padding: 16px 18px; border-radius: 16px; background: var(--sage); }
+.gc-people h2 { font-size: 16px; }
+.gc-people ul { display: grid; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+.gc-people li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; font-size: 15px; }
+.gc-people li button, .gc-leave {
+  padding: 0 4px; border: 0; background: none; color: var(--accent-dark); font: inherit; font-size: 14px; font-weight: 700; text-decoration: underline; cursor: pointer;
+}
+.gc-leave { margin-top: 10px; }

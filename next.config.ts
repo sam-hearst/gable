@@ -23,10 +23,8 @@ const nextConfig: NextConfig = {
         destination: "/blog/how-to-find-your-dream-sublet-in-nyc",
         permanent: true,
       },
-      // Both sites are the product now, so the old waitlist landing pages go home.
-      { source: "/verified", destination: "/", permanent: false },
-      { source: "/summer", destination: "/", permanent: false },
-      { source: "/together", destination: "/", permanent: false },
+      // /verified, /summer and /together are live again: the Reddit ads test sends
+      // each ad to the page for its promise (one landing page per problem).
     ];
   },
   cacheComponents: true,

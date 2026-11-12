@@ -69,7 +69,7 @@ export default function TogetherPage() {
           }}
         />
 
-        <Marquee words={["Sleeps two", "Two bedrooms", "Both your dates", "Your share of the rent", "Verified tenants", "No Zelle"]} />
+        <Marquee words={["Sleeps two", "Two bedrooms", "Both your dates", "Your share of the rent", "Checked listers", "No Zelle"]} />
 
         <section className="section tint">
           <div className="wrap">
@@ -108,7 +108,7 @@ export default function TogetherPage() {
                 },
                 {
                   title: "Both of you see what we checked",
-                  body: "Share one short list. Every lister is a verified student tenant, with photos checked and the address confirmed.",
+                  body: "Share one short list. Every lister signs in with a school email and shows us they're on the lease before their room goes up.",
                 },
               ]}
             />

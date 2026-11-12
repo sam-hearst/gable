@@ -8,7 +8,7 @@ import type { AddressSuggestion } from "@/lib/nyc-geosearch";
 import {
   MAX_PHOTOS,
   MAX_PHOTO_BYTES,
-  NEIGHBORHOODS,
+  NEIGHBORHOOD_GROUPS,
   PHOTO_BUCKET,
   PHOTO_TYPES,
   nycToday,
@@ -224,8 +224,14 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
             <option value="" disabled>
               Pick one
             </option>
-            {NEIGHBORHOODS.map((n) => (
-              <option key={n}>{n}</option>
+            {NEIGHBORHOOD_GROUPS.map((g) => (
+              <optgroup key={g.borough} label={g.borough}>
+                {g.areas.map((n) => (
+                  <option key={n} value={n}>
+                    {n === g.borough ? `Somewhere else in ${g.borough}` : n.replace(`, ${g.borough}`, "")}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           <small>Fills in from the address. You can change it.</small>

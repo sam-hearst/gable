@@ -14,11 +14,8 @@ create table if not exists public.student_listings (
   status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
   title text not null check (char_length(title) between 3 and 80),
   description text not null check (char_length(description) between 20 and 1000),
-  -- The areas search knows (AREAS in src/lib/search.ts), spelled like the samples.
-  neighborhood text not null check (neighborhood in (
-    'Morningside Heights', 'Upper West Side', 'Harlem', 'Hamilton Heights', 'Midtown',
-    'Williamsburg, Brooklyn', 'Prospect Heights, Brooklyn'
-  )),
+  -- Must be one of NEIGHBORHOODS: checked below, where re-running this file updates it.
+  neighborhood text not null,
   cross_streets text not null check (char_length(cross_streets) between 3 and 80),
   room_type text not null check (room_type in ('private room', 'studio', 'shared')),
   sleeps int not null default 1 check (sleeps between 1 and 4),
@@ -35,6 +32,37 @@ create table if not exists public.student_listings (
   created_at timestamptz not null default now(),
   check (available_to > available_from)
 );
+
+-- The neighborhoods a lister can pick: NEIGHBORHOOD_GROUPS in
+-- src/lib/student-listing-fields.ts, named like StreetEasy. Dropped and added
+-- again so re-running this file picks up a changed list.
+alter table public.student_listings drop constraint if exists student_listings_neighborhood_check;
+alter table public.student_listings add constraint student_listings_neighborhood_check check (neighborhood in (
+  'Morningside Heights', 'Upper West Side', 'Manhattan Valley', 'Lincoln Square',
+  'Harlem', 'West Harlem', 'East Harlem', 'Hamilton Heights', 'Washington Heights',
+  'Hudson Heights', 'Inwood', 'Upper East Side', 'Yorkville', 'Lenox Hill', 'Carnegie
+  Hill', 'Roosevelt Island', 'Midtown', 'Midtown East', 'Midtown South', 'Hell''s
+  Kitchen', 'Hudson Yards', 'Murray Hill', 'Kips Bay', 'NoMad', 'Gramercy Park',
+  'Stuyvesant Town', 'Flatiron', 'Chelsea', 'West Village', 'Greenwich Village', 'East
+  Village', 'NoHo', 'SoHo', 'Nolita', 'Little Italy', 'Lower East Side', 'Chinatown',
+  'Two Bridges', 'Tribeca', 'Financial District', 'Battery Park City', 'Manhattan',
+  'Williamsburg, Brooklyn', 'East Williamsburg, Brooklyn', 'Greenpoint, Brooklyn',
+  'Bushwick, Brooklyn', 'Bedford-Stuyvesant, Brooklyn', 'Clinton Hill, Brooklyn',
+  'Fort Greene, Brooklyn', 'Prospect Heights, Brooklyn', 'Crown Heights, Brooklyn',
+  'Prospect Lefferts Gardens, Brooklyn', 'Flatbush, Brooklyn', 'Ditmas Park,
+  Brooklyn', 'Kensington, Brooklyn', 'Park Slope, Brooklyn', 'Windsor Terrace,
+  Brooklyn', 'Gowanus, Brooklyn', 'Carroll Gardens, Brooklyn', 'Cobble Hill,
+  Brooklyn', 'Boerum Hill, Brooklyn', 'Columbia Street Waterfront District, Brooklyn',
+  'Brooklyn Heights, Brooklyn', 'Downtown Brooklyn, Brooklyn', 'DUMBO, Brooklyn',
+  'Vinegar Hill, Brooklyn', 'Red Hook, Brooklyn', 'Sunset Park, Brooklyn', 'Bay Ridge,
+  Brooklyn', 'Midwood, Brooklyn', 'Brooklyn', 'Astoria, Queens', 'Ditmars-Steinway,
+  Queens', 'Long Island City, Queens', 'Sunnyside, Queens', 'Woodside, Queens',
+  'Jackson Heights, Queens', 'Elmhurst, Queens', 'Rego Park, Queens', 'Forest Hills,
+  Queens', 'Kew Gardens, Queens', 'Ridgewood, Queens', 'Flushing, Queens', 'Queens',
+  'Riverdale, Bronx', 'Kingsbridge, Bronx', 'Fordham, Bronx', 'Concourse, Bronx',
+  'Mott Haven, Bronx', 'Port Morris, Bronx', 'Bronx', 'St. George, Staten Island',
+  'Tompkinsville, Staten Island', 'Stapleton, Staten Island', 'Staten Island'
+));
 
 alter table public.student_listings enable row level security;
 

@@ -8,7 +8,7 @@ import { Checklist, CtaPhoto, Mark, Marquee, Quotes, SectionHead, Steps } from "
 export const metadata: Metadata = {
   title: "Gable: summer sublets in NYC, checked before you pay",
   description:
-    "Coming to NYC for an internship or program? Find a real 10 to 12 week sublet near Columbia with exact dates, checked in person by our team before you pay.",
+    "Coming to NYC for an internship or program? Gable is opening summer sublets near Columbia with exact dates, and we check every lister before you pay anything.",
 };
 
 export default function SummerPage() {
@@ -24,7 +24,7 @@ export default function SummerPage() {
               Your summer sublet in NYC, <Mark>checked</Mark> before you pay.
             </>
           }
-          sub="Real 10 to 12 week sublets near Columbia with exact dates. Someone on our team sees every place in person, so you don't have to fly in first."
+          sub="10 to 12 week sublets near Columbia with exact dates. Every lister shows us they're on the lease, and we look at the photos and address before a room goes up, so you know who you're dealing with before you pay."
           modesLabel="Who's searching?"
           modes={[
             {
@@ -55,13 +55,13 @@ export default function SummerPage() {
               ],
             },
           ]}
-          meta="Every place checked in person"
+          meta="Every lister checked by hand"
           chips={["June 1 to Aug 15, furnished", "10 weeks, under $1,800", "Near the 1 train to Midtown", "Before my fall lease starts"]}
           collage={[
-            { id: 31687845, badge: "Checked in person", bold: "$1,700", text: "Jun 1 to Aug 15" },
+            { id: 31687845, badge: "Lister checked", bold: "$1,700", text: "Jun 1 to Aug 15" },
             { id: 7647755, text: "Move-in day" },
             { id: 33693815, badge: "Exact dates", bold: "$1,650", text: "10 weeks" },
-            { id: 5928131, text: "12 min to Midtown" },
+            { id: 5928131, text: "Near the 1 train" },
           ]}
           strip={[
             { id: 31687845, badge: "Checked" },
@@ -71,14 +71,14 @@ export default function SummerPage() {
           ]}
           modal={{
             title: "Got it. We'll start looking.",
-            lead: "Leave your email and we'll send summer sublets that cover your dates, each one checked in person.",
+            lead: "Leave your email and we'll send summer sublets that cover your dates, each one from a lister we've checked.",
             button: "Send me summer matches",
             placeholder: "you@school.edu",
           }}
         />
 
         <Marquee
-          words={["June 1 to August 15", "Furnished", "10 to 12 weeks", "Checked in person", "No Zelle", "No wires", "No money orders"]}
+          words={["June 1 to August 15", "Furnished", "10 to 12 weeks", "Lister checked", "No Zelle", "No wires", "No money orders"]}
         />
 
         <section className="section tint">
@@ -107,7 +107,7 @@ export default function SummerPage() {
 
         <section className="section">
           <div className="wrap">
-            <SectionHead eyebrow="How Gable handles it" title="We do the visit, so you don't have to." />
+            <SectionHead eyebrow="How Gable handles it" title="We check the lister, so you know who you're dealing with." />
             <Steps
               steps={[
                 {
@@ -115,12 +115,12 @@ export default function SummerPage() {
                   body: "Internship start and end, budget, and where you'll commute. We only show places that cover your whole summer.",
                 },
                 {
-                  title: "We see it in person",
-                  body: "A Columbia student on our team visits, confirms the tenant lives there, and takes fresh photos that day.",
+                  title: "We check the lister",
+                  body: "Every lister signs in with a school email and shows us they're on the lease. We look at the photos and the address before the room goes up.",
                 },
                 {
-                  title: "Pay safely, not by Zelle",
-                  body: "We're building payments that hold your rent until you move in. No wires, no money orders, no gift payments.",
+                  title: "Don't pay before you've seen a lease",
+                  body: "Gable doesn't handle money: you pay the lister directly. Never send a deposit by Zelle, wire or gift card before you've seen the lease and met the lister on video.",
                 },
               ]}
             />
@@ -139,10 +139,10 @@ export default function SummerPage() {
                 <Checklist
                   icon="check"
                   items={[
-                    "Who checked the place, and when",
-                    "That the lister is the real tenant and is allowed to sublet",
+                    "What we checked about the lister, and when",
+                    "That the lister showed us they're on the lease (ask whether the landlord allows subletting)",
                     "Exact move-in and move-out dates in writing",
-                    "How the money is handled before move-in day",
+                    "How to pay: directly to the lister, only after you've seen the lease",
                   ]}
                 />
                 <p style={{ marginTop: 18, fontSize: 15 }}>
@@ -155,10 +155,10 @@ export default function SummerPage() {
                 <div className="overlay-card">
                   <span className="badge">
                     <span className="dot" />
-                    Checked in person
+                    Lister checked
                   </span>
-                  <b style={{ marginTop: 8 }}>Visited Mar 14 by a Columbia student on our team</b>
-                  Tenant confirmed, and fresh photos taken that day.
+                  <b style={{ marginTop: 8 }}>Example: lister checked Mar 14 by our team</b>
+                  School email, proof on the lease, and photos reviewed.
                 </div>
               </div>
             </div>

@@ -6,7 +6,7 @@ import { CtaPhoto } from "@/components/landing/blocks";
 export const metadata: Metadata = {
   title: "Gable: real sublets near Columbia, through one chat",
   description:
-    "Tell Gable what you need and get sublets near Columbia where every listing is checked and every lister is a verified tenant.",
+    "Tell Gable what you need and get sublets near Columbia, where every lister is a student we check by hand before their room goes up.",
 };
 
 function HomeBody() {

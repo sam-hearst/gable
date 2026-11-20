@@ -47,7 +47,8 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // On production (real data only) you need an account to see matches, so
   // signed-out visitors, like people arriving from our ads, get a sign-up card
   // instead of results. Staging stays open for demos and usability tests.
-  if (!showSamples && supabaseConfigured && !(await getCurrentUser())) {
+  const user = supabaseConfigured ? await getCurrentUser() : null;
+  if (!showSamples && supabaseConfigured && !user) {
     return <SignupGate messages={messages} />;
   }
   // Real student listings (approved only), plus the samples on staging.
@@ -83,7 +84,7 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
           ) : (
             <div className="results-empty">
               <h2>No sublets here yet</h2>
-              <p>Every place on Gable is posted by a student and checked by our team, and the first ones are on their way. Your search is saved in the chat, so check back soon.</p>
+              <p>Every place on Gable is posted by a student and checked by our team, and the first ones are on their way.{user ? " You're signed in, so we'll email you when rooms go live." : " Check back soon."}</p>
               <Link className="btn btn-sm" href="/sublet-your-room">
                 List your room
               </Link>

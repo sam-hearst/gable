@@ -57,7 +57,7 @@ export default function TogetherPage() {
           ]}
           strip={[
             { id: 6969990, badge: "Sleeps 2" },
-            { id: 8089268, badge: "Verified" },
+            { id: 8089268, badge: "Checked" },
             { id: 7647755, badge: "Together" },
             { id: 545025, badge: "Two rooms" },
           ]}
@@ -69,7 +69,7 @@ export default function TogetherPage() {
           }}
         />
 
-        <Marquee words={["Sleeps two", "Two bedrooms", "Both your dates", "Your share of the rent", "Verified tenants", "No Zelle"]} />
+        <Marquee words={["Sleeps two", "Two bedrooms", "Both your dates", "Your share of the rent", "Checked listers", "No Zelle"]} />
 
         <section className="section tint">
           <div className="wrap">
@@ -108,7 +108,7 @@ export default function TogetherPage() {
                 },
                 {
                   title: "Both of you see what we checked",
-                  body: "Share one short list. Every lister is a verified student tenant, with photos checked and the address confirmed.",
+                  body: "Share one short list. Every lister signs in with a school email and shows us they're on the lease before their room goes up.",
                 },
               ]}
             />
@@ -142,7 +142,7 @@ export default function TogetherPage() {
                     price: "$2,700",
                     where: "Sublet · 2 rooms in a 3BR, W 112th St",
                     meta: "Sep 1 to Dec 20 · $1,350 each · furnished",
-                    tags: ["Sleeps 2", "Both your dates", "Lease allows sublet"],
+                    tags: ["Sleeps 2", "Both your dates", "On the lease"],
                   }}
                 />
                 <p className="fine" style={{ marginTop: 10 }}>

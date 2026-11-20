@@ -15,6 +15,7 @@ import {
   type ListingInput,
 } from "@/lib/student-listing-fields";
 import { createClient } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 
 type Fields = {
   title: string;
@@ -162,6 +163,8 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
     setPhotos([]);
     setF(EMPTY);
     setBusy(false);
+    // GA4: lets the Reddit supply ad (utm_campaign=list_room) count rooms posted.
+    trackEvent("list_room_submit", { status: result.live ? "live" : "pending" });
     setDone(result.live ? "live" : "pending");
   }
 

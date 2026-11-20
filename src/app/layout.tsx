@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import "./landing.css";
+import { UtmCapture } from "@/components/UtmCapture";
 import { isDemo } from "@/lib/mode";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         )}
       </head>
       <body className="min-h-full flex flex-col font-sans">
+        <UtmCapture />
         {children}
         {gaId && (
           <Script

@@ -123,6 +123,10 @@ and use only the colors and fonts in the style guide.
   tests. Creating an account fires the GA4 event `account_created` (with `page_variant`
   `search_gate` or `signin`) from `SignInForm.tsx`; mark it as a key event in GA. The waitlist
   still fires `sign_up` on `/thanks`.
+- Where sign-ups come from: `UtmCapture` (root layout) remembers the `utm_source`, `utm_medium` and
+  `utm_campaign` of the link a visitor arrived with (`src/lib/utm.ts`, kept in the browser for a week), and
+  `SignInForm` saves them in the new account's `user_metadata` with `signup_from`. Count sign-ups per
+  campaign with `supabase/signup_sources.sql` in the Supabase SQL editor; no Google Analytics needed.
 - Accounts and favorites: email + password sign-in at `/signin` (Supabase
   Auth, with "Confirm email" turned off so accounts work right away). Hearts on
   `/search` save to the `favorites` table (create it with

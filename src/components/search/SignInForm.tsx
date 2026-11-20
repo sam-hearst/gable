@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setFavorite } from "@/app/favorites/actions";
+import { trackEvent } from "@/lib/analytics";
 import { createClient } from "@/lib/supabase/client";
 
 // Email and password, like any listing site: create an account or sign in, and
@@ -15,12 +16,14 @@ export function SignInForm({
   configured,
   linkFailed,
   startWithSignup = false,
+  fromSearch = false,
 }: {
   next: string;
   save: string | null;
   configured: boolean;
   linkFailed: boolean;
   startWithSignup?: boolean;
+  fromSearch?: boolean;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">(startWithSignup ? "signup" : "signin");
@@ -83,6 +86,9 @@ export function SignInForm({
       );
       return;
     }
+    // GA4 event for the ad test: an account was created (the waitlist's own
+    // sign_up event fires on /thanks).
+    trackEvent("account_created", { page_variant: fromSearch ? "search_gate" : "signin" });
     if (data.session) return finish();
     // Supabase is still set to require email confirmation.
     setBusy(false);
@@ -96,7 +102,7 @@ export function SignInForm({
     <div className="signin-card">
       <h1>{signup ? "Create an account" : "Sign in to save places"}</h1>
       <p className="signin-lead">
-        Heart places as you search, then see them all on a map.
+        {fromSearch ? "Create a free account to see the places that fit your search." : "Heart places as you search, then see them all on a map."}
         {save && " The place you hearted will be saved once you're in."}
       </p>
 

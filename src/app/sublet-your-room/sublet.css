@@ -149,3 +149,11 @@
 @media (min-width: 560px) { .share-two { grid-template-columns: 1fr 1fr; } }
 .share-legend { font-size: 14px; font-weight: 700; }
 .share-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+
+/* "Paste your post" on List your room: a cream box on the sage card */
+.paste { display: grid; gap: 12px; margin-top: 24px; padding: 20px; border-radius: 16px; background: var(--bg); }
+.paste h3 { font-size: 18px; }
+.paste > p { max-width: 60ch; font-size: 15px; }
+.paste .btn { justify-self: start; margin-top: 0; }
+.paste .btn:disabled { opacity: 0.7; cursor: default; }
+.paste-note { padding: 14px 16px; border-radius: 12px; background: var(--warm); font-size: 15px; }

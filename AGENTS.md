@@ -26,7 +26,8 @@ and use only the colors and fonts in the style guide.
   Create the table with `supabase/signups.sql`. `ANTHROPIC_API_KEY` lets
   `/search` read requests with Claude (server only, never `NEXT_PUBLIC_`);
   without it, or if Claude is slow or fails, search falls back to keyword
-  matching. It's also set in Vercel.
+  matching. It also powers "Paste your post" on List your room. It's also set in Vercel.
+  Every Claude call goes through `src/lib/claude.ts` (model `claude-haiku-5-5`).
   `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` turn on
   sign-in and favorites (public values, safe in the browser; set in Vercel
   for all environments). Without them, `/signin` says sign-in isn't set up.
@@ -93,6 +94,16 @@ and use only the colors and fonts in the style guide.
   private messages (checked on load, on focus and every 30 seconds), and `/messages` lists your private
   messages and chats with their unread counts. Opening a chat marks it read. Group-chat counts need `supabase/chat_unread.sql`, run
   once after `listing_chats.sql`; private-message counts come from `listing_dms.sql`. Until then there's simply no badge.
+- Paste your post on List your room (`src/components/listing/PastePost.tsx`, `src/lib/paste-post.ts`):
+  a signed-in student pastes the sublet post they already wrote, a server action asks Claude
+  (8 s timeout) for only the fields the post states (dates, monthly rent, neighborhood, kind of
+  space, furnished, address, description; Claude is told to drop phone numbers, emails and handles),
+  and the form is prefilled.
+  Claude returns dates as written; the year is worked out in code (a date a few weeks past stays
+  blank rather than jumping a year). Nothing is saved: the student
+  checks every field and sends the form as usual. If Claude fails, the form stays empty with a
+  short note. The pasted text isn't stored. GA event `listing_post_pasted` (result, field count).
+  Spec: `docs/features/paste-to-list/spec.md`.
 - Address autofill on List your room (`src/lib/nyc-geosearch.ts`) uses Google Places autocomplete
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
   back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the full address (shown on the listing) and the

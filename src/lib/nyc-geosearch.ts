@@ -5,7 +5,7 @@
 // neighborhood, so the area dropdown fills itself. Browser-safe: the Google key
 // is a public, referrer-restricted browser key, like the map's.
 
-import { NEIGHBORHOODS } from "./student-listing-fields";
+import { BOROUGHS, NEIGHBORHOOD_GROUPS, NEIGHBORHOODS } from "./student-listing-fields";
 
 export type AddressSuggestion = {
   id: string;
@@ -34,19 +34,62 @@ export function prettyStreet(raw: string) {
     .replace(/\b(\d+)(?=\s+(?:Street|St|Avenue|Ave|Place|Pl|Road|Rd)\b)/g, (n) => ORDINAL(n));
 }
 
-// NYC's neighborhood names -> the areas Gable lists. Anything else is left for
-// the lister to pick from the dropdown.
+// Other names NYC's data (or Google) uses for places on our list. Checked in
+// order, after an exact match, so "East Harlem" wins before plain "Harlem".
+const ALIASES: [RegExp, string][] = [
+  [/bloomingdale/, "Upper West Side"],
+  [/spanish harlem|el barrio/, "East Harlem"],
+  [/central harlem|south harlem/, "Harlem"],
+  [/manhattanville/, "West Harlem"],
+  [/sugar hill/, "Hamilton Heights"],
+  [/fort george/, "Washington Heights"],
+  [/hell'?s kitchen|clinton|midtown west/, "Hell's Kitchen"],
+  [/turtle bay|tudor city|sutton|beekman/, "Midtown East"],
+  [/garment|koreatown|herald square/, "Midtown South"],
+  [/theater district|times square|central park south/, "Midtown"],
+  [/gramercy/, "Gramercy Park"],
+  [/flatiron/, "Flatiron"],
+  [/^nomad|north of madison/, "NoMad"],
+  [/peter cooper/, "Stuyvesant Town"],
+  [/bedford.?stuyvesant|bed.?stuy/, "Bedford-Stuyvesant"],
+  [/^prospect$|lefferts/, "Prospect Lefferts Gardens"],
+  [/south slope/, "Park Slope"],
+  [/^ditmars|steinway/, "Ditmars-Steinway"],
+  [/hunters point/, "Long Island City"],
+  [/spuyten duyvil|fieldston/, "Riverdale"],
+  [/^st\.? george|saint george/, "St. George"],
+];
+
+// The name without its borough: "Williamsburg, Brooklyn" -> "williamsburg".
+const baseName = (area: string) => area.replace(/, (Brooklyn|Queens|Bronx|Staten Island)$/, "").toLowerCase();
+
+// "The Bronx" -> "Bronx"; null for anything that isn't one of the five boroughs.
+const toBorough = (borough: string | undefined) => {
+  const b = (borough ?? "").replace(/^the\s+/i, "").trim().toLowerCase();
+  return BOROUGHS.find((x) => x.toLowerCase() === b) ?? null;
+};
+
+// The values that are only a borough ("Brooklyn"), used when an address isn't
+// in a neighborhood we list.
+export const BOROUGH_AREAS = new Set(NEIGHBORHOOD_GROUPS.map((g) => g.areas[g.areas.length - 1]));
+
+// NYC's neighborhood names -> the neighborhoods Gable lists. When the name
+// isn't one we list, falls back to the borough, so the dropdown always fills
+// in for a New York City address. Null only when we don't know the borough.
 export function toGableArea(neighbourhood: string | undefined, borough: string | undefined): string | null {
-  const n = (neighbourhood ?? "").toLowerCase();
-  const exact = NEIGHBORHOODS.find((a) => a.toLowerCase() === n);
-  if (exact) return exact;
-  if (/manhattan valley|upper west side|lincoln square|west side/.test(n)) return "Upper West Side";
-  if (/harlem|east harlem|spanish harlem/.test(n)) return "Harlem";
-  if (/hamilton heights|sugar hill|manhattanville/.test(n)) return "Hamilton Heights";
-  if (/midtown|hell's kitchen|clinton|murray hill|garment|theater/.test(n)) return "Midtown";
-  if (borough === "Brooklyn" && /williamsburg/.test(n)) return "Williamsburg, Brooklyn";
-  if (borough === "Brooklyn" && /prospect heights/.test(n)) return "Prospect Heights, Brooklyn";
-  return null;
+  const group = NEIGHBORHOOD_GROUPS.find((g) => g.borough === toBorough(borough));
+  const candidates = group?.areas ?? NEIGHBORHOODS;
+  const n = (neighbourhood ?? "").trim().toLowerCase();
+  if (n) {
+    const exact = candidates.find((a) => baseName(a) === n);
+    if (exact) return exact;
+    for (const [re, name] of ALIASES) {
+      if (!re.test(n)) continue;
+      const hit = candidates.find((a) => baseName(a) === name.toLowerCase());
+      if (hit) return hit;
+    }
+  }
+  return group ? group.areas[group.areas.length - 1] : null;
 }
 
 const STREET_WORDS = /^(street|st|avenue|ave|place|pl|road|rd|drive|dr|boulevard|blvd|lane|ln|court|ct|terrace|way)$/i;
@@ -167,12 +210,16 @@ export async function resolveSuggestion(s: AddressSuggestion, signal?: AbortSign
     const route = named("route");
     const borough = named("sublocality_level_1") ?? named("sublocality");
     const hood = named("neighborhood");
+    let area = toGableArea(hood, borough);
+    // Google's name didn't match one of ours (or it had none): NYC's own data
+    // may name a neighborhood we list, which beats just the borough.
+    if ((!area || BOROUGH_AREAS.has(area)) && place.location) {
+      area = (await neighborhoodAt(place.location.latitude, place.location.longitude, signal).catch(() => null)) ?? area;
+    }
     return {
       ...s,
       street: route ? prettyStreet(route) : s.street,
-      neighborhood:
-        toGableArea(hood, borough) ??
-        (place.location ? await neighborhoodAt(place.location.latitude, place.location.longitude, signal).catch(() => null) : null),
+      neighborhood: area,
     };
   } catch {
     return s;

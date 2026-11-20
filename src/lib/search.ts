@@ -10,16 +10,41 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { SAMPLE_LISTINGS, type RoomType } from "@/content/listings";
-import { isStudentListing, type AnyListing } from "./student-listing-fields";
+import { BOROUGHS, NEIGHBORHOOD_GROUPS, NEIGHBORHOODS, isStudentListing, type AnyListing } from "./student-listing-fields";
 import { money, shortDate } from "./format";
 
 const MODEL = "claude-haiku-5-5";
 const TIMEOUT_MS = 5000;
 
-// Areas the sample listings cover. Brooklyn matches Williamsburg and
-// Prospect Heights, since their neighborhood strings end in ", Brooklyn".
-const AREAS = ["Morningside Heights", "Upper West Side", "Harlem", "Hamilton Heights", "Midtown", "Brooklyn"];
+// The areas someone can search for: the same neighborhoods a lister picks on
+// "List your room" (StreetEasy's names), plus the five boroughs, which are in
+// that list too.
+const AREAS = NEIGHBORHOODS;
 const NEAR_COLUMBIA = ["Morningside Heights", "Upper West Side", "Harlem"];
+
+// Broad areas that take in smaller ones the way StreetEasy groups them: asking
+// for Midtown also finds a place in Hell's Kitchen.
+const AREA_INCLUDES: Record<string, string[]> = {
+  "Upper West Side": ["Manhattan Valley", "Lincoln Square"],
+  Harlem: ["West Harlem", "East Harlem"],
+  "Washington Heights": ["Hudson Heights"],
+  "Upper East Side": ["Yorkville", "Lenox Hill", "Carnegie Hill"],
+  Midtown: ["Midtown East", "Midtown South", "Hell's Kitchen", "Hudson Yards", "Murray Hill"],
+  "Williamsburg, Brooklyn": ["East Williamsburg, Brooklyn"],
+  "Astoria, Queens": ["Ditmars-Steinway, Queens"],
+};
+
+const BOROUGH_OF = new Map(NEIGHBORHOOD_GROUPS.flatMap((g) => g.areas.map((a) => [a, g.borough] as const)));
+
+// Is a listing in `hood` inside the area they asked for? A borough takes in
+// every neighborhood in it.
+export function inArea(hood: string, area: string) {
+  if (hood === area) return true;
+  if (BOROUGHS.includes(area)) return BOROUGH_OF.get(hood) === area;
+  if (AREA_INCLUDES[area]?.includes(hood)) return true;
+  // A neighborhood saved before the list changed: compare the names loosely.
+  return !BOROUGH_OF.has(hood) && hood.toLowerCase().includes(area.toLowerCase());
+}
 const ROOM_TYPES: RoomType[] = ["private room", "studio", "shared"];
 
 const SEASONS = {
@@ -69,7 +94,7 @@ const SYSTEM = `You read housing requests for Gable, a home search for students 
 Rules:
 - All listings are dated 2027. "Summer" means 2027-06-01 to 2027-08-31, "fall" or "fall semester" means 2027-09-01 to 2027-12-31, "spring" or "spring semester" means 2027-01-01 to 2027-05-31. Months with no year are in 2027. A month with no day starts on the 1st and ends on its last day.
 - Prices are monthly rent in US dollars. "Under $1,600" sets maxPrice to 1600.
-- neighborhoods must come from: ${AREAS.join(", ")}. "Near Columbia" or "near campus" means ${NEAR_COLUMBIA.join(", ")}. Williamsburg and Prospect Heights are Brooklyn; Hell's Kitchen and Murray Hill are Midtown.
+- neighborhoods must come from this list, named like StreetEasy: ${AREAS.join("; ")}. Use the name they used, at the size they used it: "Brooklyn" or "anywhere in Queens" is the borough itself, "Williamsburg" is "Williamsburg, Brooklyn". Broad names already take in smaller ones (Midtown includes Hell's Kitchen and Murray Hill; Harlem includes East and West Harlem; Upper West Side includes Manhattan Valley), so don't list those too. "Near Columbia" or "near campus" means ${NEAR_COLUMBIA.join(", ")}. If they name a place that isn't on the list, pick the nearest neighborhood on it, or its borough.
 - roomType is "studio", "private room" or "shared". Set it only when they name one. If they want to live with a friend or partner, leave roomType null unless they say studio or shared.
 - wantsRoommate is true when they're looking together with a friend, partner or roommate.
 - Use null (or an empty list) for anything they didn't mention. Don't guess.
@@ -229,19 +254,44 @@ export function readWithKeywords(q: string): SearchFilters {
     if (season) [f.moveIn, f.moveOut] = SEASONS[season];
   }
 
-  const areas: [RegExp, string[]][] = [
-    [/columbia|campus|barnard/, NEAR_COLUMBIA],
-    [/morningside/, ["Morningside Heights"]],
-    [/upper west|\buws\b/, ["Upper West Side"]],
-    [/hamilton heights/, ["Hamilton Heights"]],
-    [/\bharlem\b/, ["Harlem"]],
-    [/midtown|hell'?s kitchen|murray hill|times sq/, ["Midtown"]],
-    [/brooklyn|williamsburg|prospect heights/, ["Brooklyn"]],
-  ];
-  for (const [re, names] of areas) if (re.test(text)) f.neighborhoods.push(...names);
-  f.neighborhoods = [...new Set(f.neighborhoods)];
+  f.neighborhoods = readAreas(text);
 
   return normalize(f);
+}
+
+// Every area by name ("Williamsburg, Brooklyn" is found as "williamsburg"),
+// plus the nicknames people type. Longest names first, and each match is
+// blanked out, so "east harlem" doesn't also count as "harlem" and "brooklyn
+// heights" doesn't also count as all of Brooklyn.
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const AREA_WORDS: [RegExp, string[]][] = [
+  ...AREAS.map((a): [string, string] => [a.replace(/, (Brooklyn|Queens|Bronx|Staten Island)$/, ""), a])
+    .sort(([x], [y]) => y.length - x.length)
+    .map(([name, a]): [RegExp, string[]] => [
+      new RegExp(`\\b${escape(name.toLowerCase()).replace(/'/g, "'?").replace(/[- ]/g, "[- ]?")}\\b`, "g"),
+      [a],
+    ]),
+  [/\b(columbia|campus|barnard)\b(?! street)/g, NEAR_COLUMBIA],
+  [/\buws\b/g, ["Upper West Side"]],
+  [/\bues\b/g, ["Upper East Side"]],
+  [/\bfidi\b/g, ["Financial District"]],
+  [/\bles\b/g, ["Lower East Side"]],
+  [/\blic\b/g, ["Long Island City, Queens"]],
+  [/\bbed[- ]?stuy\b/g, ["Bedford-Stuyvesant, Brooklyn"]],
+  [/\b(times sq(uare)?|garment district|koreatown)\b/g, ["Midtown"]],
+  [/\b(the )?village\b/g, ["Greenwich Village", "West Village", "East Village"]],
+];
+
+function readAreas(text: string) {
+  let rest = text;
+  const found: string[] = [];
+  for (const [re, names] of AREA_WORDS) {
+    re.lastIndex = 0; // these are /g regexes, which remember where test() stopped
+    if (!re.test(rest)) continue;
+    found.push(...names);
+    rest = rest.replace(re, " ");
+  }
+  return [...new Set(found)];
 }
 
 // ---------- Matching and ranking ----------
@@ -289,7 +339,7 @@ function checks(l: Searchable, f: SearchFilters): Check[] {
     out.push({ pass: l.roomType === f.roomType, miss: `${label[l.roomType]}, not ${label[f.roomType].toLowerCase()}` });
   }
   if (f.neighborhoods.length) {
-    const pass = f.neighborhoods.some((n) => l.neighborhood.toLowerCase().includes(n.toLowerCase()));
+    const pass = f.neighborhoods.some((n) => inArea(l.neighborhood, n));
     out.push({ pass, miss: `In ${l.neighborhood}, not where you asked` });
   }
   if (f.wantsRoommate) {
@@ -340,7 +390,8 @@ function describe(f: SearchFilters) {
   const head = [`${/^[aeiou]/.test(adjective + noun) ? "an" : "a"} ${adjective}${noun}`];
   if (f.wantsRoommate) head.push("for you and a friend");
   if (f.neighborhoods.length) {
-    head.push(f.neighborhoods.join(",") === NEAR_COLUMBIA.join(",") ? "near Columbia" : `in ${f.neighborhoods.join(" or ")}`);
+    const places = f.neighborhoods.map((n) => (n === "Bronx" ? "the Bronx" : n));
+    head.push(f.neighborhoods.join(",") === NEAR_COLUMBIA.join(",") ? "near Columbia" : `in ${places.join(" or ")}`);
   }
   const tail: string[] = [];
   if (f.moveIn && f.moveOut) tail.push(`from ${shortDate(f.moveIn)} to ${shortDate(f.moveOut)}`);

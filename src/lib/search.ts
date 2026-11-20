@@ -8,13 +8,12 @@
 // or it takes over 5 seconds, a keyword parser takes over, so /search always
 // shows results.
 
-import Anthropic from "@anthropic-ai/sdk";
 import { SAMPLE_LISTINGS, type RoomType } from "@/content/listings";
 import type { AnyListing } from "./student-listing-fields";
 import type { ExternalListing } from "./external-listing-fields";
 import { money, shortDate } from "./format";
+import { askClaudeForJson } from "./claude";
 
-const MODEL = "claude-haiku-5-5";
 const TIMEOUT_MS = 5000;
 
 // Areas the sample listings cover. Brooklyn matches Williamsburg and
@@ -120,34 +119,15 @@ function conversation(messages: string[]) {
 }
 
 async function readWithClaude(messages: string[]): Promise<{ filters: SearchFilters; reply: string | null } | null> {
-  if (!process.env.ANTHROPIC_API_KEY) return null;
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: TIMEOUT_MS, maxRetries: 0 });
-  const abort = new AbortController();
-  const timer = setTimeout(() => abort.abort(), TIMEOUT_MS);
-  try {
-    const response = await client.messages.create(
-      {
-        model: MODEL,
-        max_tokens: 400,
-        thinking: { type: "disabled" },
-        output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
-        system: SYSTEM,
-        messages: [{ role: "user", content: conversation(messages) }],
-      },
-      { signal: abort.signal },
-    );
-    if (response.stop_reason !== "end_turn") return null;
-    const text = response.content.find((b) => b.type === "text")?.text;
-    if (!text) return null;
-    return validate(JSON.parse(text));
-  } catch (error) {
-    // Logged on the server only; the page falls back to keywords.
-    console.warn("[search] Claude call failed, using keywords:", error instanceof Error ? error.message : error);
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
+  const raw = await askClaudeForJson({
+    system: SYSTEM,
+    schema: SCHEMA,
+    content: conversation(messages),
+    timeoutMs: TIMEOUT_MS,
+    maxTokens: 400,
+    label: "[search] using keywords;",
+  });
+  return raw ? validate(raw) : null;
 }
 
 // Structured outputs should already match SCHEMA; this still checks every

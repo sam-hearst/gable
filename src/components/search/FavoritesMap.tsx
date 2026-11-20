@@ -170,7 +170,7 @@ export default function FavoritesMap({ listings }: { listings: PinListing[] }) {
             }}
             className={l.id === active ? "is-active" : undefined}
           >
-            <button type="button" className="fav-item" aria-current={l.id === active || undefined} onClick={() => focusListing(l)}>
+            <Link className="fav-item" href={l.href} aria-current={l.id === active || undefined} onMouseEnter={() => focusListing(l)}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="fav-photo" src={l.photoSrc} alt={l.photoAlt} loading="lazy" />
               <span className="fav-price">{money(l.price)}</span>
@@ -178,7 +178,7 @@ export default function FavoritesMap({ listings }: { listings: PinListing[] }) {
               <span className="fav-meta">
                 {l.neighborhood} · {shortDate(l.availableFrom)} – {shortDate(l.availableTo)}
               </span>
-            </button>
+            </Link>
             <HeartButton id={l.id} title={l.title} className="heart-btn heart-btn-sm fav-heart" />
           </li>
         ))}

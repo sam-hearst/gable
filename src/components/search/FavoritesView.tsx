@@ -15,14 +15,14 @@ const FavoritesMap = dynamic(() => import("./FavoritesMap"), {
 
 // The /favorites page body: every saved listing, on a map and in a list.
 // Unhearting one removes it right away. Your account and Sign out are in the sidebar.
-export function FavoritesView({ real = [] }: { real?: StudentListing[] }) {
+export function FavoritesView({ real = [], coords = {} }: { real?: StudentListing[]; coords?: Record<string, [number, number] | null> }) {
   const { ids } = useFavorites();
   // In the order they were saved. Real listings pin to their neighborhood.
   const pins = ids.flatMap((id) => {
     const sample = SAMPLE_LISTINGS.find((l) => l.id === id);
     if (sample) return [samplePin(sample)];
     const found = real.find((l) => l.id === id);
-    return found ? [realPin(found)] : [];
+    return found ? [realPin(found, coords[found.id])] : [];
   });
 
   return (
@@ -42,7 +42,7 @@ export function FavoritesView({ real = [] }: { real?: StudentListing[] }) {
       <FavoritesMap listings={pins} />
       {pins.some((p) => p.approximate) && (
         <p className="fine" style={{ marginTop: 12 }}>
-          Pins for real listings mark the neighborhood, not the exact address.
+          We couldn&apos;t find the exact address for some listings, so their pins sit in the middle of the neighborhood.
         </p>
       )}
     </>

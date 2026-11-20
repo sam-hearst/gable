@@ -39,10 +39,10 @@ export function samplePin(l: SampleListing): PinListing {
   };
 }
 
-// Real listings don't store coordinates, and we don't want to publish a
-// student's exact address anyway, so the pin sits in the middle of their
-// neighborhood, nudged a little (by the listing id) so two places in the same
-// neighborhood don't stack on one spot.
+// Real listings don't store coordinates. The Favorites page looks the address up
+// (src/lib/geocode.ts) and passes it in. If that fails, the pin sits in the
+// middle of the listing's neighborhood, nudged a little (by the listing id) so
+// two places in the same neighborhood don't stack on one spot.
 const CENTERS: Record<string, [number, number]> = {
   "Morningside Heights": [40.8075, -73.9626],
   "Upper West Side": [40.787, -73.9754],
@@ -60,14 +60,14 @@ function nudge(id: string, salt: number) {
   return (h / 1000 - 0.5) * 0.003; // within about 170 m
 }
 
-export function realPin(l: StudentListing): PinListing {
-  const [lat, lng] = CENTERS[l.neighborhood] ?? NYC;
+export function realPin(l: StudentListing, found?: [number, number] | null): PinListing {
+  const [lat, lng] = found ?? CENTERS[l.neighborhood] ?? NYC;
   return {
     id: l.id,
     title: l.title,
     price: l.price,
-    lat: lat + nudge(l.id, 7),
-    lng: lng + nudge(l.id, 13),
+    lat: found ? lat : lat + nudge(l.id, 7),
+    lng: found ? lng : lng + nudge(l.id, 13),
     availableFrom: l.availableFrom,
     availableTo: l.availableTo,
     neighborhood: l.neighborhood,
@@ -75,7 +75,7 @@ export function realPin(l: StudentListing): PinListing {
     photoSrc: l.photos[0]?.src ?? "",
     photoAlt: l.photos[0]?.alt ?? l.title,
     href: `/sublet/${l.id}`,
-    approximate: true,
+    approximate: !found,
   };
 }
 

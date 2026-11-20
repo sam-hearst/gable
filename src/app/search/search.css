@@ -211,3 +211,19 @@
   padding: 12px 18px; border-radius: 18px; background: var(--ink); color: var(--bg); font-weight: 500;
 }
 .search-gate-login { font-size: 15px; }
+
+/* Link cards: sublets someone found on another site ("Elsewhere on the web").
+   Same card as a Gable result, set apart with a dashed edge and a plain label. */
+.elsewhere { margin-top: 40px; }
+.elsewhere-head h2 { font-size: 20px; }
+.elsewhere-head p { margin-top: 6px; max-width: 62ch; font-size: 15px; color: var(--ink-faint); }
+.elsewhere-head p a { color: var(--accent-dark); }
+.elsewhere .results { margin-top: 16px; }
+.result-external { border-style: dashed; }
+.result .photo .badge-external { background: var(--bg); color: var(--ink); }
+.result .photo .photo-none {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 18px; font-weight: 700; color: var(--accent-dark); background: var(--sage);
+}
+.result .external-title { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--ink); }
+.result .external-note { margin-top: 6px; font-size: 13px; color: var(--ink-faint); }

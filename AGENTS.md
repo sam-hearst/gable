@@ -103,6 +103,19 @@ and use only the colors and fonts in the style guide.
   (`listing_settings.auto_approve = false`) and must only be turned on after "Confirm email" is
   enabled in Supabase Auth, or the school-email check proves nothing. The database enforces it
   (trigger + insert policy), not the browser.
+- Link cards (`/share-a-listing`, both sites; branch `link-cards`, Nov 20, waiting on the team's OK to
+  the listing-data rule below): a signed-in student pastes a link to a sublet they found elsewhere (Ohana,
+  Listings Project, a Facebook group...). `src/lib/link-preview.ts` opens that one page once and reads its
+  public link preview (og:title, og:image, og:description, like a chat app does); nothing is crawled.
+  Only public http(s) addresses on normal ports, checked again on every redirect (no localhost or private
+  networks), 1 MB and 5 s caps. Claude (or a keyword fallback) guesses price, dates, area, room type and
+  furnished from the preview; the sharer checks them. Saved to `external_listings`
+  (`supabase/external_listings.sql`, run once) as `pending`; the team approves in the Table Editor like
+  student listings. Cards expire after 21 days (`expires_at`). Search matches them on the same filters and
+  shows only full matches, in their own "Elsewhere on the web" row (`ExternalCard`), labeled with the site
+  and "not checked by Gable"; the button opens the original listing in a new tab. The preview image is
+  shown from its own site, never copied. Staging also shows three made-up sample cards
+  (`src/content/external-samples.ts`, links to example.com).
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
   `student_listings`. For each `pending` row, email the lister at `contact_email` (visible in the dashboard) to
   check they're a student and on the lease, and look at the photos (`photos` holds paths
@@ -152,8 +165,11 @@ and use only the colors and fonts in the style guide.
 - Keep commits small, with a message that says what changed and why.
 - Ask before adding a new library, service, or paid API.
 - Listing data: do not scrape any site or call an MLS or listing API until the
-  team has confirmed it is allowed. For now, real listings come only from
-  students posting on `/sublet-your-room` (see diagrams/system_overview.md).
+  team has confirmed it is allowed. Real listings come from students posting on
+  `/sublet-your-room`. Proposed (branch `link-cards`, needs the team's OK): link
+  cards that students share from other sites, read one pasted page at a time for
+  its public link preview, never crawled, always labeled "not checked by Gable"
+  (see diagrams/system_overview.md).
 - Never commit secrets. Keys go in `.env.local`, which is gitignored.
 - When you change how the project runs or is structured, update this file and
   the diagrams in the same pull request.

@@ -10,7 +10,8 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { SAMPLE_LISTINGS, type RoomType } from "@/content/listings";
-import { isStudentListing, type AnyListing } from "./student-listing-fields";
+import type { AnyListing } from "./student-listing-fields";
+import type { ExternalListing } from "./external-listing-fields";
 import { money, shortDate } from "./format";
 
 const MODEL = "claude-haiku-5-5";
@@ -44,11 +45,17 @@ export type SearchResult = {
   misses: string[]; // what doesn't fit, only for the closest options
 };
 
+// A link card that fits the search (a sublet someone found on another site).
+export type ElsewhereResult = { listing: ExternalListing; misses: string[] };
+
 export type SearchResponse = {
   reply: string;
   results: SearchResult[];
   matched: boolean; // false when we're showing the closest options instead
   source: "claude" | "keywords";
+  // Link cards that fit every filter, shown in their own "Elsewhere on the
+  // web" row, never mixed in with Gable listings.
+  elsewhere: ElsewhereResult[];
 };
 
 const NO_FILTERS: SearchFilters = {
@@ -302,10 +309,10 @@ function hasFilters(f: SearchFilters) {
   return checks(SAMPLE_LISTINGS[0], f).length > 0;
 }
 
-export function rank(
+export function rank<T extends Searchable>(
   f: SearchFilters,
-  listings: AnyListing[] = SAMPLE_LISTINGS,
-): { results: SearchResult[]; matched: boolean } {
+  listings: T[] = SAMPLE_LISTINGS as unknown as T[],
+): { results: { listing: T; misses: string[] }[]; matched: boolean } {
   const scored = listings.map((listing) => {
     const cs = checks(listing, f);
     const passed = cs.filter((c) => c.pass);
@@ -318,7 +325,7 @@ export function rank(
   });
   // Best fit first: most checks passed, most of the dates covered, real
   // listings before samples, then cheapest.
-  const real = (l: AnyListing) => (isStudentListing(l) ? 1 : 0);
+  const real = (l: T) => ("kind" in l && (l as { kind?: string }).kind === "student" ? 1 : 0);
   scored.sort(
     (a, b) =>
       b.score - a.score || b.cover - a.cover || real(b.listing) - real(a.listing) || a.listing.price - b.listing.price,
@@ -379,38 +386,57 @@ export function readConversationWithKeywords(messages: string[]): SearchFilters 
 // `messages` is everything they've typed, oldest first: the first request
 // plus any follow-ups ("cheaper", "only Harlem"). `listings` is what to
 // search, real listings first.
-export async function search(messages: string[], listings: AnyListing[] = SAMPLE_LISTINGS): Promise<SearchResponse> {
+// `external` is the link cards (sublets found on other sites); they're matched
+// on the same filters but come back separately, in `elsewhere`.
+export async function search(
+  messages: string[],
+  listings: AnyListing[] = SAMPLE_LISTINGS,
+  external: ExternalListing[] = [],
+): Promise<SearchResponse> {
   const asked = messages.length > 0;
-  if (!listings.length) {
-    return {
-      reply: asked
-        ? "Got it. There are no checked sublets on Gable yet, so nothing to show. The first ones are on their way."
-        : "There are no checked sublets on Gable yet. The first ones are on their way.",
-      results: [],
-      matched: true,
-      source: "keywords",
-    };
+  const none = asked
+    ? "Got it. There are no checked sublets on Gable yet, so nothing to show. The first ones are on their way."
+    : "There are no checked sublets on Gable yet. The first ones are on their way.";
+  if (!listings.length && !external.length) {
+    return { reply: none, results: [], matched: true, source: "keywords", elsewhere: [] };
   }
   const fromClaude = asked ? await readWithClaude(messages) : null;
   const filters = fromClaude?.filters ?? (asked ? readConversationWithKeywords(messages) : NO_FILTERS);
   const source = fromClaude ? "claude" : "keywords";
 
   if (!hasFilters(filters)) {
+    const elsewhere = external.slice(0, 6).map((listing) => ({ listing, misses: [] }));
     return {
-      reply: asked
-        ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished sublet near Columbia, June to August, under $1,600.\""
-        : "Tell me the place you want: your dates, your budget, the area. For now, here's everything.",
+      reply: !listings.length
+        ? "There are no checked sublets on Gable yet. Below are places students found on other sites. Tell me your dates, budget and area to narrow them down."
+        : asked
+          ? "I couldn't pick out dates, a budget or an area from that, so here's everything. Try something like \"furnished sublet near Columbia, June to August, under $1,600.\""
+          : "Tell me the place you want: your dates, your budget, the area. For now, here's everything.",
       results: listings.map((listing) => ({ listing, misses: [] })),
       matched: true,
       source,
+      elsewhere,
     };
   }
 
-  const { results, matched } = rank(filters, listings);
+  // Link cards only show when they fit every filter: no "closest" guesses
+  // for listings we haven't checked.
+  const outside = external.length ? rank(filters, external) : { results: [], matched: false };
+  const elsewhere = outside.matched ? outside.results : [];
   const said = fromClaude?.reply ?? describe(filters);
+  const also = elsewhere.length ? ` ${elsewhere.length === 1 ? "1 place" : `${elsewhere.length} places`} on other sites fit${elsewhere.length === 1 ? "s" : ""} too.` : "";
+
+  if (!listings.length) {
+    const reply = elsewhere.length
+      ? `${said} There are no checked sublets on Gable yet, but ${elsewhere.length === 1 ? "1 place" : `${elsewhere.length} places`} that students found on other sites fit${elsewhere.length === 1 ? "s" : ""}.`
+      : `${said} There are no checked sublets on Gable yet, and nothing shared from other sites fits yet.`;
+    return { reply, results: [], matched: true, source, elsewhere };
+  }
+
+  const { results, matched } = rank(filters, listings);
   const count = results.length === 1 ? "1 place fits" : `${results.length} places fit`;
   const reply = matched
-    ? `${said} ${count}.`
-    : `${said} Nothing here fits all of that yet, so here are the 3 closest, with what's different about each.`;
-  return { reply, results, matched, source };
+    ? `${said} ${count}.${also}`
+    : `${said} Nothing here fits all of that yet, so here are the 3 closest, with what's different about each.${also}`;
+  return { reply, results, matched, source, elsewhere };
 }

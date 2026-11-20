@@ -43,7 +43,6 @@ export type StudentListing = {
   photos: { src: string; alt: string }[];
   lister: { firstName: string; school: string };
   checked: string[]; // filled in by the team when they approve
-  contactEmail: string | null; // only read for signed-in visitors
 };
 
 // Anything search can show: a made-up sample or a real student listing.

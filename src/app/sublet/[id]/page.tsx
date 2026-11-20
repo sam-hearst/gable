@@ -41,6 +41,7 @@ async function Listing({ id }: { id: string }) {
   const [cover, ...more] = l.photos;
   const peek = l.status === "approved" ? await getChatPeek(l.id) : { count: null, messages: [] };
   const chatHref = `/sublet/${l.id}/chat`;
+  const messageHref = `/sublet/${l.id}/message`;
 
   return (
     <>
@@ -118,17 +119,14 @@ async function Listing({ id }: { id: string }) {
             />
           )}
 
-          {isOwner ? null : signedIn && l.contactEmail ? (
-            <a
-              className="btn btn-secondary cta-full"
-              href={`mailto:${l.contactEmail}?subject=${encodeURIComponent(`Your sublet on Gable: ${l.title}`)}`}
-            >
+          {isOwner || l.status !== "approved" ? null : signedIn ? (
+            <Link className="btn btn-secondary cta-full" href={messageHref}>
               <Mail size={18} />
-              Email {l.lister.firstName} privately
-            </a>
+              Message {l.lister.firstName} privately
+            </Link>
           ) : (
-            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
-              Sign in to contact {l.lister.firstName}
+            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(messageHref)}`}>
+              Sign in to message {l.lister.firstName}
             </Link>
           )}
           <p className="under-cta">

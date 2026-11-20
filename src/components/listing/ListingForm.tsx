@@ -382,8 +382,8 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
           onChange={(e) => set("agreeToContact")(e.target.checked)}
         />
         <span>
-          Students signed in to Gable can see my email{email ? ` (${email})` : ""} so they can reach me about this
-          room.
+          Students signed in to Gable can send me private messages about this room. My email ({email ?? "on my account"})
+          stays hidden from them.
         </span>
       </label>
 

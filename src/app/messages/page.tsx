@@ -7,7 +7,7 @@ import { showSamples } from "@/lib/mode";
 
 export const metadata: Metadata = {
   title: "Messages | Gable",
-  description: "Group chats for each listing you're interested in, and direct messages with listers.",
+  description: "Private messages with listers, and group chats for each listing you're interested in.",
 };
 
 // Staging: a design mockup with sample chats (listing group chats and direct
@@ -17,7 +17,7 @@ export default function MessagesPage() {
   return (
     <AppShell current="messages">
       <main>
-        {/* Your real group chats, with unread counts. Production shows only these. */}
+        {/* Your real private messages and group chats, with unread counts. Production shows only these. */}
         <MyChats showEmpty={!showSamples} />
         {showSamples && (
           <Suspense>

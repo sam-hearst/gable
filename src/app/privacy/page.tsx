@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT = "gable.nyc.team@gmail.com";
-const UPDATED = "November 7, 2026";
+const UPDATED = "November 19, 2026";
 
 // Plain-language privacy policy. Public on both the waitlist and demo sites,
 // and linked from the footer and the sign-in page.
@@ -33,6 +33,11 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           the chat.
         </li>
         <li>
+          <b>Private messages:</b> the first name you choose and the messages you send to a lister (or, if you&apos;re
+          the lister, to a student who wrote to you). Only the two of you can read them. Gable never shows your email
+          to the other person. We keep when you last opened a thread so we can show unread counts.
+        </li>
+        <li>
           <b>Searches:</b> what you type or say in the chat box, so we can show sublets that fit.
         </li>
         <li>
@@ -55,7 +60,7 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
     body: (
       <ul>
         <li>
-          <b>Supabase</b> stores accounts, favorites and waitlist emails.
+          <b>Supabase</b> stores accounts, favorites, messages and waitlist emails.
         </li>
         <li>
           <b>Google Places and NYC Planning Labs (NYC GeoSearch)</b> suggest addresses as you type a street on List your

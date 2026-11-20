@@ -57,3 +57,15 @@
 .mc-side { display: grid; justify-items: end; gap: 4px; flex-shrink: 0; }
 .mc-side small { color: var(--ink-faint); font-size: 13px; }
 .mc-side .app-badge { margin-left: 0; }
+
+/* Private message (/sublet/[id]/message). */
+.gc-dm-compose { flex-direction: column; }
+.gc-dm-name { display: grid; gap: 6px; }
+.gc-dm-name label { font-size: 14px; font-weight: 700; }
+.gc-dm-name input, .gc-dm-row input {
+  min-height: 48px; padding: 0 14px; border: 2px solid var(--sage-line); border-radius: 12px; background: var(--bg); color: var(--ink); font: inherit;
+}
+.gc-dm-name input:focus-visible, .gc-dm-row input:focus-visible { border-color: var(--accent); }
+.gc-dm-row { display: flex; gap: 10px; }
+.gc-dm-row input { flex: 1; }
+.gc-note { color: var(--ink-faint); font-size: 14px; }

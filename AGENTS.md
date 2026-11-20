@@ -56,9 +56,10 @@ and use only the colors and fonts in the style guide.
   to the Supabase `student_listings` table as `pending`, with photos in the public
   `listing-photos` Storage bucket (create both with `supabase/student_listings.sql`).
   Row level security keeps pending listings visible only to their lister, and the lister's
-  email visible only to signed-in users. Approved listings show in `/search` (next to
+  email (`contact_email`) is not readable from the browser at all (only the team sees it in the
+  dashboard). Approved listings show in `/search` (next to
   the samples on staging) with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
-  renters can email the lister. No booking or payment in Gable (it was removed on purpose: renters and listers deal directly), and they
+  renters can message the lister privately (next bullet). No booking or payment in Gable (it was removed on purpose: renters and listers deal directly), and they
   can't be hearted. Feature record: `docs/features/list-your-room/`.
 - Group chat on real listings: each approved listing has a "Join the group chat" button
   (`/sublet/[id]/chat`) for the host plus the students interested. The host removes people,
@@ -67,10 +68,20 @@ and use only the colors and fonts in the style guide.
   SQL editor after `student_listings.sql`. Until then the page says chat isn't set up and
   nothing breaks. The browser talks to Supabase directly and row level security enforces who
   can read or write; new messages arrive by checking every 4 seconds.
-- Unread messages: the Messages item in the sidebar shows a count of unread group-chat
-  messages (checked on load, on focus and every 30 seconds), and `/messages` lists your chats
-  with their unread counts. Opening a chat marks it read. Needs `supabase/chat_unread.sql`, run
-  once after `listing_chats.sql`; until then there's simply no badge.
+- Private messages (`supabase/listing_dms.sql`, run once after `student_listings.sql`): the
+  "Message [name] privately" button on a real listing opens `/sublet/[id]/message`, one thread
+  per renter per listing, between that renter and the lister (signed-out visitors go to sign in
+  first, then back). Tables `listing_dms` and `listing_dm_messages`; row level security lets only
+  those two read or write, threads start through the `start_dm()` function (no insert policy), and
+  the renter's first message starts it. The lister opens a thread from `/messages`
+  (`/sublet/[id]/message?t=<thread id>`). Neither side ever sees the other's email. The same SQL
+  file takes `contact_email` away from signed-in users. Component: `DirectMessage.tsx`, polling
+  every 4 seconds like the group chat. Until the SQL is run the page says messages aren't set up
+  and nothing else breaks. No blocking or reporting yet.
+- Unread messages: the Messages item in the sidebar shows a count of unread group-chat and
+  private messages (checked on load, on focus and every 30 seconds), and `/messages` lists your private
+  messages and chats with their unread counts. Opening a chat marks it read. Group-chat counts need `supabase/chat_unread.sql`, run
+  once after `listing_chats.sql`; private-message counts come from `listing_dms.sql`. Until then there's simply no badge.
 - Address autofill on List your room (`src/lib/nyc-geosearch.ts`) uses Google Places autocomplete
   (typo-tolerant) when `NEXT_PUBLIC_GOOGLE_MAPS_KEY` has the Places API (New) enabled, and falls
   back to NYC GeoSearch (free, no key, NYC only, exact spelling) when Google refuses. Picking a suggestion fills the full address (shown on the listing) and the
@@ -82,7 +93,7 @@ and use only the colors and fonts in the style guide.
   enabled in Supabase Auth, or the school-email check proves nothing. The database enforces it
   (trigger + insert policy), not the browser.
 - Approving a listing (team, by hand): Supabase dashboard → Table Editor →
-  `student_listings`. For each `pending` row, email the lister at `contact_email` to
+  `student_listings`. For each `pending` row, email the lister at `contact_email` (visible in the dashboard) to
   check they're a student and on the lease, and look at the photos (`photos` holds paths
   in the `listing-photos` bucket, under Storage). Then set `checked` to what you
   confirmed, e.g. `["Columbia email verified","Lease on file","Photos checked"]`, and

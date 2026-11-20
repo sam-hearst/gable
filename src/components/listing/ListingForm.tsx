@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { submitListing } from "@/app/sublet-your-room/actions";
 import { ImagePlus, X } from "@/components/landing/icons";
 import { AddressAutofill } from "@/components/listing/AddressAutofill";
+import { PastePost } from "@/components/listing/PastePost";
+import type { PostFields } from "@/lib/paste-post";
 import type { AddressSuggestion } from "@/lib/nyc-geosearch";
 import {
   MAX_PHOTOS,
@@ -83,6 +85,22 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
     setError(message);
     setBusy(false);
     requestAnimationFrame(() => errorRef.current?.focus());
+  }
+
+  // Prefill from a pasted post. A field the post filled replaces what's in the
+  // form; a field it left blank keeps what the student already typed.
+  function fillFromPost(p: PostFields) {
+    setF((prev) => ({
+      ...prev,
+      crossStreets: p.address ?? prev.crossStreets,
+      neighborhood: p.neighborhood ?? prev.neighborhood,
+      availableFrom: p.availableFrom ?? prev.availableFrom,
+      availableTo: p.availableTo ?? prev.availableTo,
+      price: p.price !== null ? `$${p.price.toLocaleString("en-US")}` : prev.price,
+      roomType: p.roomType ?? prev.roomType,
+      furnished: p.furnished === null ? prev.furnished : p.furnished ? "yes" : "no",
+      description: p.description ?? prev.description,
+    }));
   }
 
   function addPhotos(files: FileList | null) {
@@ -189,216 +207,219 @@ export function ListingForm({ userId, email }: { userId: string; email: string |
   }
 
   return (
-    <form className="list-form" onSubmit={submit}>
-      <div className="list-field">
-        <label htmlFor="title">Title</label>
-        <input
-          id="title"
-          required
-          minLength={3}
-          maxLength={80}
-          placeholder="Sunny room two blocks from campus"
-          value={f.title}
-          onChange={(e) => set("title")(e.target.value)}
-        />
-      </div>
-
-      <div className="list-row">
+    <>
+      <PastePost onFill={fillFromPost} />
+      <form className="list-form" onSubmit={submit}>
         <div className="list-field">
-          <label htmlFor="cross">Address</label>
-          <AddressAutofill
-            id="cross"
-            value={f.crossStreets}
-            onChange={set("crossStreets")}
-            onPick={(s) =>
-              setF((prev) => ({
-                ...prev,
-                crossStreets: fullAddress(s),
-                neighborhood: s.neighborhood ?? prev.neighborhood,
-              }))
-            }
-            onGuess={(s) => setF((prev) => ({ ...prev, neighborhood: prev.neighborhood || (s.neighborhood ?? "") }))}
-          />
-          <small id="cross-hint">Search your address and pick it. We fill in the neighborhood.</small>
-        </div>
-        <div className="list-field">
-          <label htmlFor="neighborhood">Neighborhood</label>
-          <select id="neighborhood" required value={f.neighborhood} onChange={(e) => set("neighborhood")(e.target.value)}>
-            <option value="" disabled>
-              Pick one
-            </option>
-            {NEIGHBORHOODS.map((n) => (
-              <option key={n}>{n}</option>
-            ))}
-          </select>
-          <small>Fills in from the address. You can change it.</small>
-        </div>
-      </div>
-
-      <div className="list-row">
-        <div className="list-field">
-          <label htmlFor="from">Available from</label>
-          <input id="from" type="date" required min={today} value={f.availableFrom} onChange={(e) => set("availableFrom")(e.target.value)} />
-        </div>
-        <div className="list-field">
-          <label htmlFor="to">Available until</label>
+          <label htmlFor="title">Title</label>
           <input
-            id="to"
-            type="date"
+            id="title"
             required
-            min={f.availableFrom || today}
-            value={f.availableTo}
-            onChange={(e) => set("availableTo")(e.target.value)}
+            minLength={3}
+            maxLength={80}
+            placeholder="Sunny room two blocks from campus"
+            value={f.title}
+            onChange={(e) => set("title")(e.target.value)}
           />
         </div>
-      </div>
 
-      <div className="list-row">
-        <div className="list-field">
-          <label htmlFor="price">Monthly rent</label>
-          <input
-            id="price"
-            inputMode="numeric"
-            required
-            pattern="\$?\s?[0-9][0-9,]*"
-            placeholder="$1,450"
-            value={f.price}
-            onChange={(e) => set("price")(e.target.value)}
-          />
-        </div>
-        <div className="list-field">
-          <label htmlFor="room-type">What kind of space</label>
-          <select id="room-type" value={f.roomType} onChange={(e) => set("roomType")(e.target.value)}>
-            <option value="private room">Private room</option>
-            <option value="studio">Studio</option>
-            <option value="shared">Shared room</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="list-row">
-        <div className="list-field">
-          <fieldset>
-            <legend>Furnished?</legend>
-            {(["yes", "no"] as const).map((v) => (
-              <label key={v} className="list-choice">
-                <input
-                  type="radio"
-                  name="furnished"
-                  required
-                  checked={f.furnished === v}
-                  onChange={() => set("furnished")(v)}
-                />
-                {v === "yes" ? "Yes" : "No"}
-              </label>
-            ))}
-          </fieldset>
-        </div>
-        <div className="list-field">
-          <label htmlFor="sleeps">How many people it fits</label>
-          <select id="sleeps" value={f.sleeps} onChange={(e) => set("sleeps")(e.target.value)}>
-            {[1, 2, 3, 4].map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="list-field">
-        <label htmlFor="description">Describe it in your own words</label>
-        <textarea
-          id="description"
-          required
-          minLength={20}
-          maxLength={1000}
-          placeholder="What the room and roommates are like, laundry, pets, how far to campus or the train."
-          value={f.description}
-          onChange={(e) => set("description")(e.target.value)}
-        />
-      </div>
-
-      <div className="list-field">
-        <span id="photos-label" style={{ fontSize: 14, fontWeight: 700 }}>
-          Photos
-        </span>
-        <small id="photos-hint">
-          1 to {MAX_PHOTOS} photos of the actual room, up to 5 MB each. Anyone with the link can see them, so
-          don&apos;t upload your lease or anything personal here.
-        </small>
-        {photos.length > 0 && (
-          <div className="list-photos">
-            {photos.map((p, i) => (
-              <div className="list-photo" key={p.preview}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.preview} alt={`Photo ${i + 1}: ${p.file.name}`} />
-                <button type="button" onClick={() => removePhoto(i)} aria-label={`Remove photo ${i + 1}`}>
-                  <X size={18} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-        {photos.length < MAX_PHOTOS && (
-          <label className="list-add">
-            <ImagePlus size={20} />
-            {photos.length ? "Add more photos" : "Add photos"}
-            <input
-              type="file"
-              accept={PHOTO_TYPES.join(",")}
-              multiple
-              aria-labelledby="photos-label"
-              aria-describedby="photos-hint"
-              onChange={(e) => {
-                addPhotos(e.target.files);
-                e.target.value = "";
-              }}
+        <div className="list-row">
+          <div className="list-field">
+            <label htmlFor="cross">Address</label>
+            <AddressAutofill
+              id="cross"
+              value={f.crossStreets}
+              onChange={set("crossStreets")}
+              onPick={(s) =>
+                setF((prev) => ({
+                  ...prev,
+                  crossStreets: fullAddress(s),
+                  neighborhood: s.neighborhood ?? prev.neighborhood,
+                }))
+              }
+              onGuess={(s) => setF((prev) => ({ ...prev, neighborhood: prev.neighborhood || (s.neighborhood ?? "") }))}
             />
-          </label>
-        )}
-      </div>
+            <small id="cross-hint">Search your address and pick it. We fill in the neighborhood.</small>
+          </div>
+          <div className="list-field">
+            <label htmlFor="neighborhood">Neighborhood</label>
+            <select id="neighborhood" required value={f.neighborhood} onChange={(e) => set("neighborhood")(e.target.value)}>
+              <option value="" disabled>
+                Pick one
+              </option>
+              {NEIGHBORHOODS.map((n) => (
+                <option key={n}>{n}</option>
+              ))}
+            </select>
+            <small>Fills in from the address. You can change it.</small>
+          </div>
+        </div>
 
-      <div className="list-row">
+        <div className="list-row">
+          <div className="list-field">
+            <label htmlFor="from">Available from</label>
+            <input id="from" type="date" required min={today} value={f.availableFrom} onChange={(e) => set("availableFrom")(e.target.value)} />
+          </div>
+          <div className="list-field">
+            <label htmlFor="to">Available until</label>
+            <input
+              id="to"
+              type="date"
+              required
+              min={f.availableFrom || today}
+              value={f.availableTo}
+              onChange={(e) => set("availableTo")(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="list-row">
+          <div className="list-field">
+            <label htmlFor="price">Monthly rent</label>
+            <input
+              id="price"
+              inputMode="numeric"
+              required
+              pattern="\$?\s?[0-9][0-9,]*"
+              placeholder="$1,450"
+              value={f.price}
+              onChange={(e) => set("price")(e.target.value)}
+            />
+          </div>
+          <div className="list-field">
+            <label htmlFor="room-type">What kind of space</label>
+            <select id="room-type" value={f.roomType} onChange={(e) => set("roomType")(e.target.value)}>
+              <option value="private room">Private room</option>
+              <option value="studio">Studio</option>
+              <option value="shared">Shared room</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="list-row">
+          <div className="list-field">
+            <fieldset>
+              <legend>Furnished?</legend>
+              {(["yes", "no"] as const).map((v) => (
+                <label key={v} className="list-choice">
+                  <input
+                    type="radio"
+                    name="furnished"
+                    required
+                    checked={f.furnished === v}
+                    onChange={() => set("furnished")(v)}
+                  />
+                  {v === "yes" ? "Yes" : "No"}
+                </label>
+              ))}
+            </fieldset>
+          </div>
+          <div className="list-field">
+            <label htmlFor="sleeps">How many people it fits</label>
+            <select id="sleeps" value={f.sleeps} onChange={(e) => set("sleeps")(e.target.value)}>
+              {[1, 2, 3, 4].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
         <div className="list-field">
-          <label htmlFor="first-name">Your first name</label>
-          <input
-            id="first-name"
+          <label htmlFor="description">Describe it in your own words</label>
+          <textarea
+            id="description"
             required
-            maxLength={40}
-            autoComplete="given-name"
-            value={f.firstName}
-            onChange={(e) => set("firstName")(e.target.value)}
+            minLength={20}
+            maxLength={1000}
+            placeholder="What the room and roommates are like, laundry, pets, how far to campus or the train."
+            value={f.description}
+            onChange={(e) => set("description")(e.target.value)}
           />
         </div>
+
         <div className="list-field">
-          <label htmlFor="school">Your school</label>
-          <input id="school" required minLength={2} maxLength={60} value={f.school} onChange={(e) => set("school")(e.target.value)} />
+          <span id="photos-label" style={{ fontSize: 14, fontWeight: 700 }}>
+            Photos
+          </span>
+          <small id="photos-hint">
+            1 to {MAX_PHOTOS} photos of the actual room, up to 5 MB each. Anyone with the link can see them, so
+            don&apos;t upload your lease or anything personal here.
+          </small>
+          {photos.length > 0 && (
+            <div className="list-photos">
+              {photos.map((p, i) => (
+                <div className="list-photo" key={p.preview}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.preview} alt={`Photo ${i + 1}: ${p.file.name}`} />
+                  <button type="button" onClick={() => removePhoto(i)} aria-label={`Remove photo ${i + 1}`}>
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          {photos.length < MAX_PHOTOS && (
+            <label className="list-add">
+              <ImagePlus size={20} />
+              {photos.length ? "Add more photos" : "Add photos"}
+              <input
+                type="file"
+                accept={PHOTO_TYPES.join(",")}
+                multiple
+                aria-labelledby="photos-label"
+                aria-describedby="photos-hint"
+                onChange={(e) => {
+                  addPhotos(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
         </div>
-      </div>
 
-      <label className="list-agree">
-        <input
-          type="checkbox"
-          required
-          checked={f.agreeToContact}
-          onChange={(e) => set("agreeToContact")(e.target.checked)}
-        />
-        <span>
-          Students signed in to Gable can send me private messages about this room. My email ({email ?? "on my account"})
-          stays hidden from them.
-        </span>
-      </label>
+        <div className="list-row">
+          <div className="list-field">
+            <label htmlFor="first-name">Your first name</label>
+            <input
+              id="first-name"
+              required
+              maxLength={40}
+              autoComplete="given-name"
+              value={f.firstName}
+              onChange={(e) => set("firstName")(e.target.value)}
+            />
+          </div>
+          <div className="list-field">
+            <label htmlFor="school">Your school</label>
+            <input id="school" required minLength={2} maxLength={60} value={f.school} onChange={(e) => set("school")(e.target.value)} />
+          </div>
+        </div>
 
-      {error && (
-        <p className="list-error" role="alert" tabIndex={-1} ref={errorRef}>
-          {error}
-        </p>
-      )}
+        <label className="list-agree">
+          <input
+            type="checkbox"
+            required
+            checked={f.agreeToContact}
+            onChange={(e) => set("agreeToContact")(e.target.checked)}
+          />
+          <span>
+            Students signed in to Gable can send me private messages about this room. My email ({email ?? "on my account"})
+            stays hidden from them.
+          </span>
+        </label>
 
-      <button className="btn" type="submit" disabled={busy}>
-        {busy ? "Sending…" : "Send for checking"}
-      </button>
-    </form>
+        {error && (
+          <p className="list-error" role="alert" tabIndex={-1} ref={errorRef}>
+            {error}
+          </p>
+        )}
+
+        <button className="btn" type="submit" disabled={busy}>
+          {busy ? "Sending…" : "Send for checking"}
+        </button>
+      </form>
+    </>
   );
 }

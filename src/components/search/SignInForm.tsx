@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setFavorite } from "@/app/favorites/actions";
 import { trackEvent } from "@/lib/analytics";
+import { savedUtm } from "@/lib/utm";
 import { createClient } from "@/lib/supabase/client";
 
 // Email and password, like any listing site: create an account or sign in, and
@@ -70,10 +71,11 @@ export function SignInForm({
       return finish();
     }
 
-    // The first name shows in the header once you're signed in.
     const { data, error } = await supabase.auth.signUp({
       ...credentials,
-      options: { data: { name: name.trim() } },
+      // The first name shows in the header. The utm_ tags of the link that brought
+      // them (if any) are saved too, so we can count sign-ups per campaign in Supabase.
+      options: { data: { name: name.trim(), ...savedUtm(), signup_from: fromSearch ? "search_gate" : "signin" } },
     });
     if (error) {
       setBusy(false);

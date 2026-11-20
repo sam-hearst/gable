@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 const CONTACT = "gable.nyc.team@gmail.com";
-const UPDATED = "November 19, 2026";
+const UPDATED = "November 20, 2026";
 
 // Plain-language privacy policy. Public on both the waitlist and demo sites,
 // and linked from the footer and the sign-in page.
@@ -21,7 +21,8 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Waitlist:</b> your email, what you said you&apos;re looking for, and which page you signed up from.
         </li>
         <li>
-          <b>Account:</b> your first name, email and password.
+          <b>Account:</b> your first name, email and password, and which link brought you to Gable (the campaign tags in
+          the link you clicked, like an ad), so we can tell which of our posts and ads bring people.
         </li>
         <li>
           <b>Favorites:</b> the places you save.

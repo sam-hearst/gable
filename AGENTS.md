@@ -59,8 +59,9 @@ and use only the colors and fonts in the style guide.
   email visible only to signed-in users. Approved listings show in `/search` (next to
   the samples on staging) with a "Real listing" badge and open at `/sublet/[id]`, where signed-in
   renters can email the lister. No booking or payment in Gable (it was removed on purpose: renters and listers deal directly). They can be hearted (the `favorites` table keeps
-  the listing id as text, so it takes real ids); saved real listings show as cards under the
-  Favorites map, since they have no map coordinates yet. Photos open in `PhotoGallery`
+  the listing id as text, so it takes real ids); saved real listings show on the Favorites map and
+  list too, pinned to the middle of their neighborhood (nudged a little), not their address,
+  since we don't store coordinates (`src/components/map/pins.ts`). Photos open in `PhotoGallery`
   (`src/components/listing/PhotoGallery.tsx`): arrows, thumbnails, and a full-screen view with zoom. Feature record: `docs/features/list-your-room/`.
 - Group chat on real listings: each approved listing has a "Join the group chat" button
   (`/sublet/[id]/chat`) for the host plus the students interested. The host removes people,

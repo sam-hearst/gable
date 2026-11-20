@@ -143,6 +143,9 @@ export function DirectMessage({
       <div className="gc-card">
         <h2>Messages aren&apos;t set up here yet</h2>
         <p>The team still needs to turn them on for this copy of Gable.</p>
+        <Link className="back-link" href="/messages">
+          &larr; Go to Messages
+        </Link>
         <Link className="back-link" href={`/sublet/${listingId}`}>
           &larr; Back to the listing
         </Link>
@@ -225,9 +228,14 @@ export function DirectMessage({
           {error}
         </p>
       )}
-      <Link className="back-link" href={isLister ? "/messages" : `/sublet/${listingId}`}>
-        &larr; {isLister ? "Back to messages" : "Back to the listing"}
+      <Link className="back-link" href="/messages">
+        &larr; Back to Messages
       </Link>
+      {!isLister && (
+        <Link className="back-link" href={`/sublet/${listingId}`}>
+          View the listing
+        </Link>
+      )}
     </div>
   );
 }

@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import "@/components/listing/listing-chat.css";
 
-// "Your group chats" on the Messages page: every listing chat you're in, newest
-// first, with how many messages you haven't read yet. With no chats it shows
-// nothing, or the empty message when `showEmpty` is set.
+// The Messages page: "Group chats" on top (every listing chat you're in, newest
+// first) and "Direct messages" below (your one-to-one threads), each with how
+// many messages you haven't read yet. With neither it shows nothing, or the
+// empty message when `showEmpty` is set.
 
 type Chat = {
   listing_id: string;
@@ -73,11 +74,40 @@ export function MyChats({ showEmpty = false }: { showEmpty?: boolean }) {
     ) : null;
   }
 
+  // Two sections: group chats on top, direct messages (one-to-one with a lister
+  // or renter) below.
   return (
     <>
-      {dms.length > 0 && (
-        <section className="mc" aria-label="Your private messages">
-          <h1>Private messages</h1>
+      <section className="mc" aria-label="Your group chats">
+        <h1>Group chats</h1>
+        {chats.length > 0 ? (
+          <ul>
+            {chats.map((c) => (
+              <li key={c.listing_id}>
+                <Link href={`/sublet/${c.listing_id}/chat`} className={c.unread > 0 ? "is-unread" : undefined}>
+                  <span className="mc-main">
+                    <b>{c.title}</b>
+                    <small>
+                      {c.ended ? "Ended · " : ""}
+                      {c.last_body ?? `Chat with ${c.host_name}. No messages yet.`}
+                    </small>
+                  </span>
+                  <span className="mc-side">
+                    <small>{when(c.last_at)}</small>
+                    {c.unread > 0 && <span className="app-badge">{c.unread > 9 ? "9+" : c.unread}</span>}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mc-none">Join a listing&apos;s group chat and it shows up here.</p>
+        )}
+      </section>
+
+      <section className="mc" aria-label="Your direct messages">
+        <h2>Direct messages</h2>
+        {dms.length > 0 ? (
           <ul>
             {dms.map((d) => (
               <li key={d.dm_id}>
@@ -99,32 +129,10 @@ export function MyChats({ showEmpty = false }: { showEmpty?: boolean }) {
               </li>
             ))}
           </ul>
-        </section>
-      )}
-      {chats.length > 0 && (
-        <section className="mc" aria-label="Your group chats">
-          <h1>Your group chats</h1>
-          <ul>
-            {chats.map((c) => (
-              <li key={c.listing_id}>
-                <Link href={`/sublet/${c.listing_id}/chat`} className={c.unread > 0 ? "is-unread" : undefined}>
-                  <span className="mc-main">
-                    <b>{c.title}</b>
-                    <small>
-                      {c.ended ? "Ended · " : ""}
-                      {c.last_body ?? `Chat with ${c.host_name}. No messages yet.`}
-                    </small>
-                  </span>
-                  <span className="mc-side">
-                    <small>{when(c.last_at)}</small>
-                    {c.unread > 0 && <span className="app-badge">{c.unread > 9 ? "9+" : c.unread}</span>}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        ) : (
+          <p className="mc-none">Message a lister from their listing and it shows up here.</p>
+        )}
+      </section>
     </>
   );
 }

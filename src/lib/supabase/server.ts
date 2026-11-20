@@ -25,7 +25,7 @@ export async function createClient() {
   });
 }
 
-export type CurrentUser = { id: string; email: string | null };
+export type CurrentUser = { id: string; email: string | null; name: string | null };
 
 // The signed-in user, verified with getClaims (it checks the token's
 // signature, unlike getSession). Null when signed out or not configured.
@@ -35,5 +35,8 @@ export async function getCurrentUser(supabase?: Awaited<ReturnType<typeof create
   const { data } = await client.auth.getClaims();
   const claims = data?.claims;
   if (!claims?.sub) return null;
-  return { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null };
+  const meta = (claims.user_metadata ?? {}) as { name?: unknown; full_name?: unknown };
+  const full = meta.name ?? meta.full_name;
+  const name = typeof full === "string" && full.trim() ? full.trim().split(/\s+/)[0] : null;
+  return { id: claims.sub, email: typeof claims.email === "string" ? claims.email : null, name };
 }

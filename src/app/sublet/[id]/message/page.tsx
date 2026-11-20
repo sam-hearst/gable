@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { DirectMessage } from "@/components/listing/DirectMessage";
+import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
 import { getCurrentUser } from "@/lib/supabase/server";
 import "@/components/booking/booking.css";
@@ -34,8 +35,9 @@ async function Thread({ id, t }: { id: string; t: string | null }) {
   if (!found || found.listing.status !== "approved") notFound();
   const { listing: l, isOwner } = found;
   if (isOwner && !(t && UUID.test(t))) redirect("/messages");
+  // Your first name comes from your account; with none, fall back to the start of your email.
   const guess = (user.email ?? "").split("@")[0].split(/[._\d-]/)[0];
-  const defaultName = guess ? guess[0].toUpperCase() + guess.slice(1) : "";
+  const myName = user.name ?? (guess ? guess[0].toUpperCase() + guess.slice(1) : "Renter");
 
   return (
     <DirectMessage
@@ -45,7 +47,13 @@ async function Thread({ id, t }: { id: string; t: string | null }) {
       isLister={isOwner}
       threadId={isOwner ? t : null}
       userId={user.id}
-      defaultName={defaultName}
+      myName={myName}
+      preview={{
+        photo: l.photos[0]?.src ?? null,
+        photoAlt: l.photos[0]?.alt ?? l.title,
+        line: `${money(l.price)}/mo · ${shortDate(l.availableFrom)} – ${shortDate(l.availableTo)} · ${l.neighborhood}`,
+        dates: `${shortDate(l.availableFrom)} to ${shortDate(l.availableTo)}`,
+      }}
     />
   );
 }

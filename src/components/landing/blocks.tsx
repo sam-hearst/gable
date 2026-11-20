@@ -116,7 +116,7 @@ export function Listing({ l, style }: { l: ListingData; style?: React.CSSPropert
         <Photo id={l.photo} width={600} alt={l.alt} />
         <span className="badge">
           <span className="dot" />
-          Tenant verified
+          Listed by a Columbia student
         </span>
       </div>
       <div className="body">
@@ -174,7 +174,7 @@ export function SpotTheScam({ title }: { title: string }) {
                 </defs>
                 <circle cx="50" cy="50" r="49" fill="#FFFCF6" stroke="#CFE0C8" />
                 <text fontSize="10.5" fontWeight="700" letterSpacing="2.2" fill="#1D5C37">
-                  <textPath href="#ring">VERIFIED · TENANT CONFIRMED · </textPath>
+                  <textPath href="#ring">CHECKED · COLUMBIA STUDENT · </textPath>
                 </text>
               </svg>
               <div className="core">
@@ -187,7 +187,7 @@ export function SpotTheScam({ title }: { title: string }) {
                 alt: "Bedroom with a brick accent wall and a blue bedspread",
                 price: "$1,550",
                 where: "Sublet · private room in a 2BR, W 109th St",
-                tags: ["Photos are theirs", "Lease allows sublet", "Pay through Gable"],
+                tags: ["Columbia email checked", "On the lease", "Photos checked"],
               }}
             />
           </div>

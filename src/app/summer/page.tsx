@@ -61,7 +61,7 @@ export default function SummerPage() {
             { id: 31687845, badge: "Lister checked", bold: "$1,700", text: "Jun 1 to Aug 15" },
             { id: 7647755, text: "Move-in day" },
             { id: 33693815, badge: "Exact dates", bold: "$1,650", text: "10 weeks" },
-            { id: 5928131, text: "12 min to Midtown" },
+            { id: 5928131, text: "Near the 1 train" },
           ]}
           strip={[
             { id: 31687845, badge: "Checked" },

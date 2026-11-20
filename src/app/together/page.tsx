@@ -57,7 +57,7 @@ export default function TogetherPage() {
           ]}
           strip={[
             { id: 6969990, badge: "Sleeps 2" },
-            { id: 8089268, badge: "Verified" },
+            { id: 8089268, badge: "Checked" },
             { id: 7647755, badge: "Together" },
             { id: 545025, badge: "Two rooms" },
           ]}
@@ -142,7 +142,7 @@ export default function TogetherPage() {
                     price: "$2,700",
                     where: "Sublet · 2 rooms in a 3BR, W 112th St",
                     meta: "Sep 1 to Dec 20 · $1,350 each · furnished",
-                    tags: ["Sleeps 2", "Both your dates", "Lease allows sublet"],
+                    tags: ["Sleeps 2", "Both your dates", "On the lease"],
                   }}
                 />
                 <p className="fine" style={{ marginTop: 10 }}>

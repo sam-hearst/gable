@@ -44,7 +44,9 @@ and use only the colors and fonts in the style guide.
     GA is off and search engines are told not to index it.
   - Locally, `NEXT_PUBLIC_GABLE_MODE=demo` in `.env.local` shows staging; run
     `NEXT_PUBLIC_GABLE_MODE=live npm run dev` to see production.
-  - The old waitlist pages (`/verified`, `/summer`, `/together`) redirect home on both.
+  - The waitlist landing pages (`/verified`, `/summer`, `/together`) are live again on both sites
+    (restored Nov 20 for the Reddit ad, which points to `/verified`). Their copy claims only what
+    the team checks: school email, proof the lister is on the lease, photos reviewed by hand.
   - To update staging: `git push origin main:staging` (or merge into `staging`
     first and test there before merging to `main`).
 - `/thanks` has a share card with each signup's personal referral link; `npm run referrals`

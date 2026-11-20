@@ -37,21 +37,21 @@ export default function VerifiedPage() {
           prompts={[
             "Spring semester sublet, Jan 5 to May 20, under $1,600",
             "Sublet for me and a friend near campus, Sept to Dec",
-            "Summer sublet near the 1 train, lister who actually replies",
+            "Summer sublet near the 1 train, June to August",
           ]}
-          meta="Only verified tenants"
-          chips={["Spring semester, Jan to May", "Sublet for two near campus", "Under $1,500, furnished", "Listers who reply within a day"]}
+          meta="Only checked listers"
+          chips={["Spring semester, Jan to May", "Sublet for two near campus", "Under $1,500, furnished", "Furnished, near the 1 train"]}
           collage={[
-            { id: 31687845, badge: "Tenant verified", bold: "$1,550", text: "W 109th St" },
-            { id: 545025, text: "Replies in ~3h" },
+            { id: 31687845, badge: "Columbia student", bold: "$1,550", text: "W 109th St" },
+            { id: 545025, text: "Proof of lease" },
             { id: 7045991, badge: "Photos checked", bold: "$1,400", text: "Hamilton Hts" },
-            { id: 2773484, text: "Address confirmed" },
+            { id: 2773484, text: "School email checked" },
           ]}
           strip={[
-            { id: 31687845, badge: "Verified" },
-            { id: 7045991, badge: "Verified" },
-            { id: 545025, badge: "Replies fast" },
-            { id: 2773484, badge: "Real address" },
+            { id: 31687845, badge: "Checked" },
+            { id: 7045991, badge: "Columbia student" },
+            { id: 545025, badge: "On the lease" },
+            { id: 2773484, badge: "Photos checked" },
           ]}
           modal={{
             title: "We're on it.",
@@ -61,7 +61,7 @@ export default function VerifiedPage() {
         />
 
         <Marquee
-          words={["Tenant confirmed", "Photos reverse-searched", "Address exists", "Lease allows sublet", "Listers who reply", "Exact dates"]}
+          words={["Columbia email checked", "Proof of lease", "Photos reviewed by hand", "Exact dates", "Listed by students"]}
         />
 
         <section className="section tint">
@@ -88,7 +88,7 @@ export default function VerifiedPage() {
           </div>
         </section>
 
-        <SpotTheScam title="Can you spot the scam? We do it for you." />
+        <SpotTheScam title="Can you spot the scam? We check the lister for you." />
 
         <section className="section">
           <div className="wrap">

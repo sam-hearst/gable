@@ -59,31 +59,21 @@
 .mc-side small { color: var(--ink-faint); font-size: 13px; }
 .mc-side .app-badge { margin-left: 0; }
 
-/* Private message (/sublet/[id]/message): a text-message style chat. */
-.dm { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; border: 1px solid var(--sage-line); border-radius: 20px; background: var(--bg); overflow: hidden; }
-.dm-top { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--sage-line); }
-.dm-back { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; color: var(--ink); flex-shrink: 0; }
-.dm-back:hover { background: var(--sage); }
-.dm-avatar { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: var(--sage); color: var(--accent-dark); font-weight: 700; flex-shrink: 0; }
-.dm-who { display: grid; min-width: 0; flex: 1; }
-.dm-who b { font-size: 16px; }
-.dm-who small { overflow: hidden; color: var(--ink-faint); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-.dm-view { font-size: 14px; font-weight: 700; white-space: nowrap; }
-.dm-listing { display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; padding: 8px; border-radius: 16px; background: var(--sage); color: var(--ink); text-decoration: none; }
-.dm-listing img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
-.dm-listing span { display: grid; min-width: 0; }
-.dm-listing b { overflow: hidden; font-size: 15px; text-overflow: ellipsis; white-space: nowrap; }
-.dm-listing small { overflow: hidden; color: var(--ink-faint); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-.dm-thread { display: flex; flex-direction: column; gap: 4px; height: min(52vh, 460px); overflow-y: auto; padding: 16px; }
-.dm-empty { margin: auto; max-width: 32ch; color: var(--ink-faint); text-align: center; }
-.dm-row { display: flex; flex-direction: column; gap: 4px; }
-.dm-time { margin: 10px 0 4px; color: var(--ink-faint); font-size: 12px; text-align: center; }
-.dm-bubble { max-width: 78%; padding: 9px 14px; border-radius: 20px; background: var(--sage); align-self: flex-start; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
-.dm-bubble.is-mine { background: var(--accent); color: var(--bg); align-self: flex-end; }
-.dm-bar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--sage-line); }
-.dm-bar input { flex: 1; min-height: 44px; padding: 0 16px; border: 1px solid var(--sage-line); border-radius: 999px; background: var(--bg); color: var(--ink); font: inherit; }
-.dm-bar input:focus-visible { outline: none; border-color: var(--accent); }
-.dm-send { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: var(--accent); color: var(--bg); cursor: pointer; flex-shrink: 0; }
-.dm-send:disabled { opacity: 0.45; cursor: default; }
-.dm-note { padding: 0 16px 14px; color: var(--ink-faint); font-size: 13px; }
-.dm-error { padding: 0 16px 14px; }
+/* Messages page (two panes, styled like the design in src/components/circles/circles.css). */
+.cm-list a.cm-row { text-decoration: none; }
+.cm-list-none { margin: 4px 12px 8px; color: var(--ink-faint); font-size: 13px; line-height: 1.45; }
+.cm-pane-empty { margin: auto; padding: 24px; text-align: center; max-width: 36ch; }
+.cm-pane-empty h2 { font-size: 20px; }
+.cm-pane-empty p { margin-top: 6px; color: var(--ink-faint); }
+.cm-pane-card { margin: 20px 24px; max-width: 520px; }
+.cm-pane-note, .cm-pane-error { margin: 12px 24px 0; }
+.cm-head-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.cm-end { border: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600; background: var(--sage); }
+.cm-people { margin: 12px 24px 0; padding: 10px 14px; border-radius: 16px; background: var(--sage); font-size: 14px; }
+.cm-people summary { cursor: pointer; font-weight: 700; }
+.cm-people ul { display: grid; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+.cm-people li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+.cm-people li button, .cm-people .gc-leave { padding: 0 4px; border: 0; background: none; color: var(--accent-dark); font: inherit; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.cm-delete { margin-left: 8px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.cm-input button:disabled { opacity: 0.45; cursor: default; }
+a.cm-post { text-decoration: none; color: inherit; }

@@ -81,6 +81,11 @@ and use only the colors and fonts in the style guide.
   file takes `contact_email` away from signed-in users. Component: `DirectMessage.tsx`, polling
   every 4 seconds like the group chat. Until the SQL is run the page says messages aren't set up
   and nothing else breaks. No blocking or reporting yet.
+- Messages page (`/messages`, production): two panes like the design in `src/components/circles/`.
+  Left (`MessagesList`): "Listing groups" and "Direct messages". Right (`MessagesPane`): the one picked
+  in `?c=group:<listing id>`, `?c=dm:<thread id>` or `?c=new:<listing id>` (start a private message to a
+  lister). Your first name for a private message comes from your account. The old `/sublet/[id]/chat` and
+  `/sublet/[id]/message` addresses redirect here. Staging still shows the sample mockup under your real chats.
 - Unread messages: the Messages item in the sidebar shows a count of unread group-chat and
   private messages (checked on load, on focus and every 30 seconds), and `/messages` lists your private
   messages and chats with their unread counts. Opening a chat marks it read. Group-chat counts need `supabase/chat_unread.sql`, run

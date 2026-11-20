@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Avatar } from "./Avatar";
 
 // The group chat for one real listing: the host (the student subletting) and
 // the students interested in the room. Everything goes straight to Supabase
@@ -162,50 +163,55 @@ export function ListingChat({
 
   if (notSetUp)
     return (
-      <div className="gc-card">
+      <div className="gc-card cm-pane-card">
         <h2>Group chat isn&apos;t set up here yet</h2>
         <p>The team still needs to turn it on for this copy of Gable.</p>
       </div>
     );
-  if (!data && !error) return <div className="gc-card" aria-busy="true" />;
+  if (!data && !error) return <div className="cm-pane-card" aria-busy="true" />;
 
   return (
-    <div className="gc">
-      <div className="gc-head">
+    <>
+      <header className="cm-chat-head">
         <div>
-          <span className="eyebrow">Group chat</span>
-          <h1>{listingTitle}</h1>
+          <h2>{listingTitle}</h2>
           <p>
-            {hostName} (host) and the students interested in this room. {active.length > 0 && `${active.length} in the chat.`}
+            {hostName} (host) and the students interested in this room.
+            {active.length > 0 && ` ${active.length} in the chat.`}
           </p>
         </div>
-        {isHost && isMember && !data?.ended && (
-          <button
-            type="button"
-            className="btn btn-secondary"
-            disabled={busy}
-            onClick={() => {
-              if (confirm("End this chat? Nobody can send messages after it ends. You'll still see what was said."))
-                run(
-                  () =>
-                    supabase!.from("listing_chats").update({ ended_at: new Date().toISOString() }).eq("listing_id", listingId),
-                  "We couldn't end the chat. Try again.",
-                );
-            }}
-          >
-            End chat
-          </button>
-        )}
-      </div>
+        <div className="cm-head-actions">
+          <Link className="cm-closes" href={`/sublet/${listingId}`}>
+            View listing
+          </Link>
+          {isHost && isMember && !data?.ended && (
+            <button
+              type="button"
+              className="cm-closes cm-end"
+              disabled={busy}
+              onClick={() => {
+                if (confirm("End this chat? Nobody can send messages after it ends. You'll still see what was said."))
+                  run(
+                    () =>
+                      supabase!.from("listing_chats").update({ ended_at: new Date().toISOString() }).eq("listing_id", listingId),
+                    "We couldn't end the chat. Try again.",
+                  );
+              }}
+            >
+              End chat
+            </button>
+          )}
+        </div>
+      </header>
 
       {data?.ended && (
-        <p className="gc-ended" role="status">
+        <p className="gc-ended cm-pane-note" role="status">
           {isHost ? "You ended this chat." : `${hostName} ended this chat, so this room is taken.`} It&apos;s read-only now.
         </p>
       )}
 
       {!isMember ? (
-        <form className="gc-join" onSubmit={join}>
+        <form className="gc-join cm-pane-card" onSubmit={join}>
           {data?.ended ? (
             <p>This chat has ended.</p>
           ) : (
@@ -225,58 +231,9 @@ export function ListingChat({
           )}
         </form>
       ) : (
-        <div className="gc-body">
-          <div className="gc-thread" role="log" aria-live="polite" aria-label="Messages">
-            {data!.messages.length === 0 && <p className="gc-empty">No messages yet. Say hi, or ask about the room.</p>}
-            {data!.messages.map((m) => {
-              const mine = m.user_id === userId;
-              const author = data!.members.find((x) => x.user_id === m.user_id);
-              return (
-                <div key={m.id} className={`gc-msg${mine ? " is-mine" : ""}`}>
-                  <div className="gc-bubble">
-                    {!mine && (
-                      <b>
-                        {nameOf(m.user_id)}
-                        {author?.role === "host" && <span className="gc-badge">Host</span>}
-                      </b>
-                    )}
-                    <p>{m.body}</p>
-                    <small>
-                      {time(m.created_at)}
-                      {(isHost || mine) && !data!.ended && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            run(() => supabase!.from("listing_chat_messages").delete().eq("id", m.id), "We couldn't delete that.")
-                          }
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </small>
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={endRef} />
-          </div>
-
-          <form className="gc-compose" onSubmit={send}>
-            <input
-              aria-label="Message"
-              placeholder={data?.ended ? "This chat has ended" : "Write a message"}
-              maxLength={1000}
-              disabled={data?.ended || busy}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-            />
-            <button className="btn" type="submit" disabled={data?.ended || busy || !draft.trim()}>
-              Send
-            </button>
-          </form>
-
-          <aside className="gc-people" aria-label="People in the chat">
-            <h2>In this chat</h2>
+        <>
+          <details className="cm-people">
+            <summary>In this chat ({active.length})</summary>
             <ul>
               {active.map((m) => (
                 <li key={m.user_id}>
@@ -323,18 +280,68 @@ export function ListingChat({
                 Leave chat
               </button>
             )}
-          </aside>
-        </div>
+          </details>
+
+          <div className="cm-thread" role="log" aria-live="polite" aria-label="Messages">
+            {data!.messages.length === 0 && <p className="cm-system">No messages yet. Say hi, or ask about the room.</p>}
+            {data!.messages.map((m) => {
+              const mine = m.user_id === userId;
+              const author = data!.members.find((x) => x.user_id === m.user_id);
+              return (
+                <div key={m.id} className={`cm-msg${mine ? " is-mine" : ""}`}>
+                  {!mine && <Avatar name={nameOf(m.user_id)} />}
+                  <div className="cm-msg-body">
+                    {!mine && (
+                      <div className="cm-msg-who">
+                        <span className="cm-name">{nameOf(m.user_id)}</span>
+                        {author?.role === "host" && <span className="cm-trust">Host</span>}
+                      </div>
+                    )}
+                    <p className="cm-bubble">{m.body}</p>
+                    <span className="cm-time">
+                      {time(m.created_at)}
+                      {(isHost || mine) && !data!.ended && (
+                        <button
+                          type="button"
+                          className="cm-delete"
+                          onClick={() =>
+                            run(() => supabase!.from("listing_chat_messages").delete().eq("id", m.id), "We couldn't delete that.")
+                          }
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={endRef} />
+          </div>
+
+          <form className="cm-composer" onSubmit={send}>
+            <div className="cm-input">
+              <input
+                aria-label="Message"
+                placeholder={data?.ended ? "This chat has ended" : "Ask the group or the lister…"}
+                maxLength={1000}
+                disabled={data?.ended || busy}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+              <button type="submit" disabled={data?.ended || busy || !draft.trim()} aria-label="Send">
+                ↑
+              </button>
+            </div>
+          </form>
+        </>
       )}
 
       {error && (
-        <p className="gc-error" role="alert">
+        <p className="gc-error cm-pane-error" role="alert">
           {error}
         </p>
       )}
-      <Link className="back-link" href={`/sublet/${listingId}`}>
-        &larr; Back to the listing
-      </Link>
-    </div>
+    </>
   );
 }

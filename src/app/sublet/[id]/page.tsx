@@ -44,8 +44,8 @@ async function Listing({ id }: { id: string }) {
   const { listing: l, isOwner, signedIn } = found;
   const favorites = await getFavorites();
   const peek = l.status === "approved" ? await getChatPeek(l.id) : { count: null, messages: [] };
-  const chatHref = `/sublet/${l.id}/chat`;
-  const messageHref = `/sublet/${l.id}/message`;
+  const chatHref = `/messages?c=group:${l.id}`;
+  const messageHref = `/messages?c=new:${l.id}`;
 
   return (
     <>

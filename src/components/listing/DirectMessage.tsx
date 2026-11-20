@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUp, ChevronLeft } from "@/components/landing/icons";
+import { Avatar } from "./Avatar";
 import { createClient } from "@/lib/supabase/client";
 
 // A private message thread between one renter and the lister of a real listing.
@@ -148,7 +148,7 @@ export function DirectMessage({
 
   if (notSetUp)
     return (
-      <div className="gc-card">
+      <div className="gc-card cm-pane-card">
         <h2>Messages aren&apos;t set up here yet</h2>
         <p>The team still needs to turn them on for this copy of Gable.</p>
         <Link className="back-link" href="/messages">
@@ -165,28 +165,24 @@ export function DirectMessage({
   const missing = isLister && !thread && loaded;
   const listingHref = `/sublet/${listingId}`;
 
-  // A time label above a message when it's the first, or 30+ minutes after the one before.
+  // A time label under a message when the next one is 30+ minutes later (or it's the last).
   const stamped = new Set<string>();
   messages.forEach((m, i) => {
-    if (i === 0 || new Date(m.created_at).getTime() - new Date(messages[i - 1].created_at).getTime() > 30 * 60 * 1000)
-      stamped.add(m.id);
+    const next = messages[i + 1];
+    if (!next || new Date(next.created_at).getTime() - new Date(m.created_at).getTime() > 30 * 60 * 1000) stamped.add(m.id);
   });
 
   return (
-    <div className="dm">
-      <header className="dm-top">
-        <Link className="dm-back" href="/messages" aria-label="Back to Messages">
-          <ChevronLeft size={22} />
-        </Link>
-        <span className="dm-avatar" aria-hidden="true">
-          {otherName[0]?.toUpperCase()}
-        </span>
-        <div className="dm-who">
-          <b>{missing ? "Message not found" : otherName}</b>
-          <small>{listingTitle}</small>
+    <>
+      <header className="cm-chat-head">
+        <div>
+          <h2>{missing ? "We couldn't find this message" : otherName}</h2>
+          <p>About {listingTitle}</p>
         </div>
-        {!isLister && (
-          <Link className="dm-view" href={listingHref}>
+        {isLister ? (
+          <span className="cm-closes">Private</span>
+        ) : (
+          <Link className="cm-closes" href={listingHref}>
             View listing
           </Link>
         )}
@@ -194,63 +190,68 @@ export function DirectMessage({
 
       {!missing && (
         <>
-          {!isLister && (
-            <Link className="dm-listing" href={listingHref}>
-              {preview.photo && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={preview.photo} alt={preview.photoAlt} />
-              )}
-              <span>
-                <b>{listingTitle}</b>
-                <small>{preview.line}</small>
-              </span>
-            </Link>
-          )}
-
-          <div className="dm-thread" role="log" aria-live="polite" aria-label="Messages">
-            {messages.length === 0 && (
-              <p className="dm-empty">
-                {isLister
-                  ? "No messages yet."
-                  : `Only you and ${listerName} can read this. Your email stays private.`}
-              </p>
+          <div className="cm-thread" role="log" aria-live="polite" aria-label="Messages">
+            <p className="cm-system">
+              Only you and {otherName} can read this. Your email stays private.
+              {!isLister && " Share your address or payment details only once you've seen the place and the lease."}
+            </p>
+            {!isLister && (
+              <div className="cm-msg">
+                <Avatar name={listerName} />
+                <div className="cm-msg-body">
+                  <Link className="cm-post" href={listingHref}>
+                    {preview.photo && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={preview.photo} alt={preview.photoAlt} />
+                    )}
+                    <span className="cm-post-body">
+                      <span className="cm-post-label">Listing</span>
+                      <span className="cm-post-title">{listingTitle}</span>
+                      <span className="cm-post-when">{preview.line}</span>
+                      <span className="cm-post-link">View listing</span>
+                    </span>
+                  </Link>
+                </div>
+              </div>
             )}
             {messages.map((m) => {
               const mine = m.user_id === userId;
               return (
-                <div key={m.id} className="dm-row">
-                  {stamped.has(m.id) && <time className="dm-time">{time(m.created_at)}</time>}
-                  <div className={`dm-bubble${mine ? " is-mine" : ""}`}>{m.body}</div>
+                <div key={m.id} className={`cm-msg${mine ? " is-mine" : ""}`}>
+                  {!mine && <Avatar name={otherName} />}
+                  <div className="cm-msg-body">
+                    <p className="cm-bubble">{m.body}</p>
+                    {stamped.has(m.id) && <span className="cm-time">{time(m.created_at)}</span>}
+                  </div>
                 </div>
               );
             })}
             <div ref={endRef} />
           </div>
 
-          <form className="dm-bar" onSubmit={send}>
-            <input
-              aria-label="Message"
-              placeholder={`Message ${otherName}`}
-              maxLength={1000}
-              disabled={busy}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-            />
-            <button className="dm-send" type="submit" disabled={busy || !draft.trim()} aria-label="Send">
-              <ArrowUp size={20} />
-            </button>
+          <form className="cm-composer" onSubmit={send}>
+            <div className="cm-input">
+              <input
+                aria-label="Message"
+                placeholder={`Message ${otherName}…`}
+                maxLength={1000}
+                disabled={busy}
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+              />
+              <button type="submit" disabled={busy || !draft.trim()} aria-label="Send">
+                ↑
+              </button>
+            </div>
           </form>
-          {!isLister && (
-            <p className="dm-note">Share your address or payment details only once you&apos;ve seen the place and the lease.</p>
-          )}
         </>
       )}
 
       {error && (
-        <p className="gc-error dm-error" role="alert">
+        <p className="gc-error cm-pane-error" role="alert">
           {error}
         </p>
       )}
-    </div>
+    </>
   );
 }

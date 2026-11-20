@@ -27,7 +27,9 @@ export async function MessagesPane({ c }: { c: string | null }) {
   const user = await getCurrentUser();
   if (!user) redirect(`/signin?next=${encodeURIComponent(c ? `/messages?c=${c}` : "/messages")}`);
 
-  const [kind, id] = (c ?? "").split(/:(.*)/s);
+  const colon = (c ?? "").indexOf(":");
+  const kind = colon > 0 ? c!.slice(0, colon) : "";
+  const id = colon > 0 ? c!.slice(colon + 1) : "";
   if (!c || !id || !UUID.test(id) || !["group", "dm", "new"].includes(kind)) {
     return <Note title="Pick a conversation">Choose a group or a direct message on the left.</Note>;
   }

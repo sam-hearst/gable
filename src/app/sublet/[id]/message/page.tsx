@@ -52,7 +52,7 @@ async function Thread({ id, t }: { id: string; t: string | null }) {
 
 export default function DirectMessagePage({ params, searchParams }: PageProps<"/sublet/[id]/message">) {
   return (
-    <AppShell current="none">
+    <AppShell current="messages">
       <main>
         <section className="section">
           <div className="wrap">

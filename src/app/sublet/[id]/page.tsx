@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { Mail } from "@/components/landing/icons";
+import { MessageCircle } from "@/components/landing/icons";
 import { ChatPreview } from "@/components/listing/ChatPreview";
 import { getChatPeek } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
@@ -121,8 +121,8 @@ async function Listing({ id }: { id: string }) {
 
           {isOwner || l.status !== "approved" ? null : signedIn ? (
             <Link className="btn btn-secondary cta-full" href={messageHref}>
-              <Mail size={18} />
-              Message {l.lister.firstName} privately
+              <MessageCircle size={18} />
+              Message {l.lister.firstName} directly
             </Link>
           ) : (
             <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(messageHref)}`}>

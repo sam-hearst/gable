@@ -33,6 +33,10 @@ flowchart LR
   are rows in a Supabase `favorites` table, shown on `/favorites` with a map.
 
 ## What's still open
+- **Link cards (proposed, branch `link-cards`).** Students share links to sublets they found on other
+  sites; Gable reads each pasted page's public link preview once (no crawling) and shows a card that
+  opens the original, labeled "not checked by Gable". Needs the team's OK. See
+  `docs/features/link-cards/01-brief.md`.
 - **Other listing sources.** Student posts are the first real source. MLS
   access is the main blocker for more. Scraping needs a legal check before
   anyone builds it. A few real estate APIs were found and still need assessing.

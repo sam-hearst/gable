@@ -57,6 +57,7 @@ export const config = {
     "/auth/:path*",
     "/listing/:path*",
     "/sublet-your-room",
+    "/share-a-listing",
     "/sublet/:path*",
   ],
 };

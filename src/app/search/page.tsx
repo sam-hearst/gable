@@ -6,11 +6,13 @@ import { Suspense } from "react";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { SavedCount } from "@/components/search/HeartButton";
 import { ResultCard } from "@/components/search/ResultCard";
+import { ExternalCard } from "@/components/search/ExternalCard";
 import { ChatThread } from "@/components/search/ChatThread";
 import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
+import { getApprovedExternalListings } from "@/lib/external-listings";
 import { SignupGate } from "@/components/search/SignupGate";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { supabaseConfigured } from "@/lib/supabase/config";
@@ -51,8 +53,14 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
     return <SignupGate messages={messages} />;
   }
   // Real student listings (approved only), plus the samples on staging.
-  const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
-  const { reply, results, matched } = await search(messages, [...real, ...(showSamples ? SAMPLE_LISTINGS : [])]);
+  // Plus link cards: sublets students found on other sites, matched on the
+  // same filters and shown in their own row.
+  const [real, favorites, external] = await Promise.all([getApprovedListings(), getFavorites(), getApprovedExternalListings()]);
+  const { reply, results, matched, elsewhere } = await search(
+    messages,
+    [...real, ...(showSamples ? SAMPLE_LISTINGS : [])],
+    external,
+  );
 
   return (
     <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
@@ -89,11 +97,30 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
               </Link>
             </div>
           )}
+          {elsewhere.length > 0 && (
+            <section className="elsewhere" aria-labelledby="elsewhere-head">
+              <div className="elsewhere-head">
+                <h2 id="elsewhere-head">Elsewhere on the web</h2>
+                <p>
+                  Sublets students found on other sites. We didn&apos;t check these: you&apos;ll contact the lister on
+                  their site, so never pay before you&apos;ve seen a lease. Found one?{" "}
+                  <Link href="/share-a-listing">Share it</Link>.
+                </p>
+              </div>
+              <div className="results">
+                {elsewhere.map((r) => (
+                  <ExternalCard key={r.listing.id} l={r.listing} />
+                ))}
+              </div>
+            </section>
+          )}
           <p className="search-fine search-fine-under">
             {showSamples
               ? "Places marked Real listing were posted by students and checked by our team. The rest are samples for our demo. "
               : "Every place here was posted by a student and checked by our team. "}
             <Link href="/sublet-your-room">List your room</Link>
+            {" · "}
+            <Link href="/share-a-listing">Share a sublet you found</Link>
           </p>
         </div>
       </SearchSession>

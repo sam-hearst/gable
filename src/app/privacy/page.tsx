@@ -42,6 +42,12 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Searches:</b> what you type or say in the chat box, so we can show sublets that fit.
         </li>
         <li>
+          <b>Listings you share from other sites:</b> the link you paste, that page&apos;s public preview (its title,
+          description and preview image, the same thing a chat app shows for a link), the details you confirm, and that
+          your account shared it. To read the preview, our server opens that one page once. Other visitors see the card
+          but not who shared it.
+        </li>
+        <li>
           <b>Usage:</b> on gable.fit we use Google Analytics to see which pages people visit. It uses cookies.
         </li>
       </ul>

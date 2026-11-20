@@ -91,7 +91,7 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
     else writeCollapsed(!collapsed);
   }
 
-  // Unread group-chat messages, for the badge on Messages. Checked on load, when
+  // Unread group-chat and private messages, for the badge on Messages. Checked on load, when
   // you come back to the tab, every half minute, and when a chat is opened.
   const [unread, setUnread] = useState(0);
   const signedIn = Boolean(session);
@@ -100,8 +100,10 @@ export function AppShell({ current, children }: { current: AppPage; children: Re
     if (!supabase || !signedIn) return;
     let live = true;
     const check = async () => {
-      const { data, error } = await supabase.rpc("my_unread_count");
-      if (live && !error && typeof data === "number") setUnread(data);
+      // Group chats and private messages count together; either may not be set up yet.
+      const [chats, dms] = await Promise.all([supabase.rpc("my_unread_count"), supabase.rpc("my_dm_unread_count")]);
+      const n = (r: { data: unknown; error: unknown }) => (!r.error && typeof r.data === "number" ? r.data : 0);
+      if (live) setUnread(n(chats) + n(dms));
     };
     check();
     const timer = setInterval(() => document.visibilityState === "visible" && check(), 30000);

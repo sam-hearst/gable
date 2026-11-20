@@ -2,27 +2,45 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app/AppShell";
 import { MessagesMock } from "@/components/circles/MessagesMock";
+import { MessagesList } from "@/components/listing/MessagesList";
+import { MessagesPane } from "@/components/listing/MessagesPane";
 import { MyChats } from "@/components/listing/MyChats";
 import { showSamples } from "@/lib/mode";
+import "@/components/circles/circles.css";
+import "@/components/listing/listing-chat.css";
 
 export const metadata: Metadata = {
   title: "Messages | Gable",
-  description: "Group chats for each listing you're interested in, and direct messages with listers.",
+  description: "Group chats for each listing you're interested in, and private messages with listers.",
 };
 
-// Staging: a design mockup with sample chats (listing group chats and direct
-// messages, trust on every person, LinkedIn / Instagram cards). Production has
-// no messaging yet, so it says so plainly.
-export default function MessagesPage() {
+// Production: your real conversations. The list is on the left (Listing groups,
+// then Direct messages) and the one you pick opens on the right, like the design.
+// Staging also shows the sample mockup under your real chats.
+export default function MessagesPage({ searchParams }: PageProps<"/messages">) {
   return (
     <AppShell current="messages">
       <main>
-        {/* Your real group chats, with unread counts. Production shows only these. */}
-        <MyChats showEmpty={!showSamples} />
-        {showSamples && (
-          <Suspense>
-            <MessagesMock />
-          </Suspense>
+        {showSamples ? (
+          <>
+            <MyChats />
+            <Suspense>
+              <MessagesMock />
+            </Suspense>
+          </>
+        ) : (
+          <div className="cm">
+            <Suspense>
+              <MessagesList />
+            </Suspense>
+            <section className="cm-chat" aria-label="Conversation">
+              <Suspense fallback={null}>
+                {searchParams.then((q) => (
+                  <MessagesPane c={typeof q.c === "string" ? q.c : null} />
+                ))}
+              </Suspense>
+            </section>
+          </div>
         )}
       </main>
     </AppShell>

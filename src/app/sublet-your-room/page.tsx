@@ -43,8 +43,8 @@ async function ForLister() {
       <div className="list-card">
         <h2>Sign in to post your room</h2>
         <p>
-          Renters reach you by the email on your account, and we check that listers are students, so use your school
-          email.
+          We check that listers are students, so use your school email. Renters reach you by private message in Gable;
+          your email stays hidden from them.
         </p>
         <Link className="btn" href="/signin?next=/sublet-your-room">
           Sign in or create an account
@@ -108,7 +108,7 @@ export default function SubletYourRoom() {
                 on the lease.
               </li>
               <li>
-                It goes live in search, marked Real listing, with what we checked. Students reply to you by email.
+                It goes live in search, marked Real listing, with what we checked. Interested students message you privately in Gable.
               </li>
             </ol>
 

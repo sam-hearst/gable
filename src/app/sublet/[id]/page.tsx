@@ -4,8 +4,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { Mail } from "@/components/landing/icons";
+import { MessageCircle } from "@/components/landing/icons";
 import { ChatPreview } from "@/components/listing/ChatPreview";
+import { PhotoGallery } from "@/components/listing/PhotoGallery";
+import { FavoritesProvider } from "@/components/search/FavoritesProvider";
+import { HeartButton } from "@/components/search/HeartButton";
+import { getFavorites } from "@/lib/favorites";
 import { getChatPeek } from "@/lib/listing-chat";
 import { money, shortDate } from "@/lib/format";
 import { getStudentListing } from "@/lib/student-listings";
@@ -38,9 +42,10 @@ async function Listing({ id }: { id: string }) {
   const found = await getStudentListing(id);
   if (!found) notFound();
   const { listing: l, isOwner, signedIn } = found;
-  const [cover, ...more] = l.photos;
+  const favorites = await getFavorites();
   const peek = l.status === "approved" ? await getChatPeek(l.id) : { count: null, messages: [] };
-  const chatHref = `/sublet/${l.id}/chat`;
+  const chatHref = `/messages?c=group:${l.id}`;
+  const messageHref = `/messages?c=new:${l.id}`;
 
   return (
     <>
@@ -62,22 +67,18 @@ async function Listing({ id }: { id: string }) {
       )}
 
       <div className="listing-detail">
-        <div className="real-gallery">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={cover.src} alt={cover.alt} />
-          {more.length > 0 && (
-            <div className="more">
-              {more.map((p) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img key={p.src} src={p.src} alt={p.alt} loading="lazy" />
-              ))}
-            </div>
-          )}
-        </div>
+        <PhotoGallery photos={l.photos} />
 
         <div className="listing-info">
           <div className="eyebrow">Sublet · {l.neighborhood}</div>
-          <h1>{l.title}</h1>
+          <div className="title-row">
+            <h1>{l.title}</h1>
+            {l.status === "approved" && (
+              <FavoritesProvider initialIds={favorites.ids} signedIn={Boolean(favorites.user)}>
+                <HeartButton id={l.id} title={l.title} className="heart-btn heart-inline" />
+              </FavoritesProvider>
+            )}
+          </div>
           <div className="price">
             {money(l.price)} <span>/ month</span>
           </div>
@@ -118,17 +119,14 @@ async function Listing({ id }: { id: string }) {
             />
           )}
 
-          {isOwner ? null : signedIn && l.contactEmail ? (
-            <a
-              className="btn btn-secondary cta-full"
-              href={`mailto:${l.contactEmail}?subject=${encodeURIComponent(`Your sublet on Gable: ${l.title}`)}`}
-            >
-              <Mail size={18} />
-              Email {l.lister.firstName} privately
-            </a>
+          {isOwner || l.status !== "approved" ? null : signedIn ? (
+            <Link className="btn btn-secondary cta-full" href={messageHref}>
+              <MessageCircle size={18} />
+              Message {l.lister.firstName} directly
+            </Link>
           ) : (
-            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(`/sublet/${l.id}`)}`}>
-              Sign in to contact {l.lister.firstName}
+            <Link className="btn btn-secondary cta-full" href={`/signin?next=${encodeURIComponent(messageHref)}`}>
+              Sign in to message {l.lister.firstName}
             </Link>
           )}
           <p className="under-cta">

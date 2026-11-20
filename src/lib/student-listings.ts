@@ -17,8 +17,8 @@ import type { RoomType } from "@/content/listings";
 // through row level security (supabase/student_listings.sql): signed-out
 // visitors only ever get approved listings, without the lister's email.
 
-// Columns anyone may read. contact_email is added for signed-in visitors only;
-// selecting it as anon is refused by the database.
+// Columns anyone may read. The lister's email is never read here: renters
+// reach listers by private message (supabase/listing_dms.sql).
 const PUBLIC_COLUMNS =
   "id, status, title, description, neighborhood, cross_streets, room_type, sleeps, price, available_from, available_to, furnished, photos, first_name, school, checked";
 
@@ -39,7 +39,6 @@ type Row = {
   first_name: string;
   school: string;
   checked: string[];
-  contact_email?: string;
 };
 
 function toListing(r: Row): StudentListing {
@@ -63,7 +62,6 @@ function toListing(r: Row): StudentListing {
     })),
     lister: { firstName: r.first_name, school: r.school },
     checked: r.checked,
-    contactEmail: r.contact_email ?? null,
   };
 }
 
@@ -97,7 +95,7 @@ export async function getStudentListing(id: string): Promise<{ listing: StudentL
   const supabase = await createClient();
   if (!supabase) return null;
   const user = await getCurrentUser(supabase);
-  const columns = user ? `${PUBLIC_COLUMNS}, contact_email, user_id` : PUBLIC_COLUMNS;
+  const columns = user ? `${PUBLIC_COLUMNS}, user_id` : PUBLIC_COLUMNS;
   const { data, error } = await supabase.from("student_listings").select(columns).eq("id", id).maybeSingle();
   if (error) console.warn("[listings] couldn't load listing:", error.message);
   if (!data) return null;
@@ -166,7 +164,7 @@ export function validateListing(input: unknown, userId: string): { error: string
   if (!firstName) return { error: "Add your first name." };
   const school = text(o.school, 2, 60);
   if (!school) return { error: "Add your school." };
-  if (o.agreeToContact !== true) return { error: "Agree to let signed-in students email you, so renters can reach you." };
+  if (o.agreeToContact !== true) return { error: "Agree to let signed-in students message you, so renters can reach you." };
 
   return {
     row: {

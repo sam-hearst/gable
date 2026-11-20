@@ -45,7 +45,8 @@
 
 /* Your group chats (Messages page). */
 .mc { max-width: 720px; margin: 0 auto; padding: 32px 20px 8px; }
-.mc h1 { font-size: 28px; }
+.mc h1, .mc h2 { font-size: 28px; }
+.mc-none { margin: 12px 0 0; color: var(--ink-faint); }
 .mc ul { display: grid; gap: 8px; margin: 16px 0 0; padding: 0; list-style: none; }
 .mc a { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-radius: 16px; background: var(--sage); color: var(--ink); text-decoration: none; }
 .mc a:hover { background: color-mix(in srgb, var(--sage) 70%, var(--bg)); }
@@ -57,3 +58,22 @@
 .mc-side { display: grid; justify-items: end; gap: 4px; flex-shrink: 0; }
 .mc-side small { color: var(--ink-faint); font-size: 13px; }
 .mc-side .app-badge { margin-left: 0; }
+
+/* Messages page (two panes, styled like the design in src/components/circles/circles.css). */
+.cm-list a.cm-row { text-decoration: none; }
+.cm-list-none { margin: 4px 12px 8px; color: var(--ink-faint); font-size: 13px; line-height: 1.45; }
+.cm-pane-empty { margin: auto; padding: 24px; text-align: center; max-width: 36ch; }
+.cm-pane-empty h2 { font-size: 20px; }
+.cm-pane-empty p { margin-top: 6px; color: var(--ink-faint); }
+.cm-pane-card { margin: 20px 24px; max-width: 520px; }
+.cm-pane-note, .cm-pane-error { margin: 12px 24px 0; }
+.cm-head-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.cm-end { border: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600; background: var(--sage); }
+.cm-people { margin: 12px 24px 0; padding: 10px 14px; border-radius: 16px; background: var(--sage); font-size: 14px; }
+.cm-people summary { cursor: pointer; font-weight: 700; }
+.cm-people ul { display: grid; gap: 4px; margin: 10px 0 0; padding: 0; list-style: none; }
+.cm-people li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+.cm-people li button, .cm-people .gc-leave { padding: 0 4px; border: 0; background: none; color: var(--accent-dark); font: inherit; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.cm-delete { margin-left: 8px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.cm-input button:disabled { opacity: 0.45; cursor: default; }
+a.cm-post { text-decoration: none; color: inherit; }

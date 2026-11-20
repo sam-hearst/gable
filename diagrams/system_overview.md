@@ -27,6 +27,8 @@ flowchart LR
   table as `pending`, with photos in the `listing-photos` Storage bucket. The
   team checks each one by hand and approves it in the dashboard; only then does
   it show in search, labeled "Real listing", at `/sublet/[id]`.
+- Private messages: a renter and a lister message each other in the app (Supabase
+  `listing_dms`, row level security); the lister's email is never shown to renters.
 - Accounts: Supabase Auth (email + password). Each user's hearted listings
   are rows in a Supabase `favorites` table, shown on `/favorites` with a map.
 

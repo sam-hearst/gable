@@ -3,10 +3,11 @@ import { SAMPLE_LISTINGS } from "@/content/listings";
 import { showSamples } from "./mode";
 import { createClient, getCurrentUser, type CurrentUser } from "./supabase/server";
 
-// Only sample listings can be hearted so far, and they exist on staging only,
-// so on production (real data only) Favorites stays empty and saves are refused.
-export const isListingId = (id: unknown): id is string =>
-  showSamples && typeof id === "string" && SAMPLE_LISTINGS.some((l) => l.id === id);
+// What can be hearted: the sample listings (staging only) and real student
+// listings, whose ids are UUIDs. writeFavorite checks that a real one exists.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isSampleId = (id: string) => showSamples && SAMPLE_LISTINGS.some((l) => l.id === id);
+export const isListingId = (id: unknown): id is string => typeof id === "string" && (isSampleId(id) || UUID.test(id));
 
 // The signed-in user and the ids of the listings they've hearted, oldest first.
 export async function getFavorites(): Promise<{ user: CurrentUser | null; ids: string[] }> {
@@ -28,6 +29,12 @@ export async function writeFavorite(listingId: string, saved: boolean): Promise<
   const supabase = await createClient();
   const user = supabase ? await getCurrentUser(supabase) : null;
   if (!supabase || !user) return "signed-out";
+
+  // A real listing has to exist (approved, or the signed-in user's own).
+  if (saved && !isSampleId(listingId)) {
+    const { data } = await supabase.from("student_listings").select("id").eq("id", listingId).maybeSingle();
+    if (!data) return "error";
+  }
 
   const { error } = saved
     ? await supabase

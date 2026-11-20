@@ -11,6 +11,9 @@ import { SearchSession } from "@/components/search/SearchSession";
 import { getFavorites } from "@/lib/favorites";
 import { search } from "@/lib/search";
 import { getApprovedListings } from "@/lib/student-listings";
+import { SignupGate } from "@/components/search/SignupGate";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { supabaseConfigured } from "@/lib/supabase/config";
 import { SAMPLE_LISTINGS } from "@/content/listings";
 import { showSamples } from "@/lib/mode";
 import "./search.css";
@@ -41,6 +44,12 @@ async function Results({ searchParams }: { searchParams: PageProps<"/search">["s
   // during its prerender check, which errors on the SDK's Date.now() and
   // makes a second, aborted API call.
   await connection();
+  // On production (real data only) you need an account to see matches, so
+  // signed-out visitors, like people arriving from our ads, get a sign-up card
+  // instead of results. Staging stays open for demos and usability tests.
+  if (!showSamples && supabaseConfigured && !(await getCurrentUser())) {
+    return <SignupGate messages={messages} />;
+  }
   // Real student listings (approved only), plus the samples on staging.
   const [real, favorites] = await Promise.all([getApprovedListings(), getFavorites()]);
   const { reply, results, matched } = await search(messages, [...real, ...(showSamples ? SAMPLE_LISTINGS : [])]);

@@ -96,6 +96,13 @@ and use only the colors and fonts in the style guide.
   (`src/lib/student-listings.ts`), with the logic in `src/lib/search.ts`. The ones in
   `listings.ts` are made-up SAMPLE listings for the demo. The other landing pages
   still open the email popup.
+- Sign-up gate on `/search` (production only, `!showSamples`): a visitor who isn't signed in sees
+  "Sign up to see your matches" (`src/components/search/SignupGate.tsx`) instead of results. Its
+  Sign up button goes to `/signin?mode=signup&from=search&next=<the same search>`, and after the
+  account is created they land back on their search. Staging stays open for demos and usability
+  tests. Creating an account fires the GA4 event `account_created` (with `page_variant`
+  `search_gate` or `signin`) from `SignInForm.tsx`; mark it as a key event in GA. The waitlist
+  still fires `sign_up` on `/thanks`.
 - Accounts and favorites: email + password sign-in at `/signin` (Supabase
   Auth, with "Confirm email" turned off so accounts work right away). Hearts on
   `/search` save to the `favorites` table (create it with

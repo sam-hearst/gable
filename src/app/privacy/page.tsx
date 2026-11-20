@@ -77,7 +77,9 @@ const SECTIONS: { title: string; body: React.ReactNode }[] = [
           <b>Vercel</b> hosts the site.
         </li>
         <li>
-          <b>Anthropic</b> (Claude) reads your search so we understand what you&apos;re asking for.
+          <b>Anthropic</b> (Claude) reads your search so we understand what you&apos;re asking for. On List your room, it
+          also reads a post you paste so we can fill in the form for you. We don&apos;t keep the pasted post; only what
+          you send in the form is saved.
         </li>
         <li>
           <b>Google</b> runs Google Analytics.

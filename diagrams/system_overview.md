@@ -9,6 +9,7 @@ flowchart LR
     api --> db[("Our database<br/>listings, users, saved searches")]
     user -- "listing photos<br/>(own folder only)" --> photos[("Supabase Storage<br/>listing-photos")]
     lister["Student lister"] -- "/sublet-your-room" --> web
+    api -- "search requests,<br/>pasted sublet posts" --> claude["Claude API<br/>(Anthropic)"]
     team["Gable team"] -- "approves by hand<br/>(Supabase dashboard)" --> db
     api -. "STILL OPEN" .-> source{{"More listing sources"}}
     source -. option A .-> agg["Aggregate external sites<br/>(like Daydream)"]
@@ -27,6 +28,9 @@ flowchart LR
   table as `pending`, with photos in the `listing-photos` Storage bucket. The
   team checks each one by hand and approves it in the dashboard; only then does
   it show in search, labeled "Real listing", at `/sublet/[id]`.
+- Paste your post (Nov 20, 2026): on `/sublet-your-room` a student can paste the
+  post they already wrote elsewhere; Claude pulls out the fields it states and the
+  form is prefilled for them to check. Nothing is saved until they send the form.
 - Private messages: a renter and a lister message each other in the app (Supabase
   `listing_dms`, row level security); the lister's email is never shown to renters.
 - Accounts: Supabase Auth (email + password). Each user's hearted listings

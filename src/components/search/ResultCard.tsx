@@ -24,8 +24,8 @@ function quickFacts(l: SampleListing) {
 // A search result: photo with one check and the heart, then price, what and
 // where, dates, and a short line of facts. For a closest option (no full
 // match), `misses` says honestly what's different. A real student listing is
-// badged "Real listing", opens its own page (/sublet/[id]) and has no heart
-// yet, since favorites only cover the samples.
+// badged "Real listing", opens its own page (/sublet/[id]) and can be hearted
+// like the samples.
 export function ResultCard({ l, misses = [] }: { l: AnyListing; misses?: string[] }) {
   const real = isStudentListing(l);
   return (
@@ -41,7 +41,7 @@ export function ResultCard({ l, misses = [] }: { l: AnyListing; misses?: string[
           <span className="dot" />
           {real ? "Real listing" : photoBadge(l)}
         </span>
-        {!real && <HeartButton id={l.id} title={l.title} />}
+        <HeartButton id={l.id} title={l.title} />
       </div>
       <div className="body">
         <div className="price">

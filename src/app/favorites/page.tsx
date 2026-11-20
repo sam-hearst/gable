@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { FavoritesProvider } from "@/components/search/FavoritesProvider";
 import { FavoritesView } from "@/components/search/FavoritesView";
 import { getFavorites } from "@/lib/favorites";
+import { getApprovedListings } from "@/lib/student-listings";
 
 export const metadata: Metadata = {
   title: "Your favorites | Gable",
@@ -18,9 +19,10 @@ async function Saved() {
   await connection();
   const { user, ids } = await getFavorites();
   if (!user) redirect("/signin?next=/favorites");
+  const real = (await getApprovedListings()).filter((l) => ids.includes(l.id));
   return (
     <FavoritesProvider initialIds={ids} signedIn>
-      <FavoritesView />
+      <FavoritesView real={real} />
     </FavoritesProvider>
   );
 }

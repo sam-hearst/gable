@@ -7,10 +7,8 @@ import { LeafletContext, createLeafletContext, type LeafletContextInterface } fr
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { CircleCheck } from "@/components/landing/icons";
-import { Photo } from "@/components/landing/Photo";
 import { CityMap, type MapPlace } from "@/components/map/CityMap";
-import { toMapPlace } from "@/components/map/places";
-import type { SampleListing } from "@/content/listings";
+import { pinToPlace, type PinListing } from "@/components/map/pins";
 import { money, shortDate } from "@/lib/format";
 import { Heart, HeartButton } from "./HeartButton";
 
@@ -64,7 +62,7 @@ function LeafletMap({ onReady, children }: { onReady: (map: L.Map) => void; chil
 }
 
 // Zooms to show every saved pin; refits when a pin is added or removed.
-function FitToPins({ listings }: { listings: SampleListing[] }) {
+function FitToPins({ listings }: { listings: PinListing[] }) {
   const map = useMap();
   const key = listings.map((l) => l.id).join(",");
   useEffect(() => {
@@ -79,7 +77,7 @@ function FitToPins({ listings }: { listings: SampleListing[] }) {
   return null;
 }
 
-export default function FavoritesMap({ listings }: { listings: SampleListing[] }) {
+export default function FavoritesMap({ listings }: { listings: PinListing[] }) {
   const [active, setActive] = useState<string | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
   const markers = useRef<Record<string, L.Marker>>({});
@@ -94,9 +92,9 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
     if (ul && li && ul.scrollHeight > ul.clientHeight) ul.scrollTo({ top: li.offsetTop - 8, behavior: "smooth" });
   }, [active]);
 
-  const places: MapPlace[] = listings.map(toMapPlace);
+  const places: MapPlace[] = listings.map(pinToPlace);
 
-  function focusListing(l: SampleListing) {
+  function focusListing(l: PinListing) {
     setActive(l.id);
     map?.panTo([l.lat, l.lng]);
     markers.current[l.id]?.openPopup();
@@ -173,7 +171,8 @@ export default function FavoritesMap({ listings }: { listings: SampleListing[] }
             className={l.id === active ? "is-active" : undefined}
           >
             <button type="button" className="fav-item" aria-current={l.id === active || undefined} onClick={() => focusListing(l)}>
-              <Photo id={l.photo.id} width={600} alt={l.photo.alt} className="fav-photo" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="fav-photo" src={l.photoSrc} alt={l.photoAlt} loading="lazy" />
               <span className="fav-price">{money(l.price)}</span>
               <span className="fav-title">{l.title}</span>
               <span className="fav-meta">
